@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -16,13 +16,13 @@ public class StartCommandTest extends CommandTest {
     @Test
     @Override
     void testThatReturnedCommandTypeIsCorrect() {
-        assertEquals(CommandInfo.START.getType(), startCommand.type());
+        assertThat(startCommand.type()).isEqualTo(CommandInfo.START.getType());
     }
 
     @Test
     @Override
     void testThatReturnedCommandDescriptionIsCorrect() {
-        assertEquals(CommandInfo.START.getDescription(), startCommand.description());
+        assertThat(startCommand.description()).isEqualTo(CommandInfo.START.getDescription());
     }
 
     @Test
@@ -37,7 +37,7 @@ public class StartCommandTest extends CommandTest {
     void testThatCommandReturnCorrectMessageForNewUser() {
         String message = "Приветствую! Вы зарегистрировались в приложении Link Tracker!\n"
             + "Чтобы вывести список доступных команд, используйте /help";
-        assertEquals(message, startCommand.processCommand(update).getParameters().get("text"));
+        assertThat(startCommand.processCommand(update).getParameters().get("text")).isEqualTo(message);
     }
 
     @Test
@@ -48,6 +48,6 @@ public class StartCommandTest extends CommandTest {
             + "Чтобы вывести список доступных команд, используйте /help";
         String botMessage = startCommand.processCommand(update).getParameters().get("text").toString();
 
-        assertEquals(message, botMessage);
+        assertThat(botMessage).isEqualTo(message);
     }
 }

@@ -9,9 +9,7 @@ public class StackOverflowParser implements LinkParser {
     @Override
     public boolean parseLink(URI uri) {
         String host = uri.getHost();
-        if (host != null) {
-            return host.equals(WebsiteInfo.STACK_OVERFLOW.getDomain());
-        }
-        return false;
+        return WebsiteInfo.STACK_OVERFLOW.getDomain().equals(host);
     }
 }
+

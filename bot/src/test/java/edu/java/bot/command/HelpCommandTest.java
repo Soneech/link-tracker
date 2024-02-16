@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
@@ -28,12 +28,12 @@ public class HelpCommandTest extends CommandTest {
 
     @Test
     public void testThatReturnedCommandTypeIsCorrect() {
-        assertEquals(CommandInfo.HELP.getType(), helpCommand.type());
+        assertThat(helpCommand.type()).isEqualTo(CommandInfo.HELP.getType());
     }
 
     @Test
     public void testThatReturnedCommandDescriptionIsCorrect() {
-        assertEquals(CommandInfo.HELP.getDescription(), helpCommand.description());
+        assertThat(helpCommand.description()).isEqualTo(CommandInfo.HELP.getDescription());
     }
 
     @Test
@@ -46,6 +46,6 @@ public class HelpCommandTest extends CommandTest {
         for (var website: WebsiteInfo.values()) {
             botMessage.append("\n").append(website.getDomain());
         }
-        assertEquals(botMessage.toString(), helpCommand.processCommand(update).getParameters().get("text"));
+        assertThat(helpCommand.processCommand(update).getParameters().get("text")).isEqualTo(botMessage.toString());
     }
 }

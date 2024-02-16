@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
@@ -17,13 +17,13 @@ public class ListCommandTest extends CommandTest {
     @Test
     @Override
     public void testThatReturnedCommandTypeIsCorrect() {
-        assertEquals(CommandInfo.LIST.getType(), listCommand.type());
+        assertThat(listCommand.type()).isEqualTo(CommandInfo.LIST.getType());
     }
 
     @Test
     @Override
     public void testThatReturnedCommandDescriptionIsCorrect() {
-        assertEquals(CommandInfo.LIST.getDescription(), listCommand.description());
+        assertThat(listCommand.description()).isEqualTo(CommandInfo.LIST.getDescription());
     }
 
     @Test
@@ -40,7 +40,7 @@ public class ListCommandTest extends CommandTest {
             message.append("\n").append(link);
         }
 
-        assertEquals(message.toString(), listCommand.processCommand(update).getParameters().get("text"));
+        assertThat(listCommand.processCommand(update).getParameters().get("text")).isEqualTo(message.toString());
     }
 
     @Test
@@ -48,6 +48,6 @@ public class ListCommandTest extends CommandTest {
         doReturn(Collections.emptyList()).when(userChatRepository).getUserLinks(chatId);
 
         String message = "Список отслеживаемых ссылок пуст. Для добавления ссылки используйте /track";
-        assertEquals(message, listCommand.processCommand(update).getParameters().get("text"));
+        assertThat(listCommand.processCommand(update).getParameters().get("text")).isEqualTo(message);
     }
 }

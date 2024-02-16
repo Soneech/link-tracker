@@ -1,5 +1,6 @@
 package edu.java.bot.command;
 
+import edu.java.bot.command.track.TrackCommand;
 import edu.java.bot.service.LinkParsingProcessor;
 import edu.java.bot.util.LinkValidator;
 import edu.java.bot.website.WebsiteInfo;
@@ -9,7 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,20 +38,20 @@ public class TrackCommandTest extends CommandTest {
     @Test
     @Override
     void testThatReturnedCommandTypeIsCorrect() {
-        assertEquals(CommandInfo.TRACK.getType(), trackCommand.type());
+        assertThat(trackCommand.type()).isEqualTo(CommandInfo.TRACK.getType());
     }
 
     @Test
     @Override
     void testThatReturnedCommandDescriptionIsCorrect() {
-        assertEquals(CommandInfo.TRACK.getDescription(), trackCommand.description());
+        assertThat(trackCommand.description()).isEqualTo(CommandInfo.TRACK.getDescription());
     }
 
     @Test
     public void testIncorrectCommandFormatMessage() {
         doReturn("/track").when(message).text();
-        assertEquals("Неверный формат команды. /help",
-            trackCommand.processCommand(update).getParameters().get("text"));
+        assertThat(trackCommand.processCommand(update).getParameters().get("text"))
+            .isEqualTo("Неверный формат команды. /help");
     }
 
     @Test
@@ -58,8 +59,8 @@ public class TrackCommandTest extends CommandTest {
         doReturn(true).when(userChatRepository).containsLink(chatId, GIT_HUB_LINK);
         doReturn("/track " + GIT_HUB_LINK).when(message).text();
 
-        assertEquals("Данная ссылка уже добавлена. /list",
-            trackCommand.processCommand(update).getParameters().get("text"));
+        assertThat(trackCommand.processCommand(update).getParameters().get("text"))
+            .isEqualTo("Данная ссылка уже добавлена. /list");
     }
 
     @Test
@@ -68,11 +69,12 @@ public class TrackCommandTest extends CommandTest {
 
         doReturn(null).when(linkValidator).validateLinkAndGetURI(LINK_WITH_SPACES);
         doReturn("/track " + LINK_WITH_SPACES).when(message).text();
-        assertEquals(botMessage, trackCommand.processCommand(update).getParameters().get("text"));
+        assertThat(trackCommand.processCommand(update).getParameters().get("text"))
+            .isEqualTo(botMessage);
 
         doReturn(null).when(linkValidator).validateLinkAndGetURI(NOT_LINK);
         doReturn("/track " + NOT_LINK).when(message).text();
-        assertEquals(botMessage, trackCommand.processCommand(update).getParameters().get("text"));
+        assertThat(trackCommand.processCommand(update).getParameters().get("text")).isEqualTo(botMessage);
     }
 
     @Test
@@ -83,8 +85,8 @@ public class TrackCommandTest extends CommandTest {
         doReturn(true).when(linkParsingProcessor).processParsing(uri);
         doReturn("/track " + GIT_HUB_LINK).when(message).text();
 
-        assertEquals("Ссылка успешно добавлена к отслеживанию. /list",
-            trackCommand.processCommand(update).getParameters().get("text"));
+        assertThat(trackCommand.processCommand(update).getParameters().get("text"))
+            .isEqualTo("Ссылка успешно добавлена к отслеживанию. /list");
     }
 
     @Test
@@ -94,8 +96,8 @@ public class TrackCommandTest extends CommandTest {
         doReturn(true).when(linkParsingProcessor).processParsing(uri);
         doReturn("/track " + STACK_OVERFLOW_LINK).when(message).text();
 
-        assertEquals("Ссылка успешно добавлена к отслеживанию. /list",
-            trackCommand.processCommand(update).getParameters().get("text"));
+        assertThat(trackCommand.processCommand(update).getParameters().get("text"))
+            .isEqualTo("Ссылка успешно добавлена к отслеживанию. /list");
     }
 
     @Test
@@ -111,6 +113,7 @@ public class TrackCommandTest extends CommandTest {
         doReturn(false).when(linkParsingProcessor).processParsing(firstURI);
         doReturn("/track " + UNSUPPORTED_SERVICE_LINK).when(message).text();
 
-        assertEquals(botMessage.toString(), trackCommand.processCommand(update).getParameters().get("text"));
+        assertThat(trackCommand.processCommand(update).getParameters().get("text"))
+            .isEqualTo(botMessage.toString());
     }
 }

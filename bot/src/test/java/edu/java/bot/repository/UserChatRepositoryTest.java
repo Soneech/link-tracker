@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,16 +36,16 @@ public class UserChatRepositoryTest {
     @Test
     public void testUserRegistration() {
         userChatRepository.register(firstUserChat);
-        assertEquals(firstUserChat, userChatRepository.findChat(firstUserChat.getChatId()));
+        assertThat(userChatRepository.findChat(firstUserChat.getChatId())).isEqualTo(firstUserChat);
     }
 
     @Test
     public void testGettingUserLinks() {
         userChatRepository.register(secondUserChat);
-        assertEquals(links, userChatRepository.getUserLinks(secondUserChat.getChatId()));
+        assertThat(userChatRepository.getUserLinks(secondUserChat.getChatId())).isEqualTo(links);
 
         userChatRepository.register(firstUserChat);
-        assertEquals(Collections.emptyList(), userChatRepository.getUserLinks(firstUserChat.getChatId()));
+        assertThat(userChatRepository.getUserLinks(firstUserChat.getChatId())).isEqualTo(Collections.emptyList());
     }
 
     @Test

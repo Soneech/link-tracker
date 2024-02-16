@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,20 +20,20 @@ public class UntrackCommandTest extends CommandTest {
     @Test
     @Override
     void testThatReturnedCommandTypeIsCorrect() {
-        assertEquals(CommandInfo.UNTRACK.getType(), untrackCommand.type());
+        assertThat(untrackCommand.type()).isEqualTo(CommandInfo.UNTRACK.getType());
     }
 
     @Test
     @Override
     void testThatReturnedCommandDescriptionIsCorrect() {
-        assertEquals(CommandInfo.UNTRACK.getDescription(), untrackCommand.description());
+        assertThat(untrackCommand.description()).isEqualTo(CommandInfo.UNTRACK.getDescription());
     }
 
     @Test
     public void testIncorrectCommandFormatMessage() {
         doReturn("/untrack").when(message).text();
-        assertEquals("Неверный формат команды. /help",
-            untrackCommand.processCommand(update).getParameters().get("text"));
+        assertThat(untrackCommand.processCommand(update).getParameters().get("text"))
+            .isEqualTo("Неверный формат команды. /help");
     }
 
     @Test
@@ -41,8 +41,8 @@ public class UntrackCommandTest extends CommandTest {
         doReturn("/untrack " + GIT_HUB_LINK).when(message).text();
         doReturn(true).when(userChatRepository).containsLink(chatId, GIT_HUB_LINK);
 
-        assertEquals("Сылка успешно удалена. /list",
-            untrackCommand.processCommand(update).getParameters().get("text"));
+        assertThat(untrackCommand.processCommand(update).getParameters().get("text"))
+            .isEqualTo("Сылка успешно удалена. /list");
     }
 
     @Test
@@ -51,6 +51,6 @@ public class UntrackCommandTest extends CommandTest {
 
         doReturn("/untrack " + STACK_OVERFLOW_LINK).when(message).text();
         doReturn(false).when(userChatRepository).containsLink(chatId, STACK_OVERFLOW_LINK);
-        assertEquals(botMessage, untrackCommand.processCommand(update).getParameters().get("text"));
+        assertThat(untrackCommand.processCommand(update).getParameters().get("text")).isEqualTo(botMessage);
     }
 }

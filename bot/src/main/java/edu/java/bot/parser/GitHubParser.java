@@ -9,9 +9,6 @@ public class GitHubParser implements LinkParser {
     @Override
     public boolean parseLink(URI uri) {
         String host = uri.getHost();
-        if (host != null) {
-            return host.equals(WebsiteInfo.GITHUB.getDomain());
-        }
-        return false;
+        return WebsiteInfo.GITHUB.getDomain().equals(host);
     }
 }
