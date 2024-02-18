@@ -1,0 +1,50 @@
+package edu.java.bot.repository;
+
+import edu.java.bot.model.UserChat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class UserChatRepository {
+    private final Map<Long, UserChat> userChats = new HashMap<>();
+
+    public void register(UserChat userChat) {
+        userChats.put(userChat.getChatId(), userChat);
+    }
+
+    public UserChat findChat(Long chatId) {
+        return userChats.get(chatId);
+    }
+
+    public List<String> getUserLinks(Long chatId) {
+        UserChat userChat = findChat(chatId);
+        if (userChat != null) {
+            return userChat.getTrackingLinks();
+        }
+        return null;
+    }
+
+    public boolean containsLink(Long chatId, String url) {
+        UserChat userChat = findChat(chatId);
+        if (userChat != null) {
+            return userChat.getTrackingLinks().contains(url);
+        }
+        return false;
+    }
+
+    public void addLink(Long chatId, String link) {
+        UserChat userChat = findChat(chatId);
+        if (userChat != null) {
+            findChat(chatId).getTrackingLinks().add(link);
+        }
+    }
+
+    public void removeLink(Long chatId, String link) {
+        UserChat userChat = findChat(chatId);
+        if (userChat != null) {
+            userChat.getTrackingLinks().remove(link);
+        }
+    }
+}
