@@ -2,7 +2,6 @@ package edu.java.bot.repository;
 
 import edu.java.bot.model.UserChat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +44,7 @@ public class UserChatRepositoryTest {
         assertThat(userChatRepository.getUserLinks(secondUserChat.getChatId())).isEqualTo(links);
 
         userChatRepository.register(firstUserChat);
-        assertThat(userChatRepository.getUserLinks(firstUserChat.getChatId())).isEqualTo(Collections.emptyList());
+        assertThat(userChatRepository.getUserLinks(firstUserChat.getChatId())).isEmpty();
     }
 
     @Test
