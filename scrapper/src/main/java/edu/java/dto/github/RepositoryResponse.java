@@ -21,9 +21,6 @@ public record RepositoryResponse(
 
     @NotNull
     @JsonProperty("pushed_at")
-    OffsetDateTime pushedAt,
-
-    @NotNull
-    Long someFieldSomeField
+    OffsetDateTime pushedAt
 ) {
 }
