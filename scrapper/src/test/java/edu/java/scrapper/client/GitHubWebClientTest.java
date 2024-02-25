@@ -26,9 +26,7 @@ public class GitHubWebClientTest extends HttpClientTest {
     private final String userName = "Soneech";
 
     @BeforeEach
-    @Override
     public void setUp() {
-        super.setUp();
         gitHubWebClient = new GitHubWebClient(baseUrl);
     }
 

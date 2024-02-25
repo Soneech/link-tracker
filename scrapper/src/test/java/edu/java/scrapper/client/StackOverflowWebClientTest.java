@@ -24,9 +24,7 @@ public class StackOverflowWebClientTest extends HttpClientTest {
     private StackOverflowWebClient stackOverflowWebClient;
 
     @BeforeEach
-    @Override
     public void setUp() {
-        super.setUp();
         stackOverflowWebClient = new StackOverflowWebClient(baseUrl);
         questionId = 28892948L;
     }
