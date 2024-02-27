@@ -2,7 +2,7 @@ package edu.java.bot.command.chain.impl.untrack;
 
 import edu.java.bot.command.CommandInfo;
 import edu.java.bot.command.chain.Result;
-import edu.java.bot.repository.UserChatRepository;
+import edu.java.bot.service.UserChatService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LinkUntrackingCommandStep implements UntrackCommandStep {
 
-    private final UserChatRepository userChatRepository;
+    private final UserChatService userChatService;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -29,8 +29,8 @@ public class LinkUntrackingCommandStep implements UntrackCommandStep {
         String link = messageParts[messageParts.length - 1];
 
         Result result;
-        if (userChatRepository.containsLink(chatId, link)) {
-            userChatRepository.removeLink(chatId, link);
+        if (userChatService.containsLink(chatId, link)) {
+            userChatService.removeLink(chatId, link);
             result = new Result(SUCCESSFUL_LINK_REMOVAL_MESSAGE, true);
             LOGGER.info("ChatID: %d; link %s successfully removed".formatted(chatId, link));
         } else {

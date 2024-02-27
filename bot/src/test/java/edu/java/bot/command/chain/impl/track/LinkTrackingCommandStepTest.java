@@ -27,7 +27,7 @@ public class LinkTrackingCommandStepTest extends TrackCommandStepTest {
         result = new Result(LINK_ALREADY_ADDED_MESSAGE, false);
         messageParts = new String[] {"/track", GIT_HUB_LINK};
 
-        doReturn(true).when(userChatRepository).containsLink(chatId, GIT_HUB_LINK);
+        doReturn(true).when(userChatService).containsLink(chatId, GIT_HUB_LINK);
         assertThat(linkTrackingCommandStep.handle(messageParts, chatId)).isEqualTo(result);
     }
 
@@ -36,7 +36,7 @@ public class LinkTrackingCommandStepTest extends TrackCommandStepTest {
         result = new Result(LINK_SUCCESSFULLY_ADDED_MESSAGE, true);
         messageParts = new String[] {"/track", GIT_HUB_LINK};
 
-        doReturn(false).when(userChatRepository).containsLink(chatId, GIT_HUB_LINK);
+        doReturn(false).when(userChatService).containsLink(chatId, GIT_HUB_LINK);
         assertThat(linkTrackingCommandStep.handle(messageParts, chatId)).isEqualTo(result);
     }
 }

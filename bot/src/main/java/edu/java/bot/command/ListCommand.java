@@ -2,7 +2,7 @@ package edu.java.bot.command;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.repository.UserChatRepository;
+import edu.java.bot.service.UserChatService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class ListCommand implements Command {
     private final CommandInfo commandInfo = CommandInfo.LIST;
 
-    private final UserChatRepository userChatRepository;
+    private final UserChatService userChatService;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -28,7 +28,7 @@ public class ListCommand implements Command {
         StringBuilder botMessage = new StringBuilder();
         Long chatId = update.message().chat().id();
 
-        List<String> trackingLinks = userChatRepository.getUserLinks(chatId);
+        List<String> trackingLinks = userChatService.getUserLinks(chatId);
         if (trackingLinks == null || trackingLinks.isEmpty()) {
             botMessage.append(EMPTY_LINKS_LIST_MESSAGE);
             LOGGER.info("ChatID: %d; command: %s; result: links list is empty".formatted(chatId, type()));

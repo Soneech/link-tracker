@@ -2,7 +2,7 @@ package edu.java.bot.command.chain.impl.untrack;
 
 import edu.java.bot.command.CommandInfo;
 import edu.java.bot.command.chain.Result;
-import edu.java.bot.repository.UserChatRepository;
+import edu.java.bot.service.UserChatService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +18,7 @@ public class LinkUntrackingCommandStepTest {
     private LinkUntrackingCommandStep linkUntrackingCommandStep;
 
     @Spy
-    private UserChatRepository userChatRepository;
+    private UserChatService userChatService;
 
     private Long chatId;
 
@@ -43,7 +43,7 @@ public class LinkUntrackingCommandStepTest {
         String[] messageParts = new String[] {CommandInfo.UNTRACK.getType(), GIT_HUB_LINK};
         Result result = new Result(SUCCESSFUL_LINK_REMOVAL_MESSAGE, true);
 
-        doReturn(true).when(userChatRepository).containsLink(chatId, GIT_HUB_LINK);
+        doReturn(true).when(userChatService).containsLink(chatId, GIT_HUB_LINK);
         assertThat(linkUntrackingCommandStep.handle(messageParts, chatId)).isEqualTo(result);
     }
 

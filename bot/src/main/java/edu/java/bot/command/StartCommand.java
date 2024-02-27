@@ -3,7 +3,7 @@ package edu.java.bot.command;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.model.UserChat;
-import edu.java.bot.repository.UserChatRepository;
+import edu.java.bot.service.UserChatService;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class StartCommand implements Command {
     private final CommandInfo commandInfo = CommandInfo.START;
 
-    private final UserChatRepository userChatRepository;
+    private final UserChatService userChatService;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -32,9 +32,9 @@ public class StartCommand implements Command {
         StringBuilder botMessage = new StringBuilder();
 
         Long chatId = update.message().chat().id();
-        if (userChatRepository.findChat(chatId) == null) {
+        if (userChatService.findChat(chatId).isEmpty()) {
             botMessage.append(WELCOME_MESSAGE);
-            userChatRepository.register(new UserChat(chatId, new ArrayList<>()));
+            userChatService.register(new UserChat(chatId, new ArrayList<>()));
             LOGGER.info("ChatID: %d successfully registered".formatted(chatId));
 
         } else {
@@ -42,7 +42,6 @@ public class StartCommand implements Command {
             LOGGER.warn("ChatID: %d already registered".formatted(chatId));
         }
         botMessage.append("\n").append(SUPPORTED_COMMANDS_MESSAGE);
-
         return new SendMessage(chatId, botMessage.toString());
     }
 

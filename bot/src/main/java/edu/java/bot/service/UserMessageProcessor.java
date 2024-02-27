@@ -4,7 +4,6 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.command.Command;
 import edu.java.bot.command.CommandInfo;
-import edu.java.bot.repository.UserChatRepository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class UserMessageProcessor {
     private final Map<String, Command> commands;
 
-    private final UserChatRepository userChatRepository;
+    private final UserChatService userChatService;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -29,8 +28,8 @@ public class UserMessageProcessor {
         "Сначала необходимо зарегистрироваться. " + CommandInfo.START.getType();
 
     @Autowired
-    public UserMessageProcessor(List<Command> commands, UserChatRepository userChatRepository) {
-        this.userChatRepository = userChatRepository;
+    public UserMessageProcessor(List<Command> commands, UserChatService userChatService) {
+        this.userChatService = userChatService;
 
         this.commands = new HashMap<>();
         for (var command : commands) {
@@ -46,7 +45,7 @@ public class UserMessageProcessor {
         Long chatId = update.message().chat().id();
         LOGGER.info("ChatID: %d with message: %s".formatted(chatId, userMessage));
 
-        if (userChatRepository.findChat(chatId) != null
+        if (userChatService.findChat(chatId) != null
             || commandType.equals(CommandInfo.START.getType())) {
 
             Command command = commands.get(commandType);
