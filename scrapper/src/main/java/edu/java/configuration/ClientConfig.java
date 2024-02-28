@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ClientConfiguration {
+public class ClientConfig {
     @Value("${api.github.base-url}")
     private String gitHubBaseUrl;
 
