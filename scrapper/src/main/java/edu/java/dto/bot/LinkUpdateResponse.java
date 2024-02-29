@@ -1,8 +1,8 @@
-package edu.java.bot.dto.response;
+package edu.java.dto.bot;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record SuccessUpdateResponse(
+public record LinkUpdateResponse(
     @NotBlank
     String message
 ) {

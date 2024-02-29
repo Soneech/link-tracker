@@ -23,7 +23,8 @@ public class GitHubWebClient implements GitHubClient {
     public RepositoryResponse fetchRepository(String user, String repository) {
         return webClient
             .get().uri("/repos/%s/%s".formatted(user, repository))
-            .retrieve().bodyToMono(RepositoryResponse.class)
+            .retrieve()
+            .bodyToMono(RepositoryResponse.class)
             .block();
     }
 }

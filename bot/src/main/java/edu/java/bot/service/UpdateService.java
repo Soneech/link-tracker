@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UpdateService {
-    private final UserChatService userChatService;
     private List<LinkUpdateRequest> updates = new ArrayList<>();
 
     public void addUpdate(LinkUpdateRequest updateRequest) {

@@ -2,8 +2,10 @@ package edu.java.bot.command;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.service.UserChatService;
-import java.util.List;
+import edu.java.bot.client.ScrapperClient;
+import edu.java.bot.dto.response.ListLinksResponse;
+import edu.java.bot.exception.ApiBadRequestException;
+import edu.java.bot.exception.ApiNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class ListCommand implements Command {
     private final CommandInfo commandInfo = CommandInfo.LIST;
 
-    private final UserChatService userChatService;
+    private final ScrapperClient scrapperWebClient;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -23,21 +25,29 @@ public class ListCommand implements Command {
 
     private static final String LINKS_LIST_MESSAGE_TITLE = "Список отслеживаемых ссылок:";
 
+    private static final String SOMETHING_WENT_WRONG = "Что-то пошло не так :(";
+
     @Override
     public SendMessage processCommand(Update update) {
         StringBuilder botMessage = new StringBuilder();
         Long chatId = update.message().chat().id();
 
-        List<String> trackingLinks = userChatService.getUserLinks(chatId);
-        if (trackingLinks == null || trackingLinks.isEmpty()) {
-            botMessage.append(EMPTY_LINKS_LIST_MESSAGE);
-            LOGGER.info("ChatID: %d; command: %s; result: links list is empty".formatted(chatId, type()));
-        } else {
-            botMessage.append(LINKS_LIST_MESSAGE_TITLE);
-            for (var link: trackingLinks) {
-                botMessage.append("\n").append(link);
+        try {
+            ListLinksResponse response = scrapperWebClient.getLinks(chatId);
+            if (response.size() == 0) {
+                botMessage.append(EMPTY_LINKS_LIST_MESSAGE);
+                LOGGER.info("ChatID: %d; command: %s; result: список ссылок пуст".formatted(chatId, type()));
+            } else {
+                botMessage.append(LINKS_LIST_MESSAGE_TITLE);
+                for (var link: response.links()) {
+                    botMessage.append("\n").append(link.uri().toString());
+                }
+                LOGGER.info("ChatID: %d; command: %s; result: список ссылок отправлен".formatted(chatId, type()));
             }
-            LOGGER.info("ChatID: %d; command: %s; result: links list has sent".formatted(chatId, type()));
+
+        } catch (ApiBadRequestException | ApiNotFoundException exception) {
+            botMessage.append(SOMETHING_WENT_WRONG);
+            LOGGER.warn(exception.getApiErrorResponse());
         }
 
         return new SendMessage(update.message().chat().id(), botMessage.toString());

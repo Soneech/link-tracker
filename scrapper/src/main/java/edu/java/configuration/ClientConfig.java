@@ -1,7 +1,9 @@
 package edu.java.configuration;
 
+import edu.java.client.BotClient;
 import edu.java.client.GitHubClient;
 import edu.java.client.StackOverflowClient;
+import edu.java.client.impl.BotWebClient;
 import edu.java.client.impl.GitHubWebClient;
 import edu.java.client.impl.StackOverflowWebClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,9 @@ public class ClientConfig {
     @Value("${api.stackoverflow.base-url}")
     private String stackOverflowBaseUrl;
 
+    @Value("${api.bot.base-url}")
+    private String botBaseUrl;
+
     @Bean
     public GitHubClient gitHubWebClient() {
         return new GitHubWebClient(gitHubBaseUrl);
@@ -24,5 +29,10 @@ public class ClientConfig {
     @Bean
     public StackOverflowClient stackOverflowWebClient() {
         return new StackOverflowWebClient(stackOverflowBaseUrl);
+    }
+
+    @Bean
+    public BotClient botWebClient() {
+        return new BotWebClient(botBaseUrl);
     }
 }

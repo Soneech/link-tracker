@@ -6,7 +6,6 @@ import edu.java.exception.TelegramChatAlreadyExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.model.Link;
 import edu.java.model.UserChat;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +52,7 @@ public class UserChatService {
     public Link addLink(Long chatId, Link link) throws TelegramChatNotFoundException {
         Optional<UserChat> userChat = findChat(chatId);
 
-        Optional<Link> foundLink = findLink(userChat.get(), link.getUri());
+        Optional<Link> foundLink = findLinkByURI(userChat.get(), link.getLink());
         if (foundLink.isPresent()) {
             throw new LinkAlreadyAddedException("Такая ссылка для чата c id %d уже добавлена".formatted(chatId));
         }
@@ -63,10 +62,10 @@ public class UserChatService {
         return link;
     }
 
-    public Optional<Link> findLink(UserChat chat, URI uri) {
-        for (var link: chat.getTrackingLinks()) {
-            if (link.getUri().equals(uri)) {
-                return Optional.of(link);
+    public Optional<Link> findLinkByURI(UserChat chat, String link) {
+        for (var currentLink: chat.getTrackingLinks()) {
+            if (currentLink.getLink().equals(link)) {
+                return Optional.of(currentLink);
             }
         }
         return Optional.empty();
@@ -75,10 +74,10 @@ public class UserChatService {
     public Link removeLink(Long chatId, Link link) throws TelegramChatNotFoundException {
         Optional<UserChat> userChat = findChat(chatId);
 
-        Optional<Link> foundLink = findLink(userChat.get(), link.getUri());
+        Optional<Link> foundLink = findLinkByURI(userChat.get(), link.getLink());
         if (foundLink.isEmpty()) {
             throw new LinkNotFoundException("Ссылка %s для чата с id %d не найдена."
-                .formatted(link.getUri().toString(), chatId));
+                .formatted(link.getLink(), chatId));
         }
         userChat.get().getTrackingLinks().remove(foundLink.get());
         return foundLink.get();

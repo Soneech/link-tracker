@@ -16,3 +16,7 @@ logging:
 springdoc:
   swagger-ui:
     path: /swagger-ui
+
+api:
+  scrapper:
+    base-url: http://localhost:8080

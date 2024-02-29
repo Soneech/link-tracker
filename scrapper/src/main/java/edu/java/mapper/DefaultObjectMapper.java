@@ -1,9 +1,9 @@
 package edu.java.mapper;
 
-import edu.java.dto.request.AddLinkRequest;
-import edu.java.dto.request.RemoveLinkRequest;
-import edu.java.dto.response.LinkResponse;
-import edu.java.dto.response.ListLinksResponse;
+import edu.java.dto.api.request.AddLinkRequest;
+import edu.java.dto.api.request.RemoveLinkRequest;
+import edu.java.dto.api.response.LinkResponse;
+import edu.java.dto.api.response.ListLinksResponse;
 import edu.java.model.Link;
 import java.net.URI;
 import java.util.List;
@@ -20,18 +20,18 @@ public class DefaultObjectMapper {
     }
 
     public List<LinkResponse> mapToListWithLinkResponses(List<Link> links) {
-        return links.stream().map(link -> new LinkResponse(link.getId(), link.getUri())).toList();
+        return links.stream().map(link -> new LinkResponse(link.getId(), URI.create(link.getLink()))).toList();
     }
 
     public Link convertToLink(AddLinkRequest request) {
-        return new Link(URI.create(request.link()));
+        return new Link(request.link());
     }
 
     public Link convertToLink(RemoveLinkRequest request) {
-        return new Link(URI.create(request.link()));
+        return new Link(request.link());
     }
 
     public LinkResponse convertToLinkResponse(Link link) {
-        return new LinkResponse(link.getId(), link.getUri());
+        return new LinkResponse(link.getId(), URI.create(link.getLink()));
     }
 }

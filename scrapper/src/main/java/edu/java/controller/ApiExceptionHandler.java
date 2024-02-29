@@ -1,6 +1,6 @@
 package edu.java.controller;
 
-import edu.java.dto.response.ApiErrorResponse;
+import edu.java.dto.api.response.ApiErrorResponse;
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
 import edu.java.exception.TelegramChatAlreadyExistsException;

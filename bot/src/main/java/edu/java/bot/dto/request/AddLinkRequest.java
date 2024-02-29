@@ -1,8 +1,8 @@
-package edu.java.dto.request;
+package edu.java.bot.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record RemoveLinkRequest(
+public record AddLinkRequest(
     @NotBlank
     String link
 ) {

@@ -1,4 +1,4 @@
-package edu.java.dto.response;
+package edu.java.dto.api.response;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
