@@ -1,20 +1,18 @@
 package edu.java.bot.command;
 
+import edu.java.bot.client.ScrapperClient;
+import edu.java.bot.dto.response.LinkResponse;
+import edu.java.bot.dto.response.ListLinksResponse;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import edu.java.bot.client.ScrapperClient;
-import edu.java.bot.dto.response.LinkResponse;
-import edu.java.bot.dto.response.ListLinksResponse;
-import edu.java.bot.exception.ApiBadRequestException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

@@ -5,7 +5,6 @@ import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.model.Link;
 import edu.java.model.UserChat;
 import edu.java.service.UserChatService;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

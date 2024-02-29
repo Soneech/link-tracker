@@ -6,16 +6,14 @@ import edu.java.bot.command.chain.Result;
 import edu.java.bot.dto.request.RemoveLinkRequest;
 import edu.java.bot.dto.response.LinkResponse;
 import edu.java.bot.exception.ApiNotFoundException;
+import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.net.URI;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
