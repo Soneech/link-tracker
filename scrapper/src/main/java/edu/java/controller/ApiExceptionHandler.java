@@ -32,7 +32,7 @@ public class ApiExceptionHandler {
             "Некорректные параметры запроса.",
             HttpStatus.BAD_REQUEST.toString(),
             e.getClass().getSimpleName(),
-            e.getMessage(),
+            "Chat id должно иметь тип int64.",
             StackTraceUtil.getStackTrace(e)
         );
         return ResponseEntity.badRequest().body(response);

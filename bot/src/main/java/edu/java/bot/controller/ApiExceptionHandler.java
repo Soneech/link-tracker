@@ -27,10 +27,10 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiErrorResponse handleInvalidArgumentsException(MethodArgumentNotValidException e) {
         return new ApiErrorResponse(
-            "Ошибка при валидации параметров запроса.",
+            "Некорректные параметры запроса.",
             e.getStatusCode().toString(),
             e.getClass().getSimpleName(),
-            "Некорректные параметры запроса.",
+            "Ошибка при валидации параметров запроса.",
             e.getBindingResult().getFieldErrors()
                 .stream().map(fieldError -> fieldError.getField() + " " + fieldError.getDefaultMessage()).toList()
         );

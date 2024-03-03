@@ -9,8 +9,8 @@ public class UpdateAlreadyExistsException extends RuntimeException {
     private final String description;
 
 
-    public UpdateAlreadyExistsException() {
-        super("Обновление с таким id уже добавлено.");
+    public UpdateAlreadyExistsException(Long id) {
+        super("Обновление с id %d уже добавлено.".formatted(id));
         this.statusCode = HttpStatus.BAD_REQUEST;
         this.description = "Обновление уже добавлено.";
     }

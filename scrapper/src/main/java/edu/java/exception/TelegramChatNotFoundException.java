@@ -8,8 +8,8 @@ public class TelegramChatNotFoundException extends RuntimeException {
     private final HttpStatus statusCode;
     private final String description;
 
-    public TelegramChatNotFoundException(String message) {
-        super(message);
+    public TelegramChatNotFoundException(Long id) {
+        super("Чат с id %d не найден.".formatted(id));
         this.statusCode = HttpStatus.NOT_FOUND;
         this.description = "Чат не найден.";
     }

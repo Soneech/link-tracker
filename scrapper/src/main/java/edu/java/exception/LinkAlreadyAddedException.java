@@ -9,8 +9,8 @@ public class LinkAlreadyAddedException extends RuntimeException {
 
     private final String description;
 
-    public LinkAlreadyAddedException(String message) {
-        super(message);
+    public LinkAlreadyAddedException(Long id, String link) {
+        super("Ссылка %s для чата c id %d уже добавлена.".formatted(link, id));
         this.statusCode = HttpStatus.BAD_REQUEST;
         this.description = "Ссылка уже добавлена.";
     }

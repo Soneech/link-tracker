@@ -15,7 +15,7 @@ public class UpdateService {
     public void addUpdate(LinkUpdateRequest updateRequest) {
         for (var update: updates) {
             if (update.id().equals(updateRequest.id())) {
-                throw new UpdateAlreadyExistsException();
+                throw new UpdateAlreadyExistsException(update.id());
             }
         }
 

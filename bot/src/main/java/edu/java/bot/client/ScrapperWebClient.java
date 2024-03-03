@@ -8,13 +8,15 @@ import edu.java.bot.dto.response.ListLinksResponse;
 import edu.java.bot.dto.response.SuccessMessageResponse;
 import edu.java.bot.exception.ApiBadRequestException;
 import edu.java.bot.exception.ApiNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 public class ScrapperWebClient implements ScrapperClient {
-    private String baseUrl = "http://localhost:8080";
+    @Value("${api.scrapper.base-url}")
+    private String baseUrl;
 
     private final WebClient webClient;
 

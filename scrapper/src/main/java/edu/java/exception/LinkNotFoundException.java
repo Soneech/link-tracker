@@ -9,8 +9,8 @@ public class LinkNotFoundException extends RuntimeException {
 
     private final String description;
 
-    public LinkNotFoundException(String message) {
-        super(message);
+    public LinkNotFoundException(Long id, String link) {
+        super("Ссылка %s для чата с id %d не найдена.".formatted(link, id));
         this.statusCode = HttpStatus.NOT_FOUND;
         this.description = "Сылка не найдена.";
     }

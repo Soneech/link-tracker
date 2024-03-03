@@ -20,66 +20,55 @@ public class UserChatService {
     public void registerChat(Long chatId) {
         Optional<UserChat> foundChat = findChatOrNullable(chatId);
         if (foundChat.isPresent()) {
-            throw new TelegramChatAlreadyExistsException("Чат с id %d уже зарегистирован.".formatted(chatId));
+            throw new TelegramChatAlreadyExistsException(chatId);
         }
         userChats.put(chatId, new UserChat(chatId, new ArrayList<>()));
     }
 
     public void removeChat(Long chatId) throws TelegramChatNotFoundException {
-        Optional<UserChat> foundChat = findChat(chatId);
-        if (foundChat.isPresent()) {
-            userChats.remove(chatId);
-        }
+        findChat(chatId);  // пока нет бд
+        userChats.remove(chatId);
     }
 
     public Optional<UserChat> findChatOrNullable(Long chatId) {
         return Optional.ofNullable(userChats.get(chatId));
     }
 
-    public Optional<UserChat> findChat(Long chatId) {
-        Optional<UserChat> foundChat = Optional.ofNullable(userChats.get(chatId));
-        if (foundChat.isEmpty()) {
-            throw new TelegramChatNotFoundException("Чат с id %d не найден.".formatted(chatId));
-        }
-        return foundChat;
+    public UserChat findChat(Long chatId) {
+        return Optional.ofNullable(userChats.get(chatId))
+            .orElseThrow(() -> new TelegramChatNotFoundException(chatId));
     }
 
     public List<Link> getUserLinks(Long chatId) throws TelegramChatNotFoundException {
-        Optional<UserChat> foundChat = findChat(chatId);
-        return foundChat.map(UserChat::getTrackingLinks).orElse(null);
+        UserChat foundChat = findChat(chatId);
+        return foundChat.getTrackingLinks();
     }
 
     public Link addLink(Long chatId, Link link) throws TelegramChatNotFoundException {
-        Optional<UserChat> userChat = findChat(chatId);
+        UserChat userChat = findChat(chatId);
 
-        Optional<Link> foundLink = findLinkByURI(userChat.get(), link.getLink());
+        Optional<Link> foundLink = findLinkByURI(userChat, link.getLink());
         if (foundLink.isPresent()) {
-            throw new LinkAlreadyAddedException("Такая ссылка для чата c id %d уже добавлена".formatted(chatId));
+            throw new LinkAlreadyAddedException(chatId, link.getLink());
         }
 
-        link.setId(0L);  // пока нет бд...
-        userChat.get().getTrackingLinks().add(link);
+        link.setId(0L);  // тоже пока нет бд...
+        userChat.getTrackingLinks().add(link);
         return link;
     }
 
     public Optional<Link> findLinkByURI(UserChat chat, String link) {
-        for (var currentLink: chat.getTrackingLinks()) {
-            if (currentLink.getLink().equals(link)) {
-                return Optional.of(currentLink);
-            }
-        }
-        return Optional.empty();
+        return chat.getTrackingLinks().stream().filter(currentLink -> currentLink.getLink().equals(link)).findAny();
     }
 
     public Link removeLink(Long chatId, Link link) throws TelegramChatNotFoundException {
-        Optional<UserChat> userChat = findChat(chatId);
+        UserChat userChat = findChat(chatId);
 
-        Optional<Link> foundLink = findLinkByURI(userChat.get(), link.getLink());
-        if (foundLink.isEmpty()) {
-            throw new LinkNotFoundException("Ссылка %s для чата с id %d не найдена."
-                .formatted(link.getLink(), chatId));
-        }
-        userChat.get().getTrackingLinks().remove(foundLink.get());
-        return foundLink.get();
+        Link foundLink = findLinkByURI(userChat, link.getLink())
+            .orElseThrow(() ->
+                new LinkNotFoundException(chatId, link.getLink()));
+
+        userChat.getTrackingLinks().remove(foundLink);
+        return foundLink;
     }
 }

@@ -9,8 +9,8 @@ public class TelegramChatAlreadyExistsException extends RuntimeException {
 
     private final String description;
 
-    public TelegramChatAlreadyExistsException(String message) {
-        super(message);
+    public TelegramChatAlreadyExistsException(Long id) {
+        super("Чат с id %d уже зарегистирован.".formatted(id));
         this.statusCode = HttpStatus.BAD_REQUEST;
         this.description = "Чат уже зарегистрирован.";
     }

@@ -41,11 +41,9 @@ public class ListCommandTest extends CommandTest {
     @Test
     public void testReturnedMessageWithListOfLinks() {
         ListLinksResponse response = new ListLinksResponse(
-            new ArrayList<>(
-                List.of(
-                    new LinkResponse(0L, URI.create("https://github.com/sanyarnd/java-course-2023-backend-template")),
-                    new LinkResponse(1L, URI.create("https://github.com/sanyarnd/java-course-2023"))
-                )
+            List.of(
+                new LinkResponse(0L, URI.create("https://github.com/sanyarnd/java-course-2023-backend-template")),
+                new LinkResponse(1L, URI.create("https://github.com/sanyarnd/java-course-2023"))
             ),
             2
         );
@@ -54,7 +52,7 @@ public class ListCommandTest extends CommandTest {
 
         StringBuilder message = new StringBuilder();
         message.append("Список отслеживаемых ссылок:");
-        for (var link: response.links()) {
+        for (var link : response.links()) {
             message.append("\n").append(link.uri().toString());
         }
 

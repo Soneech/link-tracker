@@ -26,10 +26,9 @@ public class UserChatServiceTest {
     public void setUp() {
         userChatService = new UserChatService();
 
-        links = new ArrayList<>(List.of(
+        links = List.of(
             new Link("https://github.com/pengrad/java-telegram-bot-api"),
             new Link("https://github.com/pengrad")
-            )
         );
 
         firstChatId = 333L;
@@ -39,10 +38,9 @@ public class UserChatServiceTest {
     @Test
     public void testRegisterChat() {
         userChatService.registerChat(firstChatId);
-        Optional<UserChat> foundChat = userChatService.findChat(firstChatId);
+        UserChat foundChat = userChatService.findChat(firstChatId);
 
-        assertThat(foundChat).isPresent();
-        assertThat(foundChat.get().getChatId()).isEqualTo(firstChatId);
+        assertThat(foundChat.getChatId()).isEqualTo(firstChatId);
     }
 
     @Test
@@ -56,25 +54,15 @@ public class UserChatServiceTest {
     @Test
     public void testRemoveChat() {
         userChatService.registerChat(secondChatId);
-        assertThat(userChatService.findChat(secondChatId)).isPresent();
+        assertThat(userChatService.findChat(secondChatId)).isNotNull();
 
         userChatService.removeChat(secondChatId);
-        assertThat(userChatService.findChatOrNullable(secondChatId)).isEmpty();
-
-    }
-
-    @Test
-    public void testFailedRemoveChat() {
         assertThatExceptionOfType(TelegramChatNotFoundException.class)
             .isThrownBy(() -> userChatService.findChat(secondChatId));
     }
 
     @Test
-    public void testFindChat() {
-        userChatService.registerChat(secondChatId);
-        assertThat(userChatService.findChat(secondChatId)).isPresent();
-
-        userChatService.removeChat(secondChatId);
+    public void testFailedRemoveChat() {
         assertThatExceptionOfType(TelegramChatNotFoundException.class)
             .isThrownBy(() -> userChatService.findChat(secondChatId));
     }
