@@ -1,5 +1,6 @@
 package edu.java.scheduler;
 
+import edu.java.client.BotClient;
 import edu.java.client.GitHubClient;
 import edu.java.client.StackOverflowClient;
 import lombok.RequiredArgsConstructor;
@@ -17,17 +18,10 @@ public class LinkUpdaterScheduler {
 
     private final GitHubClient gitHubWebClient;
 
-    private final String gitHubUserName = "swagger-api";
-
-    private final String repositoryName = "swagger-core";
-
-    private final Long questionId = 46947633L;
+    private final BotClient botWebClient;
 
     @Scheduled(fixedDelayString = "#{@scheduler.interval().toMillis()}")
     public void update() {
-        // for example
         LOGGER.info("Getting updates...");
-        LOGGER.info("GitHub update: " + gitHubWebClient.fetchRepository(gitHubUserName, repositoryName));
-        LOGGER.info("Stack overflow update: " + stackOverflowWebClient.fetchQuestion(questionId));
     }
 }

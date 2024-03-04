@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
@@ -38,7 +37,7 @@ public class LinkParsingCommandStepTest extends TrackCommandStepTest {
 
     @BeforeEach
     public void setUp() {
-        List<LinkParser> parsers = new ArrayList<>(List.of(gitHubParser, stackOverflowParser));
+        List<LinkParser> parsers = List.of(gitHubParser, stackOverflowParser);
         linkParsingCommandStep = new LinkParsingCommandStep(parsers);
     }
 

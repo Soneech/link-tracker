@@ -12,3 +12,11 @@ server:
 
 logging:
   config: classpath:log4j2-plain.xml
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+
+api:
+  scrapper:
+    base-url: http://localhost:8080

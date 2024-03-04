@@ -1,7 +1,6 @@
 package edu.java.bot.command;
 
 import edu.java.bot.website.WebsiteInfo;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +22,7 @@ public class HelpCommandTest extends CommandTest {
         lenient().when(testCommand.type()).thenReturn(CommandInfo.LIST.getType());
         lenient().when(testCommand.description()).thenReturn(CommandInfo.LIST.getDescription());
 
-        helpCommand = new HelpCommand(new ArrayList<>(List.of(testCommand)));
+        helpCommand = new HelpCommand(List.of(testCommand));
     }
 
     @Test

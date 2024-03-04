@@ -1,17 +1,31 @@
 package edu.java.bot.command;
 
-import edu.java.bot.model.UserChat;
+import edu.java.bot.client.ScrapperClient;
+import edu.java.bot.dto.response.SuccessMessageResponse;
+import edu.java.bot.exception.ApiBadRequestException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class StartCommandTest extends CommandTest {
     @InjectMocks
     private StartCommand startCommand;
+
+    @Mock
+    private ScrapperClient scrapperWebClient;
+
+    private static final String WELCOME_MESSAGE =
+        "Приветствую! Вы зарегистрировались в приложении Link Tracker!";
+
+    private static final String ALREADY_REGISTERED_MESSAGE = "Вы уже зарегистрированы :)";
+
+    private static final String SUPPORTED_COMMANDS_MESSAGE =
+        "Чтобы вывести список доступных команд, используйте " + CommandInfo.HELP.getType();
 
     @Test
     @Override
@@ -26,28 +40,20 @@ public class StartCommandTest extends CommandTest {
     }
 
     @Test
-    void testThatNewUserAddedToRepository() {
-        startCommand.processCommand(update);
-
-        UserChat userChat = userChatRepository.findChat(chatId);
-        assertNotNull(userChat);
-    }
-
-    @Test
     void testThatCommandReturnCorrectMessageForNewUser() {
-        String message = "Приветствую! Вы зарегистрировались в приложении Link Tracker!\n"
-            + "Чтобы вывести список доступных команд, используйте /help";
-        assertThat(startCommand.processCommand(update).getParameters().get("text")).isEqualTo(message);
+        when(scrapperWebClient.registerChat(chatId)).thenReturn(new SuccessMessageResponse("some message"));
+        assertThat(startCommand.processCommand(update).getParameters().get("text"))
+            .isEqualTo(WELCOME_MESSAGE + "\n" + SUPPORTED_COMMANDS_MESSAGE);
     }
 
     @Test
     void testThatCommandReturnCorrectMessageForRegisteredUser() {
+        when(scrapperWebClient.registerChat(chatId)).thenReturn(new SuccessMessageResponse("some message"));
         startCommand.processCommand(update);
 
-        String message = "Вы уже зарегистрированы :)\n"
-            + "Чтобы вывести список доступных команд, используйте /help";
+        when(scrapperWebClient.registerChat(chatId)).thenThrow(ApiBadRequestException.class);
         String botMessage = startCommand.processCommand(update).getParameters().get("text").toString();
 
-        assertThat(botMessage).isEqualTo(message);
+        assertThat(botMessage).isEqualTo(ALREADY_REGISTERED_MESSAGE + "\n" + SUPPORTED_COMMANDS_MESSAGE);
     }
 }

@@ -1,8 +1,12 @@
 package edu.java.bot.command.chain.impl.untrack;
 
+import edu.java.bot.client.ScrapperClient;
 import edu.java.bot.command.CommandInfo;
 import edu.java.bot.command.chain.Result;
-import edu.java.bot.repository.UserChatRepository;
+import edu.java.bot.dto.request.RemoveLinkRequest;
+import edu.java.bot.dto.response.LinkResponse;
+import edu.java.bot.exception.ApiBadRequestException;
+import edu.java.bot.exception.ApiNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LinkUntrackingCommandStep implements UntrackCommandStep {
 
-    private final UserChatRepository userChatRepository;
+    private final ScrapperClient scrapperWebClient;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -24,18 +28,27 @@ public class LinkUntrackingCommandStep implements UntrackCommandStep {
     private static final String NOT_FOUND_MESSAGE =
         "Ничего не найдено :( " + CommandInfo.LIST.getType();
 
+    private static final String SOMETHING_WENT_WRONG = "Что-то пошло не так :(";
+
     @Override
     public Result handle(String[] messageParts, Long chatId) {
         String link = messageParts[messageParts.length - 1];
-
         Result result;
-        if (userChatRepository.containsLink(chatId, link)) {
-            userChatRepository.removeLink(chatId, link);
+
+        try {
+            LinkResponse response = scrapperWebClient.deleteLink(chatId, new RemoveLinkRequest(link));
             result = new Result(SUCCESSFUL_LINK_REMOVAL_MESSAGE, true);
-            LOGGER.info("ChatID: %d; link %s successfully removed".formatted(chatId, link));
-        } else {
+            LOGGER.info("ChatID: %d; ссылка %s успешно удалена".formatted(chatId, link));
+            LOGGER.info(response);
+
+        } catch (ApiBadRequestException exception) {
+            result = new Result(SOMETHING_WENT_WRONG, false);
+            LOGGER.warn(exception.getApiErrorResponse());
+
+        } catch (ApiNotFoundException exception) {
             result = new Result(NOT_FOUND_MESSAGE, false);
-            LOGGER.warn("ChatID: %d; link %s not found in tracked list".formatted(chatId, link));
+            LOGGER.warn("ChatID: %d; ссылка %s не найдена в списке отслеживаемых".formatted(chatId, link));
+            LOGGER.warn(exception.getApiErrorResponse());
         }
 
         return result;
