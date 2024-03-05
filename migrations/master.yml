@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-link-table
+      author: Soneech
+      changes:
+        - sqlFile:
+            path: sql/create-link-table.sql
+
+  - changeSet:
+      id: create-chat-table
+      author: Soneech
+      changes:
+        - sqlFile:
+            path: sql/create-chat-table.sql
+
+  - changeSet:
+      id: create-chat-link-table
+      author: Soneech
+      changes:
+        - sqlFile:
+            path: sql/create-chat-link-table.sql
+
+  - changeSet:
+      id: add-tag-1.0.0
+      author: Soneech
+      changes:
+        - tagDatabase:
+            tag: v1.0.0
