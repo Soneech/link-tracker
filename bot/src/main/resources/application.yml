@@ -16,6 +16,7 @@ logging:
 springdoc:
   swagger-ui:
     path: /swagger-ui
+  default-produces-media-type: application/json
 
 api:
   scrapper:

@@ -1,0 +1,8 @@
+--liquibase formatted sql
+
+CREATE TABLE IF NOT EXISTS Link
+(
+    id              BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    url             VARCHAR(255) UNIQUE      NOT NULL,
+    last_check_time TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
