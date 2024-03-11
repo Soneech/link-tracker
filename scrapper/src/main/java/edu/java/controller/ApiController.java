@@ -6,6 +6,7 @@ import edu.java.dto.api.response.ApiErrorResponse;
 import edu.java.dto.api.response.LinkResponse;
 import edu.java.dto.api.response.ListLinksResponse;
 import edu.java.dto.api.response.SuccessResponse;
+import edu.java.dto.bot.request.ChatRegistrationRequest;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,7 +22,7 @@ public interface ApiController {
                  content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса",
                  content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
-    SuccessResponse registerChat(@PathVariable("id") Long id);
+    SuccessResponse registerChat(@RequestBody ChatRegistrationRequest request);
 
 
     @ApiResponse(responseCode = "200", description = "Чат успешно удалён",

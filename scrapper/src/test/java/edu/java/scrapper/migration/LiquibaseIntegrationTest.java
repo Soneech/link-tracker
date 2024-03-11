@@ -1,12 +1,13 @@
-package edu.java.scrapper;
+package edu.java.scrapper.migration;
 
+import edu.java.scrapper.IntegrationEnvironment;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
-public class LiquibaseIntegrationTest extends IntegrationTest {
+public class LiquibaseIntegrationTest extends IntegrationEnvironment {
     private static String expectedUrl = "https://github.com/danvega/jwt-auth-demo";
 
     private static Long expectedChatId = 123456789L;

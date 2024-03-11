@@ -1,6 +1,7 @@
 package edu.java.bot.client;
 
 import edu.java.bot.dto.request.AddLinkRequest;
+import edu.java.bot.dto.request.ChatRegistrationRequest;
 import edu.java.bot.dto.request.RemoveLinkRequest;
 import edu.java.bot.dto.response.ApiErrorResponse;
 import edu.java.bot.dto.response.LinkResponse;
@@ -24,7 +25,7 @@ public class ScrapperWebClient implements ScrapperClient {
 
     private static final String LINK_ENDPOINTS_PATH = "/links";
 
-    private static final String TELEGRAM_CHAT_ENDPOINTS_PATH = "/tg-chat/";
+    private static final String TELEGRAM_CHAT_ENDPOINTS_PATH = "/tg-chat";
 
     public ScrapperWebClient() {
         this.webClient = WebClient.builder().baseUrl(baseUrl).build();
@@ -37,9 +38,10 @@ public class ScrapperWebClient implements ScrapperClient {
         this.webClient = WebClient.builder().baseUrl(this.baseUrl).build();
     }
 
-    public SuccessMessageResponse registerChat(Long chatId) {
+    public SuccessMessageResponse registerChat(ChatRegistrationRequest request) {
         return webClient
-            .post().uri(TELEGRAM_CHAT_ENDPOINTS_PATH + chatId)
+            .post().uri(TELEGRAM_CHAT_ENDPOINTS_PATH)
+            .body(BodyInserters.fromValue(request))
             .retrieve().onStatus(
                 HttpStatus.BAD_REQUEST::equals,
                 response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
