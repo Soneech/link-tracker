@@ -5,10 +5,12 @@ import edu.java.model.Chat;
 import edu.java.scrapper.IntegrationEnvironment;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Transactional
 public class JdbcChatDaoTest extends IntegrationEnvironment {
     private static JdbcChatDao jdbcChatDao;
 

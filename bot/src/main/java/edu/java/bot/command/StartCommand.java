@@ -20,7 +20,7 @@ public class StartCommand implements Command {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private static final String WELCOME_MESSAGE =
-        "Приветствую! Вы зарегистрировались в приложении Link Tracker!";
+        "Приветствую, %s! Вы зарегистрировались в приложении Link Tracker!";
 
     private static final String ALREADY_REGISTERED_MESSAGE = "Вы уже зарегистрированы :)";
 
@@ -31,10 +31,11 @@ public class StartCommand implements Command {
     public SendMessage processCommand(Update update) {
         StringBuilder botMessage = new StringBuilder();
         Long chatId = update.message().chat().id();
+        String username = update.message().chat().username();
 
         try {
             SuccessMessageResponse response = scrapperWebClient.registerChat(chatId);
-            botMessage.append(WELCOME_MESSAGE);
+            botMessage.append(WELCOME_MESSAGE.formatted(username));
             LOGGER.info(response.message());
 
         } catch (ApiBadRequestException exception) {

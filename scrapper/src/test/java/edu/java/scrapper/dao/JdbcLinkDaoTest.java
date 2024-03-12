@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Transactional
 public class JdbcLinkDaoTest extends IntegrationEnvironment {
     private static JdbcLinkDao jdbcLinkDao;
 

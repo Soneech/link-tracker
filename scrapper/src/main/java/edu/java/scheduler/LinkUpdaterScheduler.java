@@ -1,8 +1,6 @@
 package edu.java.scheduler;
 
 import edu.java.client.BotClient;
-import edu.java.client.GitHubClient;
-import edu.java.client.StackOverflowClient;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,10 +11,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LinkUpdaterScheduler {
     private static final Logger LOGGER = LogManager.getLogger();
-
-    private final StackOverflowClient stackOverflowWebClient;
-
-    private final GitHubClient gitHubWebClient;
 
     private final BotClient botWebClient;
 

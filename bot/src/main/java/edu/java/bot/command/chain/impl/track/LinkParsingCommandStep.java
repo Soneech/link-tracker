@@ -38,7 +38,7 @@ public class LinkParsingCommandStep implements TrackCommandStep {
         if (!parsedAtLeastOne) {
             result.setMessage(UNSUPPORTED_SERVICE_MESSAGE);
             result.setSuccess(false);
-            LOGGER.warn("ChatID: %d; link to unsupported webservice: %s".formatted(chatId, link));
+            LOGGER.warn("ChatID: %d; ссылка на неподдерживаемый сервис: %s".formatted(chatId, link));
         }
 
         return result;
