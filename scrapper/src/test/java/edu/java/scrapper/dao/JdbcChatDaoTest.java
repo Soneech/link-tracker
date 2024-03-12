@@ -5,6 +5,7 @@ import edu.java.model.Chat;
 import edu.java.scrapper.IntegrationEnvironment;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,12 +19,12 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
 
     @Test
     public void testRegistration() {
-        Chat testChat = new Chat(123456L, "Username");
+        Chat testChat = new Chat(123456L, OffsetDateTime.now());
         jdbcChatDao.save(testChat);
 
         Optional<Chat> foundChat = jdbcChatDao.findById(testChat.getId());
         assertThat(foundChat).isPresent();
-        assertThat(foundChat).get().isEqualTo(testChat);
+        assertThat(foundChat.get().getId()).isEqualTo(testChat.getId());
     }
 
     @Test
@@ -36,7 +37,7 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
 
     @Test
     public void testChatRemoval() {
-        Chat testChat = new Chat(55555L, "Username");
+        Chat testChat = new Chat(55555L, OffsetDateTime.now());
 
         jdbcChatDao.save(testChat);
         Optional<Chat> foundChat = jdbcChatDao.findById(testChat.getId());

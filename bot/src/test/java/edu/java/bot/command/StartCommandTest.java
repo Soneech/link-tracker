@@ -1,7 +1,6 @@
 package edu.java.bot.command;
 
 import edu.java.bot.client.ScrapperClient;
-import edu.java.bot.dto.request.ChatRegistrationRequest;
 import edu.java.bot.dto.response.SuccessMessageResponse;
 import edu.java.bot.exception.ApiBadRequestException;
 import org.junit.jupiter.api.Test;
@@ -42,21 +41,17 @@ public class StartCommandTest extends CommandTest {
 
     @Test
     void testThatCommandReturnCorrectMessageForNewUser() {
-        var chatRequest = new ChatRegistrationRequest(chatId, username);
-
-        when(scrapperWebClient.registerChat(chatRequest)).thenReturn(new SuccessMessageResponse("some message"));
+        when(scrapperWebClient.registerChat(chatId)).thenReturn(new SuccessMessageResponse("some message"));
         assertThat(startCommand.processCommand(update).getParameters().get("text"))
             .isEqualTo(WELCOME_MESSAGE + "\n" + SUPPORTED_COMMANDS_MESSAGE);
     }
 
     @Test
     void testThatCommandReturnCorrectMessageForRegisteredUser() {
-        var chatRequest = new ChatRegistrationRequest(chatId, username);
-
-        when(scrapperWebClient.registerChat(chatRequest)).thenReturn(new SuccessMessageResponse("some message"));
+        when(scrapperWebClient.registerChat(chatId)).thenReturn(new SuccessMessageResponse("some message"));
         startCommand.processCommand(update);
 
-        when(scrapperWebClient.registerChat(chatRequest)).thenThrow(ApiBadRequestException.class);
+        when(scrapperWebClient.registerChat(chatId)).thenThrow(ApiBadRequestException.class);
         String botMessage = startCommand.processCommand(update).getParameters().get("text").toString();
 
         assertThat(botMessage).isEqualTo(ALREADY_REGISTERED_MESSAGE + "\n" + SUPPORTED_COMMANDS_MESSAGE);

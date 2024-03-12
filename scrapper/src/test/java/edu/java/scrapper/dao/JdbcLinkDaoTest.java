@@ -5,6 +5,7 @@ import edu.java.dao.jdbc.JdbcLinkDao;
 import edu.java.model.Chat;
 import edu.java.model.Link;
 import edu.java.scrapper.IntegrationEnvironment;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,8 +28,8 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         jdbcLinkDao = new JdbcLinkDao(jdbcTemplate);
         jdbcChatDao = new JdbcChatDao(jdbcTemplate);
 
-        firstChat = new Chat(888888L, "Username1");
-        secondChat = new Chat(77777L, "Username2");
+        firstChat = new Chat(888888L, OffsetDateTime.now());
+        secondChat = new Chat(77777L, OffsetDateTime.now());
         jdbcChatDao.save(firstChat);
         jdbcChatDao.save(secondChat);
 

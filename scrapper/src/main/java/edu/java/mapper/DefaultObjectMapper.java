@@ -4,10 +4,10 @@ import edu.java.dto.api.request.AddLinkRequest;
 import edu.java.dto.api.request.RemoveLinkRequest;
 import edu.java.dto.api.response.LinkResponse;
 import edu.java.dto.api.response.ListLinksResponse;
-import edu.java.dto.bot.request.ChatRegistrationRequest;
 import edu.java.model.Chat;
 import edu.java.model.Link;
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class DefaultObjectMapper {
         return new LinkResponse(link.getId(), URI.create(link.getUrl()));
     }
 
-    public Chat convertToChat(ChatRegistrationRequest chatRequest) {
-        return new Chat(chatRequest.id(), chatRequest.name());
+    public Chat convertToChat(Long chatId) {
+        return new Chat(chatId, OffsetDateTime.now());
     }
 }

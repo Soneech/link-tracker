@@ -23,17 +23,13 @@ public abstract class CommandTest {
 
     protected Long chatId;
 
-    protected String username;
-
     @BeforeEach
     public void setUp() {
         chatId = 777L;
-        username = "Chubakka";
 
         lenient().doReturn(message).when(update).message();
         lenient().doReturn(chat).when(message).chat();
         lenient().doReturn(chatId).when(chat).id();
-        lenient().doReturn(username).when(chat).username();
     }
 
     abstract void testThatReturnedCommandTypeIsCorrect();

@@ -21,7 +21,8 @@ public class JdbcChatDao {
     }
 
     public void save(Chat chat) {
-        jdbcTemplate.update("INSERT INTO chat (id, name) VALUES (?, ?)", chat.getId(), chat.getName());
+        jdbcTemplate.update("INSERT INTO chat (id, registered_at) VALUES (?, ?)",
+            chat.getId(), chat.getRegisteredAt());
     }
 
     public void delete(long chatId) {

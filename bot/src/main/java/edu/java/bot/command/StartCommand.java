@@ -3,7 +3,6 @@ package edu.java.bot.command;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.client.ScrapperClient;
-import edu.java.bot.dto.request.ChatRegistrationRequest;
 import edu.java.bot.dto.response.SuccessMessageResponse;
 import edu.java.bot.exception.ApiBadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -31,17 +30,10 @@ public class StartCommand implements Command {
     @Override
     public SendMessage processCommand(Update update) {
         StringBuilder botMessage = new StringBuilder();
-
         Long chatId = update.message().chat().id();
-        String username = update.message().chat().username();
-        if (username == null) {
-            username = "username";
-        }
-
-        ChatRegistrationRequest request = new ChatRegistrationRequest(chatId, username);
 
         try {
-            SuccessMessageResponse response = scrapperWebClient.registerChat(request);
+            SuccessMessageResponse response = scrapperWebClient.registerChat(chatId);
             botMessage.append(WELCOME_MESSAGE);
             LOGGER.info(response.message());
 

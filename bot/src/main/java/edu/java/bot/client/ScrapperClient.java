@@ -1,14 +1,13 @@
 package edu.java.bot.client;
 
 import edu.java.bot.dto.request.AddLinkRequest;
-import edu.java.bot.dto.request.ChatRegistrationRequest;
 import edu.java.bot.dto.request.RemoveLinkRequest;
 import edu.java.bot.dto.response.LinkResponse;
 import edu.java.bot.dto.response.ListLinksResponse;
 import edu.java.bot.dto.response.SuccessMessageResponse;
 
 public interface ScrapperClient {
-    SuccessMessageResponse registerChat(ChatRegistrationRequest request);
+    SuccessMessageResponse registerChat(Long chatId);
 
     SuccessMessageResponse deleteChat(Long chatId);
 

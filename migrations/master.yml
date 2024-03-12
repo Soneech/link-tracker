@@ -26,3 +26,24 @@ databaseChangeLog:
       changes:
         - tagDatabase:
             tag: v1.0.0
+
+  - changeSet:
+      id: chat-table-delete-name-column
+      author: Soneech
+      changes:
+        - sqlFile:
+            path: sql/chat-table-delete-name-column.sql
+
+  - changeSet:
+      id: chat-table-add-registered-at-column
+      author: Soneech
+      changes:
+        - sqlFile:
+            path: sql/chat-table-add-registered-at-column.sql
+
+  - changeSet:
+      id: add-tag-1.0.1
+      author: Soneech
+      changes:
+        - tagDatabase:
+            tag: v1.0.1

@@ -5,7 +5,6 @@ import edu.java.dto.api.request.RemoveLinkRequest;
 import edu.java.dto.api.response.LinkResponse;
 import edu.java.dto.api.response.ListLinksResponse;
 import edu.java.dto.api.response.SuccessResponse;
-import edu.java.dto.bot.request.ChatRegistrationRequest;
 import edu.java.mapper.DefaultObjectMapper;
 import edu.java.model.Link;
 import edu.java.service.ChatService;
@@ -31,10 +30,10 @@ public class ScrapperController implements ApiController {
     private final DefaultObjectMapper mapper;
 
     @Override
-    @PostMapping("/tg-chat")
-    public SuccessResponse registerChat(@RequestBody ChatRegistrationRequest request) {
-        chatService.registerChat(mapper.convertToChat(request));
-        return new SuccessResponse("Чат с id %d успешно зарегистрирован.".formatted(request.id()));
+    @PostMapping("/tg-chat/{id}")
+    public SuccessResponse registerChat(@PathVariable("id") Long chatId) {
+        chatService.registerChat(mapper.convertToChat(chatId));
+        return new SuccessResponse("Чат с id %d успешно зарегистрирован.".formatted(chatId));
     }
 
     @Override

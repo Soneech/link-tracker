@@ -1,5 +1,6 @@
 package edu.java.model;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,11 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Chat {
     private Long id;
-    private String name;
+
+    private OffsetDateTime registeredAt;
+
     private List<Link> trackingLinks;
 
-    public Chat(long id, String name) {
+    public Chat(long id, OffsetDateTime registeredAt) {
         this.id = id;
-        this.name = name;
+        this.registeredAt = registeredAt;
     }
 }
