@@ -8,6 +8,7 @@ import edu.java.model.Chat;
 import edu.java.model.Link;
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,6 @@ public class DefaultObjectMapper {
     }
 
     public Chat convertToChat(Long chatId) {
-        return new Chat(chatId, OffsetDateTime.now());
+        return new Chat(chatId, OffsetDateTime.now(ZoneId.systemDefault()));
     }
 }

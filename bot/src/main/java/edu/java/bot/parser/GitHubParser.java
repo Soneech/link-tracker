@@ -1,14 +1,15 @@
 package edu.java.bot.parser;
 
-import edu.java.bot.website.WebsiteInfo;
-import java.net.URI;
+import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GitHubParser implements LinkParser {
+    private final Pattern gitHubPatter =
+        Pattern.compile("^(https)(://)(github.com)/([\\w\\-\\d]+)/([\\w\\-._\\d]+)(/)*");
+
     @Override
-    public boolean parseLink(URI uri) {
-        String host = uri.getHost();
-        return WebsiteInfo.GITHUB.getDomain().equals(host);
+    public boolean isLinkCorrect(String url) {
+        return gitHubPatter.matcher(url).matches();
     }
 }

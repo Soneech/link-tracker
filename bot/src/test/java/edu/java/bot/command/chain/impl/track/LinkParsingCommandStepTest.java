@@ -5,12 +5,12 @@ import edu.java.bot.command.chain.Result;
 import edu.java.bot.parser.GitHubParser;
 import edu.java.bot.parser.LinkParser;
 import edu.java.bot.parser.StackOverflowParser;
+import edu.java.bot.website.WebsiteInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.net.URI;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
@@ -25,15 +25,16 @@ public class LinkParsingCommandStepTest extends TrackCommandStepTest {
     @Mock
     private StackOverflowParser stackOverflowParser;
 
-    private static final String UNSUPPORTED_SERVICE_MESSAGE =
-        "Данный сервис не поддерживается :( " + CommandInfo.HELP.getType();
-
     private static final String GIT_HUB_LINK = "https://github.com/pengrad/java-telegram-bot-api";
 
     private static final String STACK_OVERFLOW_LINK =
         "https://stackoverflow.com/questions/28295625/mockito-spy-vs-mock";
 
     private static final String UNSUPPORTED_SERVICE_LINK = "https://www.youtube.com/@strannoemestechko";
+
+    private static final String UNSUPPORTED_SERVICE_MESSAGE =
+        "Я не могу отлеживать данную ссылку :(\nЯ могу отслеживать следующие ресурсы:\n%s"
+            + "Для более подробной информации используйте " + CommandInfo.HELP.getType();
 
     @BeforeEach
     public void setUp() {
@@ -43,8 +44,8 @@ public class LinkParsingCommandStepTest extends TrackCommandStepTest {
 
     @Test
     public void testParsingWithGitHubAndStackOverflowParsers() {
-        lenient().doReturn(true).when(gitHubParser).parseLink(URI.create(GIT_HUB_LINK));
-        lenient().doReturn(true).when(stackOverflowParser).parseLink(URI.create(STACK_OVERFLOW_LINK));
+        lenient().doReturn(true).when(gitHubParser).isLinkCorrect(GIT_HUB_LINK);
+        lenient().doReturn(true).when(stackOverflowParser).isLinkCorrect(STACK_OVERFLOW_LINK);
 
         result = new Result("", true);
         messageParts = new String[] {CommandInfo.TRACK.getType(), GIT_HUB_LINK};
@@ -56,7 +57,12 @@ public class LinkParsingCommandStepTest extends TrackCommandStepTest {
 
     @Test
     public void testWithUnsupportedServiceLink() {
-        result = new Result(UNSUPPORTED_SERVICE_MESSAGE, false);
+        StringBuilder supportedServices = new StringBuilder();
+        for (var service: WebsiteInfo.values()) {
+            supportedServices.append(service.getDomain()).append(" - ")
+                .append(service.getDescription()).append("\n");
+        }
+        result = new Result(UNSUPPORTED_SERVICE_MESSAGE.formatted(supportedServices.toString()), false);
         messageParts = new String[] {CommandInfo.TRACK.getType(), UNSUPPORTED_SERVICE_LINK};
 
         assertThat(linkParsingCommandStep.handle(messageParts, chatId)).isEqualTo(result);

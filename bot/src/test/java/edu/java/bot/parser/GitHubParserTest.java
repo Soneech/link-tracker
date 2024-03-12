@@ -1,6 +1,5 @@
 package edu.java.bot.parser;
 
-import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,14 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class GitHubParserTest extends LinkParserTest {
     private GitHubParser gitHubParser;
 
-    private static final URI FIRST_GIT_HUB_URI = URI.create("https://github.com/pengrad/java-telegram-bot-api");
+    private static final String FIRST_GIT_HUB_URL = "https://github.com/pengrad/java-telegram-bot-api";
 
-    private static final URI SECOND_GIT_HUB_URI = URI.create("https://github.com/tonsky/FiraCode");
+    private static final String SECOND_GIT_HUB_URL = "https://github.com/tonsky/FiraCode";
 
-    private static final URI FIRST_RANDOM_URI = URI.create("https://fintech.tinkoff.ru/study/");
+    private static final String FIRST_RANDOM_URI = "https://fintech.tinkoff.ru/study/";
 
-    private static final URI SECOND_RANDOM_URI =
-        URI.create("https://stackoverflow.com/questions/28295625/mockito-spy-vs-mock");
+    private static final String SECOND_RANDOM_URL = "https://stackoverflow.com/questions/28295625/mockito-spy-vs-mock";
 
     @BeforeEach
     public void setUp() {
@@ -29,14 +27,14 @@ public class GitHubParserTest extends LinkParserTest {
     @Test
     @Override
     public void testWithSupportedWebserviceLink() {
-        assertTrue(gitHubParser.parseLink(FIRST_GIT_HUB_URI));
-        assertTrue(gitHubParser.parseLink(SECOND_GIT_HUB_URI));
+        assertTrue(gitHubParser.isLinkCorrect(FIRST_GIT_HUB_URL));
+        assertTrue(gitHubParser.isLinkCorrect(SECOND_GIT_HUB_URL));
     }
 
     @Test
     @Override
     public void testWithUnsupportedWebserviceLink() {
-        assertFalse(gitHubParser.parseLink(FIRST_RANDOM_URI));
-        assertFalse(gitHubParser.parseLink(SECOND_RANDOM_URI));
+        assertFalse(gitHubParser.isLinkCorrect(FIRST_RANDOM_URI));
+        assertFalse(gitHubParser.isLinkCorrect(SECOND_RANDOM_URL));
     }
 }

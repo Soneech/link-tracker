@@ -1,4 +1,4 @@
-package edu.java.scheduler;
+package edu.java.service.scheduler;
 
 import edu.java.client.BotClient;
 import lombok.RequiredArgsConstructor;

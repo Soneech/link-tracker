@@ -1,15 +1,16 @@
 package edu.java.bot.parser;
 
-import edu.java.bot.website.WebsiteInfo;
-import java.net.URI;
+import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StackOverflowParser implements LinkParser {
+    private final Pattern stackOverflowPattern =
+        Pattern.compile("^(https)(://)(stackoverflow.com)/(questions)/(\\d+)(/)*([\\w\\-]*)(/)*");
+
     @Override
-    public boolean parseLink(URI uri) {
-        String host = uri.getHost();
-        return WebsiteInfo.STACK_OVERFLOW.getDomain().equals(host);
+    public boolean isLinkCorrect(String url) {
+        return stackOverflowPattern.matcher(url).matches();
     }
 }
 

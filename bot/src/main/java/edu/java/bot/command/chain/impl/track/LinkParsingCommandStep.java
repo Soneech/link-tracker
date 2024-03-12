@@ -3,7 +3,7 @@ package edu.java.bot.command.chain.impl.track;
 import edu.java.bot.command.CommandInfo;
 import edu.java.bot.command.chain.Result;
 import edu.java.bot.parser.LinkParser;
-import java.net.URI;
+import edu.java.bot.website.WebsiteInfo;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -18,7 +18,8 @@ public class LinkParsingCommandStep implements TrackCommandStep {
     private final List<LinkParser> parsers;
 
     private static final String UNSUPPORTED_SERVICE_MESSAGE =
-        "Данный сервис не поддерживается :( " + CommandInfo.HELP.getType();
+        "Я не могу отлеживать данную ссылку :(\nЯ могу отслеживать следующие ресурсы:\n%s"
+            + "Для более подробной информации используйте " + CommandInfo.HELP.getType();
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -29,18 +30,26 @@ public class LinkParsingCommandStep implements TrackCommandStep {
 
         boolean parsedAtLeastOne = false;
         for (var parser: parsers) {
-            if (parser.parseLink(URI.create(link))) {
+            if (parser.isLinkCorrect(link)) {
                 parsedAtLeastOne = true;
                 break;
             }
         }
 
         if (!parsedAtLeastOne) {
-            result.setMessage(UNSUPPORTED_SERVICE_MESSAGE);
+            StringBuilder supportedServices = new StringBuilder();
+            for (var service: WebsiteInfo.values()) {
+                supportedServices.append(service.getDomain()).append(" - ")
+                    .append(service.getDescription()).append("\n");
+            }
+
+            result.setMessage(UNSUPPORTED_SERVICE_MESSAGE.formatted(supportedServices.toString()));
             result.setSuccess(false);
             LOGGER.warn("ChatID: %d; ссылка на неподдерживаемый сервис: %s".formatted(chatId, link));
         }
 
         return result;
     }
+
+
 }

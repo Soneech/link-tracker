@@ -17,6 +17,8 @@ public class HelpCommand implements Command {
 
     private static final String SUPPORTED_WEBSERVICES_MESSAGE_TITLE = "Ниже приведены поддерживаемые сервисы:";
 
+    private static final String SEPARATOR = " - ";
+
     @Override
     public SendMessage processCommand(Update update) {
         StringBuilder botMessage = new StringBuilder();
@@ -24,13 +26,13 @@ public class HelpCommand implements Command {
         botMessage.append(SUPPORTED_COMMANDS_MESSAGE_TITLE).append("\n");
         for (var command : commands) {
             if (!command.type().equals(CommandInfo.START.getType())) {
-                botMessage.append(command.type()).append(" - ").append(command.description()).append("\n");
+                botMessage.append(command.type()).append(SEPARATOR).append(command.description()).append("\n");
             }
         }
 
         botMessage.append("\n").append(SUPPORTED_WEBSERVICES_MESSAGE_TITLE);
         for (var website : WebsiteInfo.values()) {
-            botMessage.append("\n").append(website.getDomain());
+            botMessage.append("\n").append(website.getDomain()).append(SEPARATOR).append(website.getDescription());
         }
 
         return new SendMessage(update.message().chat().id(), botMessage.toString());
