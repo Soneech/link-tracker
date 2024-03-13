@@ -7,9 +7,12 @@ import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.model.Link;
 import edu.java.service.jdbc.JdbcChatService;
 import edu.java.service.jdbc.JdbcLinkService;
+import edu.java.service.updater.GitHubLinkUpdater;
+import edu.java.service.updater.LinkUpdatersHolder;
+import java.time.OffsetDateTime;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
@@ -18,15 +21,25 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class JdbcLinkServiceTest extends JdbcServiceTest {
-    private static JdbcLinkService jdbcLinkService;
+    private JdbcLinkService jdbcLinkService;
 
-    private static JdbcChatService jdbcChatService;
+    private JdbcChatService jdbcChatService;
+
+    private LinkUpdatersHolder linkUpdatersHolder;
+
+    private GitHubLinkUpdater gitHubLinkUpdater;
+
+    private static final String GITHUB_DOMAIN = "github.com";
 
     @BeforeEach
     public void linkServiceSetUp() {
         jdbcChatService = mock(JdbcChatService.class);
         jdbcLinkDao = mock(JdbcLinkDao.class);
-        jdbcLinkService = new JdbcLinkService(jdbcLinkDao, jdbcChatService);
+        linkUpdatersHolder = mock(LinkUpdatersHolder.class);
+        gitHubLinkUpdater = mock(GitHubLinkUpdater.class);
+
+        when(linkUpdatersHolder.getUpdaterByDomain(GITHUB_DOMAIN)).thenReturn(gitHubLinkUpdater);
+        jdbcLinkService = new JdbcLinkService(jdbcLinkDao, jdbcChatService, linkUpdatersHolder);
     }
 
     @Test
@@ -47,6 +60,8 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
     public void testAddingLink() {
         jdbcLinkService.addLink(chat.getId(), link);
         verify(jdbcLinkDao).save(chat.getId(), link);
+        verify(linkUpdatersHolder).getUpdaterByDomain(GITHUB_DOMAIN);
+        verify(gitHubLinkUpdater).setLastUpdateTime(link);
     }
 
     @Test
@@ -91,5 +106,21 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
             .when(jdbcChatService).checkThatChatExists(chat.getId());
         assertThatThrownBy(() -> jdbcLinkService.deleteLink(chat.getId(), link))
             .isInstanceOf(TelegramChatNotFoundException.class);
+    }
+
+    @Test
+    public void testFindAllOutdatedLinks() {
+        int count = 10;
+        int interval = 60;
+        jdbcLinkService.findAllOutdatedLinks(count, interval);
+        verify(jdbcLinkDao).findAllOutdatedLinks(count, interval);
+    }
+
+    @Test
+    public void testSetUpdateAndCheckTime() {
+        OffsetDateTime lastUpdateTime = OffsetDateTime.now();
+        OffsetDateTime lastCheckTime = OffsetDateTime.now();
+        jdbcLinkService.setUpdateAndCheckTime(link, lastUpdateTime, lastCheckTime);
+        verify(jdbcLinkDao).setUpdateAndCheckTime(link, lastUpdateTime, lastCheckTime);
     }
 }

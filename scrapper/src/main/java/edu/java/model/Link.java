@@ -13,6 +13,7 @@ public class Link {
     @NotNull
     private String url;
 
+    @NotNull
     private OffsetDateTime lastCheckTime;
 
     private OffsetDateTime lastUpdateTime;

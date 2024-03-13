@@ -5,6 +5,7 @@ import edu.java.exception.TelegramChatAlreadyExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.model.Chat;
 import edu.java.service.ChatService;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,5 +37,10 @@ public class JdbcChatService implements ChatService {
     @Override
     public Optional<Chat> findChat(long chatId) {
         return jdbcChatDao.findById(chatId);
+    }
+
+    @Override
+    public List<Long> findAllChatsIdsWithLink(long linkId) {
+        return jdbcChatDao.findAllChatIdsWithLink(linkId);
     }
 }

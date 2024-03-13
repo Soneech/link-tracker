@@ -1,8 +1,11 @@
 app:
   scheduler:
     enable: true
-    interval: 10s
+    interval: 300s
     force-check-delay: 10s
+  update-properties:
+    count: 5
+    interval: 1800s
 
 spring:
   application:

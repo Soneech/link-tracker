@@ -5,9 +5,11 @@ import edu.java.exception.TelegramChatAlreadyExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.service.ChatService;
 import edu.java.service.jdbc.JdbcChatService;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -54,5 +56,15 @@ public class JdbcChatServiceTest extends JdbcServiceTest {
     public void testFindChat() {
         chatService.findChat(chat.getId());
         verify(jdbcChatDao).findById(chat.getId());
+    }
+
+    @Test
+    public void testFindAllChatsIdsWithLink() {
+        long testLinkId = 123;
+        when(jdbcChatDao.findAllChatIdsWithLink(testLinkId)).thenReturn(List.of(chat.getId()));
+
+        List<Long> chatIds = chatService.findAllChatsIdsWithLink(testLinkId);
+        assertThat(chatIds.size()).isOne();
+        assertThat(chatIds.getFirst()).isEqualTo(chat.getId());
     }
 }

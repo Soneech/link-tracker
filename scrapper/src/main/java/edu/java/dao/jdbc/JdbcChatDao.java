@@ -1,6 +1,7 @@
 package edu.java.dao.jdbc;
 
 import edu.java.model.Chat;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -27,5 +28,10 @@ public class JdbcChatDao {
 
     public void delete(long chatId) {
         jdbcTemplate.update("DELETE FROM chat WHERE id = ?", chatId);
+    }
+
+    public List<Long> findAllChatIdsWithLink(long linkId) {
+        return
+            jdbcTemplate.queryForList("SELECT chat_id FROM chat_link WHERE link_id = ?", Long.class, linkId);
     }
 }

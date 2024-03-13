@@ -17,7 +17,7 @@ public class BotUpdateController implements ApiController {
     @Override
     @PostMapping("/updates")
     public SuccessMessageResponse handleUpdate(@RequestBody @Valid LinkUpdateRequest request) {
-        updateService.addUpdate(request);
+        updateService.processUpdate(request);
         return new SuccessMessageResponse("Обновление обработано");
     }
 }

@@ -1,6 +1,7 @@
 package edu.java.dao.jdbc;
 
 import edu.java.model.Link;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,8 @@ public class JdbcLinkDao {
         Link savedLink = findLinkByUrl(link.getUrl());
 
         if (savedLink == null) {
-            jdbcTemplate.update("INSERT INTO link (url) VALUES (?)", link.getUrl());
+            jdbcTemplate.update("INSERT INTO link (url, last_update_time) VALUES (?, ?)",
+                link.getUrl(), link.getLastUpdateTime());
             savedLink = findLinkByUrl(link.getUrl());
         }
 
@@ -57,5 +59,18 @@ public class JdbcLinkDao {
         return jdbcTemplate
             .query("SELECT * FROM link WHERE url = ?", new BeanPropertyRowMapper<>(Link.class), url)
             .stream().findAny().orElse(null);
+    }
+
+    public List<Link> findAllOutdatedLinks(int count, long interval) {
+        return jdbcTemplate
+            .query("SELECT * FROM Link WHERE EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_check_time)) >= ? OR "
+                    + "last_update_time IS NULL LIMIT ?",
+                new BeanPropertyRowMapper<>(Link.class), interval, count);
+    }
+
+    public void setUpdateAndCheckTime(Link link, OffsetDateTime lastUpdateTime, OffsetDateTime lastCheckTime) {
+        jdbcTemplate
+            .update("UPDATE Link SET last_update_time = ?, last_check_time = ? WHERE id = ?",
+            lastUpdateTime, lastCheckTime, link.getId());
     }
 }

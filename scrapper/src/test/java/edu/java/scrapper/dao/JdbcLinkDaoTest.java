@@ -83,4 +83,38 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         linkInDataBase = jdbcLinkDao.findLinkByUrl(url);
         assertThat(linkInDataBase).isNull();
     }
+
+    @Test
+    public void testFindAllOutdatedLinks() {
+        Link firstLink = new Link("https://github.com/Soneech/polls-client");
+        Link secondLink = new Link("https://github.com/Soneech/link-tracker");
+        firstLink.setLastUpdateTime(OffsetDateTime.now());
+        secondLink.setLastUpdateTime(OffsetDateTime.now());
+
+        jdbcLinkDao.save(secondChat.getId(), firstLink);
+        jdbcLinkDao.save(secondChat.getId(), secondLink);
+
+        List<Link> foundLinks = jdbcLinkDao.findAllOutdatedLinks(10, 60);
+        assertThat(foundLinks).isEmpty();
+        foundLinks = jdbcLinkDao.findAllOutdatedLinks(10, 0);
+        assertThat(foundLinks).isNotEmpty();
+        assertThat(foundLinks.size()).isEqualTo(2);
+
+    }
+
+    @Test
+    public void testSetUpdateAndCheckTime() {
+        Link link = new Link("https://github.com/Soneech/polls-client");
+        jdbcLinkDao.save(firstChat.getId(), link);
+        Link foundLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+
+        OffsetDateTime lastUpdateTime = OffsetDateTime.now();
+        OffsetDateTime lastCheckTime = OffsetDateTime.now();
+
+        jdbcLinkDao.setUpdateAndCheckTime(foundLink, lastUpdateTime, lastCheckTime);
+        foundLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+
+        assertThat(foundLink.getLastCheckTime().toEpochSecond()).isEqualTo(lastCheckTime.toEpochSecond());
+        assertThat(foundLink.getLastUpdateTime().toEpochSecond()).isEqualTo(lastUpdateTime.toEpochSecond());
+    }
 }
