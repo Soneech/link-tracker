@@ -34,13 +34,16 @@ public class JdbcLinkService implements LinkService {
     public Link addLink(long chatId, Link link) throws TelegramChatNotFoundException {
         chatService.checkThatChatExists(chatId);
 
-        Optional<Link> chatLink = jdbcLinkDao.findChatLinkByUrl(chatId, link.getUrl());
-        if (chatLink.isPresent()) {
+        Optional<Link> foundLink = jdbcLinkDao.findChatLinkByUrl(chatId, link.getUrl());
+        if (foundLink.isPresent()) {
             throw new LinkAlreadyAddedException(chatId, link.getUrl());
         }
 
-        LinkUpdater updater = linkUpdatersHolder.getUpdaterByDomain(URI.create(link.getUrl()).getHost());
-        updater.setLastUpdateTime(link);
+        foundLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+        if (foundLink.isEmpty()) {
+            LinkUpdater updater = linkUpdatersHolder.getUpdaterByDomain(URI.create(link.getUrl()).getHost());
+            updater.setLastUpdateTime(link);
+        }
         return jdbcLinkDao.save(chatId, link);
     }
 

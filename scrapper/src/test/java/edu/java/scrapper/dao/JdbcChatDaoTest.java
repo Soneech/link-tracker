@@ -62,8 +62,9 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
         jdbcChatDao.save(chat);
         jdbcLinkDao.save(chat.getId(), new Link(url));
 
-        Link foundLink = jdbcLinkDao.findLinkByUrl(url);
-        List<Long> foundChatIds = jdbcChatDao.findAllChatIdsWithLink(foundLink.getId());
+        Optional<Link> foundLink = jdbcLinkDao.findLinkByUrl(url);
+        assertThat(foundLink).isPresent();
+        List<Long> foundChatIds = jdbcChatDao.findAllChatIdsWithLink(foundLink.get().getId());
 
         assertThat(foundChatIds.size()).isOne();
         assertThat(foundChatIds.getFirst()).isEqualTo(chat.getId());

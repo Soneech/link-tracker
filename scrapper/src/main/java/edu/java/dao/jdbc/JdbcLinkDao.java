@@ -33,16 +33,17 @@ public class JdbcLinkDao {
     }
 
     public Link save(long chatId, Link link) {
-        Link savedLink = findLinkByUrl(link.getUrl());
+        Optional<Link> savedLink = findLinkByUrl(link.getUrl());
 
-        if (savedLink == null) {
+        if (savedLink.isEmpty()) {
             jdbcTemplate.update("INSERT INTO link (url, last_update_time) VALUES (?, ?)",
                 link.getUrl(), link.getLastUpdateTime());
             savedLink = findLinkByUrl(link.getUrl());
         }
 
-        jdbcTemplate.update("INSERT INTO chat_link (chat_id, link_id) VALUES (?, ?)", chatId, savedLink.getId());
-        return savedLink;
+        jdbcTemplate
+            .update("INSERT INTO chat_link (chat_id, link_id) VALUES (?, ?)", chatId, savedLink.get().getId());
+        return savedLink.get();
     }
 
     public void delete(long chatId, long linkId) {
@@ -55,10 +56,10 @@ public class JdbcLinkDao {
         }
     }
 
-    public Link findLinkByUrl(String url) {
-        return jdbcTemplate
+    public Optional<Link> findLinkByUrl(String url) {
+        return Optional.ofNullable(jdbcTemplate
             .query("SELECT * FROM link WHERE url = ?", new BeanPropertyRowMapper<>(Link.class), url)
-            .stream().findAny().orElse(null);
+            .stream().findAny().orElse(null));
     }
 
     public List<Link> findAllOutdatedLinks(int count, long interval) {

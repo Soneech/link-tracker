@@ -76,12 +76,12 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         firstChatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), url);
         assertThat(firstChatLink).isEmpty();
 
-        Link linkInDataBase = jdbcLinkDao.findLinkByUrl(url);
-        assertThat(linkInDataBase).isNotNull();
+        Optional<Link> linkInDataBase = jdbcLinkDao.findLinkByUrl(url);
+        assertThat(linkInDataBase).isPresent();
 
-        jdbcLinkDao.delete(secondChat.getId(), linkInDataBase.getId());
+        jdbcLinkDao.delete(secondChat.getId(), linkInDataBase.get().getId());
         linkInDataBase = jdbcLinkDao.findLinkByUrl(url);
-        assertThat(linkInDataBase).isNull();
+        assertThat(linkInDataBase).isEmpty();
     }
 
     @Test
@@ -106,15 +106,17 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
     public void testSetUpdateAndCheckTime() {
         Link link = new Link("https://github.com/Soneech/polls-client");
         jdbcLinkDao.save(firstChat.getId(), link);
-        Link foundLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+        Optional<Link> foundLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+        assertThat(foundLink).isPresent();
 
         OffsetDateTime lastUpdateTime = OffsetDateTime.now();
         OffsetDateTime lastCheckTime = OffsetDateTime.now();
 
-        jdbcLinkDao.setUpdateAndCheckTime(foundLink, lastUpdateTime, lastCheckTime);
+        jdbcLinkDao.setUpdateAndCheckTime(foundLink.get(), lastUpdateTime, lastCheckTime);
         foundLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+        assertThat(foundLink).isPresent();
 
-        assertThat(foundLink.getLastCheckTime().toEpochSecond()).isEqualTo(lastCheckTime.toEpochSecond());
-        assertThat(foundLink.getLastUpdateTime().toEpochSecond()).isEqualTo(lastUpdateTime.toEpochSecond());
+        assertThat(foundLink.get().getLastCheckTime().toEpochSecond()).isEqualTo(lastCheckTime.toEpochSecond());
+        assertThat(foundLink.get().getLastUpdateTime().toEpochSecond()).isEqualTo(lastUpdateTime.toEpochSecond());
     }
 }
