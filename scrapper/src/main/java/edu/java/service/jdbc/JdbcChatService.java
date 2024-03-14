@@ -16,6 +16,7 @@ public class JdbcChatService implements ChatService {
 
     private final JdbcChatDao jdbcChatDao;
 
+    @Override
     public void registerChat(Chat chat) {
         Optional<Chat> foundChat = jdbcChatDao.findById(chat.getId());
         if (foundChat.isPresent()) {
@@ -24,11 +25,13 @@ public class JdbcChatService implements ChatService {
         jdbcChatDao.save(chat);
     }
 
+    @Override
     public void unregisterChat(long chatId) throws TelegramChatNotFoundException {
         checkThatChatExists(chatId);
         jdbcChatDao.delete(chatId);
     }
 
+    @Override
     public void checkThatChatExists(long chatId) {
         jdbcChatDao.findById(chatId)
             .orElseThrow(() -> new TelegramChatNotFoundException(chatId));

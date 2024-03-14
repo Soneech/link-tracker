@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class JdbcLinkService implements LinkService {
     }
 
     @Override
+    @Transactional
     public Link addLink(long chatId, Link link) throws TelegramChatNotFoundException {
         chatService.checkThatChatExists(chatId);
 

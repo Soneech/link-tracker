@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-@Transactional
 public class JdbcLinkDao {
     private final JdbcTemplate jdbcTemplate;
 
@@ -32,6 +31,7 @@ public class JdbcLinkDao {
             .stream().findAny();
     }
 
+    @Transactional
     public Link save(long chatId, Link link) {
         Optional<Link> savedLink = findLinkByUrl(link.getUrl());
 
@@ -46,6 +46,7 @@ public class JdbcLinkDao {
         return savedLink.get();
     }
 
+    @Transactional
     public void delete(long chatId, long linkId) {
         jdbcTemplate.update("DELETE FROM chat_link WHERE chat_id = ? AND link_id = ?", chatId, linkId);
 
@@ -57,9 +58,9 @@ public class JdbcLinkDao {
     }
 
     public Optional<Link> findLinkByUrl(String url) {
-        return Optional.ofNullable(jdbcTemplate
+        return jdbcTemplate
             .query("SELECT * FROM link WHERE url = ?", new BeanPropertyRowMapper<>(Link.class), url)
-            .stream().findAny().orElse(null));
+            .stream().findAny();
     }
 
     public List<Link> findAllOutdatedLinks(int count, long interval) {

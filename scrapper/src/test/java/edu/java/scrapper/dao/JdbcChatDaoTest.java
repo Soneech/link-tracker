@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Transactional
 public class JdbcChatDaoTest extends IntegrationEnvironment {
     private static JdbcChatDao jdbcChatDao;
 
@@ -23,6 +22,7 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
     }
 
     @Test
+    @Transactional
     public void testRegistration() {
         Chat chat = new Chat(123456L, OffsetDateTime.now());
         jdbcChatDao.save(chat);
@@ -41,6 +41,7 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
     }
 
     @Test
+    @Transactional
     public void testChatRemoval() {
         Chat chat = new Chat(55555L, OffsetDateTime.now());
 
@@ -54,6 +55,7 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
     }
 
     @Test
+    @Transactional
     public void testFindChatsByLinkId() {
         Chat chat = new Chat(55556L, OffsetDateTime.now());
         String url = "https://github.com/Soneech/link-tracker";
