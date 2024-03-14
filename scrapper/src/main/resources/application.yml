@@ -3,9 +3,6 @@ app:
     enable: true
     interval: 300s
     force-check-delay: 10s
-  update-properties:
-    count: 5
-    interval: 1800s
 
 spring:
   application:
@@ -28,6 +25,9 @@ api:
     base-url: https://api.stackexchange.com/2.3
   bot:
     base-url: http://localhost:8090
+    update-properties:
+      count: 5
+      interval: 1800
 
 springdoc:
   swagger-ui:

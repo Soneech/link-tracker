@@ -5,26 +5,35 @@ import edu.java.dao.jdbc.JdbcLinkDao;
 import edu.java.model.Chat;
 import edu.java.model.Link;
 import edu.java.scrapper.IntegrationEnvironment;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JdbcChatDaoTest extends IntegrationEnvironment {
     private static JdbcChatDao jdbcChatDao;
 
+    private static List<Chat> chats;
+
     @BeforeAll
     static void chatDaoSetUp() {
         jdbcChatDao = new JdbcChatDao(jdbcTemplate);
+
+        OffsetDateTime createdAt = OffsetDateTime.now();
+        chats = List.of(
+            new Chat(11111L, createdAt),
+            new Chat(22222L, createdAt),
+            new Chat(33333L, createdAt)
+        );
     }
 
     @Test
     @Transactional
     public void testRegistration() {
-        Chat chat = new Chat(123456L, OffsetDateTime.now());
+        Chat chat = chats.getFirst();
         jdbcChatDao.save(chat);
 
         Optional<Chat> foundChat = jdbcChatDao.findById(chat.getId());
@@ -43,7 +52,7 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
     @Test
     @Transactional
     public void testChatRemoval() {
-        Chat chat = new Chat(55555L, OffsetDateTime.now());
+        Chat chat = chats.get(1);
 
         jdbcChatDao.save(chat);
         Optional<Chat> foundChat = jdbcChatDao.findById(chat.getId());
@@ -57,18 +66,18 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
     @Test
     @Transactional
     public void testFindChatsByLinkId() {
-        Chat chat = new Chat(55556L, OffsetDateTime.now());
-        String url = "https://github.com/Soneech/link-tracker";
+        Chat chat = chats.getLast();
+        Link link = new Link("https://github.com/Soneech/link-tracker");
         JdbcLinkDao jdbcLinkDao = new JdbcLinkDao(jdbcTemplate);
 
         jdbcChatDao.save(chat);
-        jdbcLinkDao.save(chat.getId(), new Link(url));
+        jdbcLinkDao.save(chat.getId(), link);
 
-        Optional<Link> foundLink = jdbcLinkDao.findLinkByUrl(url);
+        Optional<Link> foundLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
         assertThat(foundLink).isPresent();
         List<Long> foundChatIds = jdbcChatDao.findAllChatIdsWithLink(foundLink.get().getId());
 
-        assertThat(foundChatIds.size()).isOne();
+        assertThat(foundChatIds).hasSize(1);
         assertThat(foundChatIds.getFirst()).isEqualTo(chat.getId());
     }
 }

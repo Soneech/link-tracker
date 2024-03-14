@@ -13,9 +13,7 @@ public class LinkUpdatersHolder {
     @Autowired
     public LinkUpdatersHolder(List<LinkUpdater> linkUpdaters) {
         this.linkUpdaters = new HashMap<>();
-        for (var updater: linkUpdaters) {
-            this.linkUpdaters.put(updater.getSupportDomain(), updater);
-        }
+        linkUpdaters.forEach((updater) -> this.linkUpdaters.put(updater.getSupportDomain(), updater));
     }
 
     public LinkUpdater getUpdaterByDomain(String domain) {

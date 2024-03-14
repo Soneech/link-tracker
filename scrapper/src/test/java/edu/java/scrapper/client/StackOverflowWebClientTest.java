@@ -16,7 +16,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class StackOverflowWebClientTest extends HttpClientTest {
     private Long questionId;
@@ -43,7 +42,7 @@ public class StackOverflowWebClientTest extends HttpClientTest {
 
         QuestionResponse response = stackOverflowWebClient.fetchQuestion(questionId);
 
-        assertNotNull(response);
+        assertThat(response).isNotNull();
         assertThat(response.items()).isNotEmpty();
         assertThat(response.items().getFirst().id()).isEqualTo(questionId);
     }

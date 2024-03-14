@@ -4,17 +4,23 @@ import edu.java.dao.jdbc.JdbcChatDao;
 import edu.java.dao.jdbc.JdbcLinkDao;
 import edu.java.model.Chat;
 import edu.java.model.Link;
-import org.junit.jupiter.api.BeforeAll;
 import java.time.OffsetDateTime;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public abstract class JdbcServiceTest {
     protected static Chat chat;
 
     protected static Link link;
 
-    protected JdbcChatDao jdbcChatDao;
-
+    @Mock
     protected JdbcLinkDao jdbcLinkDao;
+
+    @Mock
+    protected JdbcChatDao jdbcChatDao;
 
     @BeforeAll
     public static void setUp() {

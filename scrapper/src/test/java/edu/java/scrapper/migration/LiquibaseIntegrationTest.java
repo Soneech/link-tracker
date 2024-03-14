@@ -1,11 +1,10 @@
 package edu.java.scrapper.migration;
 
 import edu.java.scrapper.IntegrationEnvironment;
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.OffsetDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Transactional
 public class LiquibaseIntegrationTest extends IntegrationEnvironment {
@@ -17,7 +16,7 @@ public class LiquibaseIntegrationTest extends IntegrationEnvironment {
 
     @Test
     public void testConnection() {
-        assertTrue(postgres.isRunning());
+        assertThat(postgres.isRunning()).isTrue();
         assertThat(postgres.getUsername()).isEqualTo("postgres");
         assertThat(postgres.getPassword()).isEqualTo("postgres");
         assertThat(postgres.getDatabaseName()).isEqualTo("scrapper");

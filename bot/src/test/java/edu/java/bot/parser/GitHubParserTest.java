@@ -4,8 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class GitHubParserTest extends LinkParserTest {
@@ -27,14 +26,14 @@ public class GitHubParserTest extends LinkParserTest {
     @Test
     @Override
     public void testWithSupportedWebserviceLink() {
-        assertTrue(gitHubParser.isLinkCorrect(FIRST_GIT_HUB_URL));
-        assertTrue(gitHubParser.isLinkCorrect(SECOND_GIT_HUB_URL));
+        assertThat(gitHubParser.isLinkCorrect(FIRST_GIT_HUB_URL)).isTrue();
+        assertThat(gitHubParser.isLinkCorrect(SECOND_GIT_HUB_URL)).isTrue();
     }
 
     @Test
     @Override
     public void testWithUnsupportedWebserviceLink() {
-        assertFalse(gitHubParser.isLinkCorrect(FIRST_RANDOM_URI));
-        assertFalse(gitHubParser.isLinkCorrect(SECOND_RANDOM_URL));
+        assertThat(gitHubParser.isLinkCorrect(FIRST_RANDOM_URI)).isFalse();
+        assertThat(gitHubParser.isLinkCorrect(SECOND_RANDOM_URL)).isFalse();
     }
 }

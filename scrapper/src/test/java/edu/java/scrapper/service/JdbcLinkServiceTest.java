@@ -1,6 +1,5 @@
 package edu.java.scrapper.service;
 
-import edu.java.dao.jdbc.JdbcLinkDao;
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
 import edu.java.exception.TelegramChatNotFoundException;
@@ -13,33 +12,37 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class JdbcLinkServiceTest extends JdbcServiceTest {
+
+    @InjectMocks
     private JdbcLinkService jdbcLinkService;
 
+    @Mock
     private JdbcChatService jdbcChatService;
 
+    @Mock
     private LinkUpdatersHolder linkUpdatersHolder;
 
+    @Mock
     private GitHubLinkUpdater gitHubLinkUpdater;
 
     private static final String GITHUB_DOMAIN = "github.com";
 
     @BeforeEach
     public void linkServiceSetUp() {
-        jdbcChatService = mock(JdbcChatService.class);
-        jdbcLinkDao = mock(JdbcLinkDao.class);
-        linkUpdatersHolder = mock(LinkUpdatersHolder.class);
-        gitHubLinkUpdater = mock(GitHubLinkUpdater.class);
-
-        when(linkUpdatersHolder.getUpdaterByDomain(GITHUB_DOMAIN)).thenReturn(gitHubLinkUpdater);
-        jdbcLinkService = new JdbcLinkService(jdbcLinkDao, jdbcChatService, linkUpdatersHolder);
+        lenient().when(linkUpdatersHolder.getUpdaterByDomain(GITHUB_DOMAIN)).thenReturn(gitHubLinkUpdater);
     }
 
     @Test

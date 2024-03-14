@@ -38,85 +38,108 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         links = List.of(
             new Link("https://github.com/Soneech/link-tracker"),
             new Link("https://github.com/sanyarnd/java-course-2023-backend-template"),
-            new Link("https://stackoverflow.com/questions/28295625/mockito-spy-vs-mock")
+            new Link("https://stackoverflow.com/questions/28295625/mockito-spy-vs-mock"),
+            new Link("https://github.com/Soneech/polls-client"),
+            new Link("https://github.com/Soneech/polls-server"),
+            new Link("https://github.com/ivannikolaev/java_h2")
         );
     }
 
     @Test
     public void testSaveAndGetLinks() {
         jdbcLinkDao.save(firstChat.getId(), links.getFirst());
-        jdbcLinkDao.save(firstChat.getId(), links.getLast());
-
         List<Link> firstChatLinks = jdbcLinkDao.findChatLinks(firstChat.getId());
         assertThat(firstChatLinks).isNotEmpty();
-        assertThat(firstChatLinks.getFirst().getUrl()).isEqualTo(links.getFirst().getUrl());
-        assertThat(firstChatLinks.getLast().getUrl()).isEqualTo(links.getLast().getUrl());
-
-        Optional<Link> firstChatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), links.getFirst().getUrl());
-        assertThat(firstChatLink).isPresent();
-        assertThat(firstChatLink.get().getUrl()).isEqualTo(links.getFirst().getUrl());
-
-        jdbcLinkDao.save(secondChat.getId(), links.getFirst());
-        Optional<Link> secondChatLink = jdbcLinkDao.findChatLinkByUrl(secondChat.getId(), links.getFirst().getUrl());
-        assertThat(secondChatLink).isPresent();
-        assertThat(secondChatLink.get().getUrl()).isEqualTo(links.getFirst().getUrl());
-        assertThat(secondChatLink.get()).isEqualTo(firstChatLink.get());
     }
 
     @Test
-    public void testDeleteLinks() {
-        jdbcLinkDao.save(firstChat.getId(), links.get(1));
-        jdbcLinkDao.save(secondChat.getId(), links.get(1));
-        String url = links.get(1).getUrl();
+    public void testGetLinkByUrl() {
+        Link link = links.get(1);
+        jdbcLinkDao.save(firstChat.getId(), link);
+        Optional<Link> chatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), link.getUrl());
 
-        Optional<Link> firstChatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), url);
+        assertThat(chatLink).isPresent();
+        assertThat(chatLink.get().getUrl()).isEqualTo(link.getUrl());
+    }
+
+    @Test
+    public void testSaveLinkWithManyToManyRelationship() {
+        Link link = links.get(2);
+        jdbcLinkDao.save(firstChat.getId(), link);
+        jdbcLinkDao.save(secondChat.getId(), link);
+
+        Optional<Link> firstChatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), link.getUrl());
+        Optional<Link> secondChatLink = jdbcLinkDao.findChatLinkByUrl(secondChat.getId(), link.getUrl());
+
         assertThat(firstChatLink).isPresent();
+        assertThat(secondChatLink).isPresent();
+        assertThat(firstChatLink.get()).isEqualTo(secondChatLink.get());
+    }
 
-        jdbcLinkDao.delete(firstChat.getId(), firstChatLink.get().getId());
-        firstChatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), url);
-        assertThat(firstChatLink).isEmpty();
+    @Test
+    public void testDeleteLink() {
+        Link link = links.get(3);
+        jdbcLinkDao.save(firstChat.getId(), link);
 
-        Optional<Link> linkInDataBase = jdbcLinkDao.findLinkByUrl(url);
-        assertThat(linkInDataBase).isPresent();
+        Optional<Link> chatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), link.getUrl());
+        assertThat(chatLink).isPresent();
 
-        jdbcLinkDao.delete(secondChat.getId(), linkInDataBase.get().getId());
-        linkInDataBase = jdbcLinkDao.findLinkByUrl(url);
-        assertThat(linkInDataBase).isEmpty();
+        jdbcLinkDao.delete(firstChat.getId(), chatLink.get().getId());
+        chatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), link.getUrl());
+        assertThat(chatLink).isEmpty();
+    }
+
+    @Test
+    public void testDeleteLinkWithManyToManyRelationship() {
+        Link link = links.get(4);
+        jdbcLinkDao.save(secondChat.getId(), link);
+        jdbcLinkDao.save(firstChat.getId(), link);
+
+        Optional<Link> chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+        assertThat(chatLink).isPresent();
+
+        jdbcLinkDao.delete(firstChat.getId(), chatLink.get().getId());
+        chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+        assertThat(chatLink).isPresent();
+
+        jdbcLinkDao.delete(secondChat.getId(), chatLink.get().getId());
+        chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+        assertThat(chatLink).isEmpty();
     }
 
     @Test
     public void testFindAllOutdatedLinks() {
-        Link firstLink = new Link("https://github.com/Soneech/polls-client");
-        Link secondLink = new Link("https://github.com/Soneech/link-tracker");
+        Link firstLink = links.getFirst();
+        Link secondLink = links.get(1);
         firstLink.setLastUpdateTime(OffsetDateTime.now());
         secondLink.setLastUpdateTime(OffsetDateTime.now());
 
         jdbcLinkDao.save(secondChat.getId(), firstLink);
         jdbcLinkDao.save(secondChat.getId(), secondLink);
 
-        List<Link> foundLinks = jdbcLinkDao.findAllOutdatedLinks(10, 60);
+        List<Link> foundLinks = jdbcLinkDao.findAllOutdatedLinks(2, 60);
         assertThat(foundLinks).isEmpty();
-        foundLinks = jdbcLinkDao.findAllOutdatedLinks(10, 0);
+        foundLinks = jdbcLinkDao.findAllOutdatedLinks(2, 0);
         assertThat(foundLinks).isNotEmpty();
-        assertThat(foundLinks.size()).isEqualTo(2);
-
+        assertThat(foundLinks).hasSize(2);
     }
 
     @Test
     public void testSetUpdateAndCheckTime() {
-        Link link = new Link("https://github.com/Soneech/polls-client");
-        jdbcLinkDao.save(firstChat.getId(), link);
-        Optional<Link> foundLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
-        assertThat(foundLink).isPresent();
+        Link link = links.getLast();
+        jdbcLinkDao.save(secondChat.getId(), link);
+
+        Optional<Link> chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+        assertThat(chatLink).isPresent();
 
         OffsetDateTime lastUpdateTime = OffsetDateTime.now();
         OffsetDateTime lastCheckTime = OffsetDateTime.now();
 
-        jdbcLinkDao.setUpdateAndCheckTime(foundLink.get(), lastUpdateTime, lastCheckTime);
-        foundLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
-        assertThat(foundLink).isPresent();
+        jdbcLinkDao.setUpdateAndCheckTime(chatLink.get(), lastUpdateTime, lastCheckTime);
+        chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
+        assertThat(chatLink).isPresent();
 
-        assertThat(foundLink.get().getLastCheckTime().toEpochSecond()).isEqualTo(lastCheckTime.toEpochSecond());
-        assertThat(foundLink.get().getLastUpdateTime().toEpochSecond()).isEqualTo(lastUpdateTime.toEpochSecond());
+        assertThat(chatLink.get().getLastCheckTime().toEpochSecond()).isEqualTo(lastCheckTime.toEpochSecond());
+        assertThat(chatLink.get().getLastUpdateTime().toEpochSecond()).isEqualTo(lastUpdateTime.toEpochSecond());
     }
 }

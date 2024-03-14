@@ -17,18 +17,22 @@ public class JdbcLinkDao {
 
     public List<Link> findChatLinks(long chatId) {
         return jdbcTemplate
-            .query(
-                "SELECT l.* FROM link l JOIN chat_link cl ON l.id = cl.link_id JOIN chat c "
-                    + "ON c.id = cl.chat_id WHERE c.id=?",
-                new BeanPropertyRowMapper<>(Link.class), chatId);
+            .query("""
+                        SELECT l.* FROM link l JOIN chat_link cl ON l.id = cl.link_id JOIN chat c
+                            ON c.id = cl.chat_id WHERE c.id=?
+                    """,
+                new BeanPropertyRowMapper<>(Link.class), chatId
+            );
     }
 
     public Optional<Link> findChatLinkByUrl(long chatId, String url) {
         return jdbcTemplate
-            .query("SELECT l.* FROM link l JOIN chat_link cl ON cl.chat_id = ? "
-                    + "AND cl.link_id = l.id WHERE l.url = ?",
-                    new BeanPropertyRowMapper<>(Link.class), chatId, url)
-            .stream().findAny();
+            .query("""
+                    SELECT l.* FROM link l JOIN chat_link cl ON cl.chat_id = ?
+                        AND cl.link_id = l.id WHERE l.url = ?
+                    """,
+                new BeanPropertyRowMapper<>(Link.class), chatId, url
+            ).stream().findAny();
     }
 
     @Transactional
@@ -37,7 +41,8 @@ public class JdbcLinkDao {
 
         if (savedLink.isEmpty()) {
             jdbcTemplate.update("INSERT INTO link (url, last_update_time) VALUES (?, ?)",
-                link.getUrl(), link.getLastUpdateTime());
+                link.getUrl(), link.getLastUpdateTime()
+            );
             savedLink = findLinkByUrl(link.getUrl());
         }
 
@@ -65,14 +70,18 @@ public class JdbcLinkDao {
 
     public List<Link> findAllOutdatedLinks(int count, long interval) {
         return jdbcTemplate
-            .query("SELECT * FROM Link WHERE EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_check_time)) >= ? OR "
-                    + "last_update_time IS NULL LIMIT ?",
-                new BeanPropertyRowMapper<>(Link.class), interval, count);
+            .query("""
+                    SELECT * FROM Link WHERE EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_check_time)) >= ? OR
+                        last_update_time IS NULL LIMIT ?
+                    """,
+                new BeanPropertyRowMapper<>(Link.class), interval, count
+            );
     }
 
     public void setUpdateAndCheckTime(Link link, OffsetDateTime lastUpdateTime, OffsetDateTime lastCheckTime) {
         jdbcTemplate
             .update("UPDATE Link SET last_update_time = ?, last_check_time = ? WHERE id = ?",
-            lastUpdateTime, lastCheckTime, link.getId());
+                lastUpdateTime, lastCheckTime, link.getId()
+            );
     }
 }

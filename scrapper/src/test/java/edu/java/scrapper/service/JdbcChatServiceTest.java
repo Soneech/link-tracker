@@ -1,32 +1,28 @@
 package edu.java.scrapper.service;
 
-import edu.java.dao.jdbc.JdbcChatDao;
 import edu.java.exception.TelegramChatAlreadyExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
-import edu.java.service.ChatService;
 import edu.java.service.jdbc.JdbcChatService;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class JdbcChatServiceTest extends JdbcServiceTest {
-    private static ChatService chatService;
 
-    @BeforeEach
-    public void chatServiceSetUp() {
-        jdbcChatDao = mock(JdbcChatDao.class);
-        chatService = new JdbcChatService(jdbcChatDao);
-    }
+    @InjectMocks
+    private JdbcChatService jdbcChatService;
 
     @Test
     public void testRegistration() {
-        chatService.registerChat(chat);
+        jdbcChatService.registerChat(chat);
         verify(jdbcChatDao).save(chat);
     }
 
@@ -35,13 +31,13 @@ public class JdbcChatServiceTest extends JdbcServiceTest {
         when(jdbcChatDao.findById(chat.getId())).thenReturn(Optional.of(chat));
 
         assertThatExceptionOfType(TelegramChatAlreadyExistsException.class)
-            .isThrownBy(() -> chatService.registerChat(chat));
+            .isThrownBy(() -> jdbcChatService.registerChat(chat));
     }
 
     @Test
     public void testUnregisterUser() {
         when(jdbcChatDao.findById(chat.getId())).thenReturn(Optional.of(chat));
-        chatService.unregisterChat(chat.getId());
+        jdbcChatService.unregisterChat(chat.getId());
 
         verify(jdbcChatDao).delete(chat.getId());
     }
@@ -49,12 +45,12 @@ public class JdbcChatServiceTest extends JdbcServiceTest {
     @Test
     public void testUnregisterNonExistentChat() {
         assertThatExceptionOfType(TelegramChatNotFoundException.class)
-            .isThrownBy(() -> chatService.unregisterChat(chat.getId()));
+            .isThrownBy(() -> jdbcChatService.unregisterChat(chat.getId()));
     }
 
     @Test
     public void testFindChat() {
-        chatService.findChat(chat.getId());
+        jdbcChatService.findChat(chat.getId());
         verify(jdbcChatDao).findById(chat.getId());
     }
 
@@ -63,8 +59,8 @@ public class JdbcChatServiceTest extends JdbcServiceTest {
         long testLinkId = 123;
         when(jdbcChatDao.findAllChatIdsWithLink(testLinkId)).thenReturn(List.of(chat.getId()));
 
-        List<Long> chatIds = chatService.findAllChatsIdsWithLink(testLinkId);
-        assertThat(chatIds.size()).isOne();
+        List<Long> chatIds = jdbcChatService.findAllChatsIdsWithLink(testLinkId);
+        assertThat(chatIds).hasSize(1);
         assertThat(chatIds.getFirst()).isEqualTo(chat.getId());
     }
 }

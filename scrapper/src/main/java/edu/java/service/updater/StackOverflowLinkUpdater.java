@@ -27,16 +27,13 @@ public class StackOverflowLinkUpdater implements LinkUpdater {
         long questionId = getQuestionId(link.getUrl());
         QuestionResponse response = stackOverflowWebClient.fetchQuestion(questionId);
 
-        Optional<Update> update = Optional.empty();
         for (var item: response.items()) {
             if (item.lastActivityDate().isAfter(link.getLastUpdateTime())) {
-                update = Optional.of(new Update(link.getId(), link.getUrl(),
+                return Optional.of(new Update(link.getId(), link.getUrl(),
                     "произошли изменения в вопросе.", item.lastActivityDate()));
-                break;
             }
         }
-
-        return update;
+        return Optional.empty();
     }
 
     @Override

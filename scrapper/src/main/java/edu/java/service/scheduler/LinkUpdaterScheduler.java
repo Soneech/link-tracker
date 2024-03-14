@@ -4,7 +4,6 @@ import edu.java.client.BotClient;
 import edu.java.dto.bot.request.LinkUpdateRequest;
 import edu.java.dto.bot.response.LinkUpdateResponse;
 import edu.java.service.updater.LinkUpdateService;
-import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -22,17 +21,17 @@ public class LinkUpdaterScheduler {
 
     private final LinkUpdateService linkUpdateService;
 
-    @Value("#{@updateProperties.count()}")
+    @Value("${api.bot.update-properties.count}")
     private int updatesCount;
 
-    @Value("#{@updateProperties.interval()}")
-    private Duration interval;
+    @Value("${api.bot.update-properties.interval}")
+    private long interval;
 
     @Scheduled(fixedDelayString = "#{@scheduler.interval().toMillis()}")
     public void update() {
         LOGGER.info("Getting updates...");
 
-        List<LinkUpdateRequest> updates = linkUpdateService.fetchAllUpdates(updatesCount, interval.getSeconds());
+        List<LinkUpdateRequest> updates = linkUpdateService.fetchAllUpdates(updatesCount, interval);
         updates.forEach((update) -> {
             LinkUpdateResponse response = botWebClient.sendUpdate(update);
             LOGGER.info("Update for link with id %d: %s".formatted(update.id(), response.message()));

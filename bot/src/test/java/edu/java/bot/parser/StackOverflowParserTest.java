@@ -4,8 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class StackOverflowParserTest extends LinkParserTest {
@@ -27,14 +26,14 @@ public class StackOverflowParserTest extends LinkParserTest {
     @Test
     @Override
     public void testWithSupportedWebserviceLink() {
-        assertTrue(stackOverflowParser.isLinkCorrect(FIRST_STACK_OVERFLOW_URL));
-        assertTrue(stackOverflowParser.isLinkCorrect(SECOND_STACK_OVERFLOW_URL));
+        assertThat(stackOverflowParser.isLinkCorrect(FIRST_STACK_OVERFLOW_URL)).isTrue();
+        assertThat(stackOverflowParser.isLinkCorrect(SECOND_STACK_OVERFLOW_URL)).isTrue();
     }
 
     @Test
     @Override
     public void testWithUnsupportedWebserviceLink() {
-        assertFalse(stackOverflowParser.isLinkCorrect(FIRST_RANDOM_URL));
-        assertFalse(stackOverflowParser.isLinkCorrect(SECOND_RANDOM_URL));
+        assertThat(stackOverflowParser.isLinkCorrect(FIRST_RANDOM_URL)).isFalse();
+        assertThat(stackOverflowParser.isLinkCorrect(SECOND_RANDOM_URL)).isFalse();
     }
 }
