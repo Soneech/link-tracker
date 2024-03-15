@@ -20,7 +20,7 @@ public class StartCommandTest extends CommandTest {
     private ScrapperClient scrapperWebClient;
 
     private static final String WELCOME_MESSAGE =
-        "Приветствую! Вы зарегистрировались в приложении Link Tracker!";
+        "Приветствую, %s! Вы зарегистрировались в приложении Link Tracker!";
 
     private static final String ALREADY_REGISTERED_MESSAGE = "Вы уже зарегистрированы :)";
 
@@ -43,7 +43,7 @@ public class StartCommandTest extends CommandTest {
     void testThatCommandReturnCorrectMessageForNewUser() {
         when(scrapperWebClient.registerChat(chatId)).thenReturn(new SuccessMessageResponse("some message"));
         assertThat(startCommand.processCommand(update).getParameters().get("text"))
-            .isEqualTo(WELCOME_MESSAGE + "\n" + SUPPORTED_COMMANDS_MESSAGE);
+            .isEqualTo(WELCOME_MESSAGE.formatted(chat.username()) + "\n" + SUPPORTED_COMMANDS_MESSAGE);
     }
 
     @Test

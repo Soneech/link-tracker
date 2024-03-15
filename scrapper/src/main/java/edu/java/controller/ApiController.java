@@ -21,7 +21,7 @@ public interface ApiController {
                  content = @Content(schema = @Schema(implementation = SuccessResponse.class)))
     @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса",
                  content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
-    SuccessResponse registerChat(@PathVariable("id") Long id);
+    SuccessResponse registerChat(@PathVariable("id") Long chatId);
 
 
     @ApiResponse(responseCode = "200", description = "Чат успешно удалён",
@@ -32,7 +32,7 @@ public interface ApiController {
     @ApiResponse(responseCode = "404",
                  description = "Чат не существует",
                  content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
-    SuccessResponse deleteChat(@PathVariable("id") Long id);
+    SuccessResponse deleteChat(@PathVariable("id") Long chatId);
 
 
     @ApiResponse(responseCode = "200", description = "Ссылки успешно получены",

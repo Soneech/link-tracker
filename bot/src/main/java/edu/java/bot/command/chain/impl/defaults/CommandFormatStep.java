@@ -22,7 +22,7 @@ public class CommandFormatStep implements DefaultCommandStep {
         if (messageParts.length != 2) {
             result.setMessage(INCORRECT_COMMAND_FORMAT_MESSAGE);
             result.setSuccess(false);
-            LOGGER.warn("ChatID: %d; incorrect command format: %s"
+            LOGGER.warn("ChatID: %d; неверный формат команды: %s"
                 .formatted(chatId, String.join(" ", messageParts)));
         }
 

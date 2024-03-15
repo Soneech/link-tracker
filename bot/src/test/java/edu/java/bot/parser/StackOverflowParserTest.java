@@ -1,24 +1,22 @@
 package edu.java.bot.parser;
 
-import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class StackOverflowParserTest extends LinkParserTest {
     private StackOverflowParser stackOverflowParser;
 
-    private static final URI FIRST_STACK_OVERFLOW_URI =
-        URI.create("https://stackoverflow.com/questions/26318569/unfinished-stubbing-detected-in-mockito");
-    private static final URI SECOND_STACK_OVERFLOW_URI =
-        URI.create("https://stackoverflow.com/questions/66696828/how-to-use-configurationproperties-with-records");
+    private static final String FIRST_STACK_OVERFLOW_URL =
+        "https://stackoverflow.com/questions/26318569/unfinished-stubbing-detected-in-mockito";
+    private static final String SECOND_STACK_OVERFLOW_URL =
+        "https://stackoverflow.com/questions/66696828/how-to-use-configurationproperties-with-records";
 
-    private static final URI FIRST_RANDOM_URI = URI.create("https://fintech.tinkoff.ru/study/");
-    private static final URI SECOND_RANDOM_URI = URI.create("https://github.com/tonsky/FiraCode");
+    private static final String FIRST_RANDOM_URL = "https://fintech.tinkoff.ru/study/";
+    private static final String SECOND_RANDOM_URL = "https://github.com/tonsky/FiraCode";
 
     @BeforeEach
     public void setUp() {
@@ -28,14 +26,14 @@ public class StackOverflowParserTest extends LinkParserTest {
     @Test
     @Override
     public void testWithSupportedWebserviceLink() {
-        assertTrue(stackOverflowParser.parseLink(FIRST_STACK_OVERFLOW_URI));
-        assertTrue(stackOverflowParser.parseLink(SECOND_STACK_OVERFLOW_URI));
+        assertThat(stackOverflowParser.isLinkCorrect(FIRST_STACK_OVERFLOW_URL)).isTrue();
+        assertThat(stackOverflowParser.isLinkCorrect(SECOND_STACK_OVERFLOW_URL)).isTrue();
     }
 
     @Test
     @Override
     public void testWithUnsupportedWebserviceLink() {
-        assertFalse(stackOverflowParser.parseLink(FIRST_RANDOM_URI));
-        assertFalse(stackOverflowParser.parseLink(SECOND_RANDOM_URI));
+        assertThat(stackOverflowParser.isLinkCorrect(FIRST_RANDOM_URL)).isFalse();
+        assertThat(stackOverflowParser.isLinkCorrect(SECOND_RANDOM_URL)).isFalse();
     }
 }

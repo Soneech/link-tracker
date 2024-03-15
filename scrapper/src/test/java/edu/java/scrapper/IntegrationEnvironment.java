@@ -27,7 +27,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
-public abstract class IntegrationTest {
+public abstract class IntegrationEnvironment {
     private static final Logger LOGGER = LogManager.getLogger();
 
     @ServiceConnection

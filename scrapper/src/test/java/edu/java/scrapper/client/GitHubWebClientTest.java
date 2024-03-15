@@ -16,7 +16,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GitHubWebClientTest extends HttpClientTest {
     private GitHubWebClient gitHubWebClient;
@@ -44,7 +43,7 @@ public class GitHubWebClientTest extends HttpClientTest {
 
         RepositoryResponse response = gitHubWebClient.fetchRepository(userName, repositoryName);
 
-        assertNotNull(response);
+        assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(751786052L);
         assertThat(response.owner().name()).isEqualTo(userName);
         assertThat(response.repositoryName()).isEqualTo(repositoryName);

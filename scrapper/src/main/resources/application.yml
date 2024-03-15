@@ -1,12 +1,16 @@
 app:
   scheduler:
     enable: true
-    interval: 10s
+    interval: 300s
     force-check-delay: 10s
 
 spring:
   application:
     name: scrapper
+  datasource:
+    url: jdbc:postgresql://localhost:5433/scrapper
+    username: postgres
+    password: postgres
 
 server:
   port: 8080
@@ -21,6 +25,9 @@ api:
     base-url: https://api.stackexchange.com/2.3
   bot:
     base-url: http://localhost:8090
+    update-properties:
+      count: 5
+      interval: 1800
 
 springdoc:
   swagger-ui:

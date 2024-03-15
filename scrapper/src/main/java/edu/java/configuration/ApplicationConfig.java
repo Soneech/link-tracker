@@ -14,6 +14,7 @@ public record ApplicationConfig(
     @NotNull
     @Bean
     Scheduler scheduler
+
 ) {
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
     }

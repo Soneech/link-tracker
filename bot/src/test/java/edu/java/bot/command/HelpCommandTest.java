@@ -43,7 +43,7 @@ public class HelpCommandTest extends CommandTest {
             .append("/list - Показать список отслеживаемых ссылок.").append("\n\n")
             .append("Ниже приведены поддерживаемые сервисы:");
         for (var website: WebsiteInfo.values()) {
-            botMessage.append("\n").append(website.getDomain());
+            botMessage.append("\n").append(website.getDomain()).append(" - ").append(website.getDescription());
         }
         assertThat(helpCommand.processCommand(update).getParameters().get("text")).isEqualTo(botMessage.toString());
     }

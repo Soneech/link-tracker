@@ -7,7 +7,8 @@ import edu.java.dto.api.response.ListLinksResponse;
 import edu.java.dto.api.response.SuccessResponse;
 import edu.java.mapper.DefaultObjectMapper;
 import edu.java.model.Link;
-import edu.java.service.UserChatService;
+import edu.java.service.ChatService;
+import edu.java.service.LinkService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,28 +23,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class ScrapperController implements ApiController {
-    private final UserChatService userChatService;
+    private final ChatService chatService;
+
+    private final LinkService linkService;
 
     private final DefaultObjectMapper mapper;
 
     @Override
     @PostMapping("/tg-chat/{id}")
-    public SuccessResponse registerChat(@PathVariable("id") Long id) {
-        userChatService.registerChat(id);
-        return new SuccessResponse("Чат с id %d успешно зарегистрирован.".formatted(id));
+    public SuccessResponse registerChat(@PathVariable("id") Long chatId) {
+        chatService.registerChat(mapper.convertToChat(chatId));
+        return new SuccessResponse("Чат с id %d успешно зарегистрирован.".formatted(chatId));
     }
 
     @Override
     @DeleteMapping("/tg-chat/{id}")
     public SuccessResponse deleteChat(@PathVariable("id") Long id) {
-        userChatService.removeChat(id);
+        chatService.unregisterChat(id);
         return new SuccessResponse("Чат с id %d успешно удалён.".formatted(id));
     }
 
     @Override
     @GetMapping("/links")
     public ListLinksResponse getLinks(@RequestHeader("Tg-Chat-Id") Long chatId) {
-        List<Link> userLinks = userChatService.getUserLinks(chatId);
+        List<Link> userLinks = linkService.getUserLinks(chatId);
         return mapper.mapToListLinksResponse(userLinks);
     }
 
@@ -53,7 +56,7 @@ public class ScrapperController implements ApiController {
         @RequestBody @Valid AddLinkRequest request) {
 
         Link link = mapper.convertToLink(request);
-        Link addedLink = userChatService.addLink(chatId, link);
+        Link addedLink = linkService.addLink(chatId, link);
         return mapper.convertToLinkResponse(addedLink);
     }
 
@@ -63,7 +66,7 @@ public class ScrapperController implements ApiController {
         @RequestBody @Valid RemoveLinkRequest request) {
 
         Link link = mapper.convertToLink(request);
-        Link removedLink = userChatService.removeLink(chatId, link);
+        Link removedLink = linkService.deleteLink(chatId, link);
         return mapper.convertToLinkResponse(removedLink);
     }
 }

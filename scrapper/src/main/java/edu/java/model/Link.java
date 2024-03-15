@@ -1,16 +1,24 @@
 package edu.java.model;
 
 import jakarta.validation.constraints.NotNull;
+import java.time.OffsetDateTime;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class Link {
     private Long id;
 
     @NotNull
-    private String link;
+    private String url;
 
-    public Link(String link) {
-        this.link = link;
+    @NotNull
+    private OffsetDateTime lastCheckTime;
+
+    private OffsetDateTime lastUpdateTime;
+
+    public Link(String url) {
+        this.url = url;
     }
 }

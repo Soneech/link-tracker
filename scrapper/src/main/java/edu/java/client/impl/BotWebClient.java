@@ -2,8 +2,8 @@ package edu.java.client.impl;
 
 import edu.java.client.BotClient;
 import edu.java.dto.api.response.ApiErrorResponse;
-import edu.java.dto.bot.LinkUpdateRequest;
-import edu.java.dto.bot.LinkUpdateResponse;
+import edu.java.dto.bot.request.LinkUpdateRequest;
+import edu.java.dto.bot.response.LinkUpdateResponse;
 import edu.java.exception.ApiErrorResponseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
