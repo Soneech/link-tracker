@@ -1,13 +1,16 @@
 package edu.java.service.updater.github;
 
 import edu.java.client.GitHubClient;
-import edu.java.dto.github.RepositoryResponse;
+import edu.java.dto.github.RepositoryPushEventResponse;
+import edu.java.dto.update.LinkUpdates;
 import edu.java.dto.update.Update;
 import edu.java.exception.github.RepositoryNotExistsException;
 import edu.java.model.Link;
 import edu.java.service.updater.LinkUpdater;
+import edu.java.service.updater.github.event.GitHubEventHandler;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
@@ -27,6 +30,8 @@ public class GitHubLinkUpdater implements LinkUpdater {
 
     private final int repositoryIndex = 3;
 
+    private final List<GitHubEventHandler> eventHandlers;
+
     private static final Logger LOGGER = LogManager.getLogger();
 
     @Override
@@ -35,38 +40,47 @@ public class GitHubLinkUpdater implements LinkUpdater {
     }
 
     @Override
-    public Optional<Update> fetchUpdate(Link link) throws RepositoryNotExistsException {
+    public Optional<LinkUpdates> fetchUpdates(Link link) throws RepositoryNotExistsException {
         var repositoryData = getUserAndRepository(link.getUrl());
 
-        Optional<Update> update = Optional.empty();
+        LinkUpdates linkUpdates = new LinkUpdates(link.getId(), link.getUrl(), HttpStatus.OK,
+            link.getLastUpdateTime(), new ArrayList<>(), new ArrayList<>());
 
         try {
-            RepositoryResponse response =
-                gitHubWebClient.fetchRepository(repositoryData.getKey(), repositoryData.getValue());
-            if (response.pushedAt().isAfter(link.getLastUpdateTime())) {
-                update = Optional.of(
-                    new Update(link.getId(), link.getUrl(),
-                        "Появился новый коммит.", HttpStatus.OK, response.pushedAt(), new ArrayList<>()
-                    )
-                );
-            }
+            eventHandlers.forEach(handler -> {
+                Optional<Update> update = handler.fetchUpdate(repositoryData, link);
+                update.ifPresent(u -> {
+                    linkUpdates.getUpdates().add(u);
+                    if (u.updateTime().isAfter(linkUpdates.getLastUpdateTime())) {
+                        linkUpdates.setLastUpdateTime(u.updateTime());
+                    }
+                });
+            });
+
         } catch (RepositoryNotExistsException exception) {
             LOGGER.error(exception.getResponse());
-            update = Optional.of(
-                new Update(link.getId(), link.getUrl(),
-                    "Репозиторий больше не существует :(. Ссылка будет удалена.",
-                    HttpStatus.GONE, OffsetDateTime.now(), new ArrayList<>()));
+            linkUpdates.getUpdates().clear();
+            linkUpdates.setHttpStatus(HttpStatus.GONE);
+
+            linkUpdates.getUpdates().add(
+                new Update("Репозиторий больше не существует :(. Ссылка будет удалена.",
+                    OffsetDateTime.now())
+            );
         }
 
-        return update;
+        if (linkUpdates.getUpdates().isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(linkUpdates);
     }
 
     @Override
     public void setLastUpdateTime(Link link) {
         var repositoryData = getUserAndRepository(link.getUrl());
 
-        RepositoryResponse response =
-            gitHubWebClient.fetchRepository(repositoryData.getKey(), repositoryData.getValue());
+        RepositoryPushEventResponse response =
+            gitHubWebClient.fetchRepositoryPushEvent(repositoryData.getKey(), repositoryData.getValue());
         link.setLastUpdateTime(response.pushedAt());
     }
 

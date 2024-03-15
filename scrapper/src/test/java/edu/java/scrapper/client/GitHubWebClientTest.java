@@ -1,7 +1,7 @@
 package edu.java.scrapper.client;
 
 import edu.java.client.impl.GitHubWebClient;
-import edu.java.dto.github.RepositoryResponse;
+import edu.java.dto.github.RepositoryPushEventResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +30,7 @@ public class GitHubWebClientTest extends HttpClientTest {
     }
 
     @Test
-    public void testGettingRepositoryInfo() throws IOException {
+    public void testGettingPushUpdateEvent() throws IOException {
         File file = ResourceUtils.getFile("classpath:repo-response.json");
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
@@ -41,11 +41,10 @@ public class GitHubWebClientTest extends HttpClientTest {
                     .withBody(json)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
-        RepositoryResponse response = gitHubWebClient.fetchRepository(userName, repositoryName);
+        RepositoryPushEventResponse response = gitHubWebClient.fetchRepositoryPushEvent(userName, repositoryName);
 
         assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(751786052L);
-        assertThat(response.owner().name()).isEqualTo(userName);
         assertThat(response.repositoryName()).isEqualTo(repositoryName);
     }
 
@@ -65,6 +64,6 @@ public class GitHubWebClientTest extends HttpClientTest {
                     .withHeader("Content-Type", "application/json")));
 
         assertThatExceptionOfType(RepositoryNotExistsException.class)
-            .isThrownBy(() -> gitHubWebClient.fetchRepository(invalidUserName, invalidRepo));
+            .isThrownBy(() -> gitHubWebClient.fetchRepositoryPushEvent(invalidUserName, invalidRepo));
     }
 }

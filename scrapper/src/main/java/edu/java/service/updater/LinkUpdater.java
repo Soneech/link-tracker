@@ -1,6 +1,6 @@
 package edu.java.service.updater;
 
-import edu.java.dto.update.Update;
+import edu.java.dto.update.LinkUpdates;
 import edu.java.model.Link;
 import java.util.Optional;
 
@@ -9,5 +9,5 @@ public interface LinkUpdater {
 
     void setLastUpdateTime(Link link);
 
-    Optional<Update> fetchUpdate(Link link);
+    Optional<LinkUpdates> fetchUpdates(Link link);
 }
