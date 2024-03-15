@@ -1,8 +1,11 @@
 package edu.java.client.impl;
 
 import edu.java.client.GitHubClient;
+import edu.java.dto.github.GitHubErrorResponse;
 import edu.java.dto.github.RepositoryResponse;
+import edu.java.exception.github.RepositoryNotExistsException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
 
 public class GitHubWebClient implements GitHubClient {
@@ -26,6 +29,9 @@ public class GitHubWebClient implements GitHubClient {
         return webClient
             .get().uri("/repos/%s/%s".formatted(user, repository))
             .retrieve()
+            .onStatus(
+                HttpStatus.NOT_FOUND::equals,
+                response -> response.bodyToMono(GitHubErrorResponse.class).map(RepositoryNotExistsException::new))
             .bodyToMono(RepositoryResponse.class)
             .block();
     }

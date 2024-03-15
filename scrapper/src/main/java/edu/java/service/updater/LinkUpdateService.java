@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,9 +33,15 @@ public class LinkUpdateService {
             LinkUpdater updater = linkUpdatersHolder.getUpdaterByDomain(host);
 
             Optional<Update> update = updater.fetchUpdate(link);
+
             update.ifPresent((u) -> {
                 updates.add(u);
-                linkService.setUpdateAndCheckTime(link, u.updateTime(), OffsetDateTime.now(ZoneId.systemDefault()));
+
+                if (u.httpStatus().equals(HttpStatus.OK)) {
+                    linkService.setUpdateAndCheckTime(link, u.updateTime(), OffsetDateTime.now(ZoneId.systemDefault()));
+                } else {
+                    linkService.deleteLink(link);
+                }
             });
         });
 

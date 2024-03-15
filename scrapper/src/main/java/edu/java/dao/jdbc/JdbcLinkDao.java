@@ -52,14 +52,18 @@ public class JdbcLinkDao {
     }
 
     @Transactional
-    public void delete(long chatId, long linkId) {
+    public void deleteChatLink(long chatId, long linkId) {
         jdbcTemplate.update("DELETE FROM chat_link WHERE chat_id = ? AND link_id = ?", chatId, linkId);
 
         List<Long> chatIdsWithThisLink =
             jdbcTemplate.queryForList("SELECT chat_id FROM chat_link WHERE link_id = ?", Long.class, linkId);
         if (chatIdsWithThisLink.isEmpty()) {
-            jdbcTemplate.update("DELETE FROM link WHERE id = ?", linkId);
+            delete(linkId);
         }
+    }
+
+    public void delete(long linkId) {
+        jdbcTemplate.update("DELETE FROM link WHERE id = ?", linkId);
     }
 
     public Optional<Link> findLinkByUrl(String url) {

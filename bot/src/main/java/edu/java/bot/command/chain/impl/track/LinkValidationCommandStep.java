@@ -18,9 +18,7 @@ public class LinkValidationCommandStep implements TrackCommandStep {
     private final Pattern linkPattern =
         Pattern.compile("^(https?|http)(://)([-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])");
 
-    private static final String INVALID_LINK_MESSAGE = "Кажется, такой ссылки не существует :(";
-
-    private static final String SOMETHING_WENT_WRONG = "Что-то пошло не так :(";
+    private static final String INVALID_LINK_MESSAGE = "Кажется, это не ссылка :)";
 
     @Override
     public Result handle(String[] messageParts, Long chatId) {
@@ -30,19 +28,6 @@ public class LinkValidationCommandStep implements TrackCommandStep {
         if (!linkPattern.matcher(link).matches()) {
             makeFailedResult(result, INVALID_LINK_MESSAGE);
             LOGGER.warn("ChatID: %d; invalid link: %s".formatted(chatId, link));
-        } else {
-            try {
-                URL url = URI.create(link).toURL();
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                int responseCode = connection.getResponseCode();
-
-                if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                    makeFailedResult(result, INVALID_LINK_MESSAGE);
-                }
-            } catch (IOException e) {
-                LOGGER.error(e.getStackTrace());
-                makeFailedResult(result, SOMETHING_WENT_WRONG);
-            }
         }
 
         return result;

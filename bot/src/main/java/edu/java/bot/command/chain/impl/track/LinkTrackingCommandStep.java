@@ -5,6 +5,7 @@ import edu.java.bot.command.CommandInfo;
 import edu.java.bot.command.chain.Result;
 import edu.java.bot.dto.request.AddLinkRequest;
 import edu.java.bot.dto.response.LinkResponse;
+import edu.java.bot.exception.ApiAddedResourceNotExistsException;
 import edu.java.bot.exception.ApiBadRequestException;
 import edu.java.bot.exception.ApiNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,9 @@ public class LinkTrackingCommandStep implements TrackCommandStep {
 
     private static final String SOMETHING_WENT_WRONG = "Что-то пошло не так :(";
 
+    private static final String LINK_NOT_EXISTS_MESSAGE = "Кажется, такой ссылки нет :(";
+
+
     @Override
     public Result handle(String[] messageParts, Long chatId) {
         Result result;
@@ -46,7 +50,12 @@ public class LinkTrackingCommandStep implements TrackCommandStep {
             LOGGER.warn("ChatID: %d; ссылка %s уже добавлена".formatted(chatId, link));
             LOGGER.warn(exception.getApiErrorResponse());
 
-        } catch (ApiNotFoundException exception) {
+        } catch (ApiAddedResourceNotExistsException exception) {
+            result = new Result(LINK_NOT_EXISTS_MESSAGE, false);
+            LOGGER.warn("ChatID: %d; ссылка %s не существует".formatted(chatId, link));
+            LOGGER.warn(exception.getApiErrorResponse());
+        }
+        catch (ApiNotFoundException exception) {
             result = new Result(SOMETHING_WENT_WRONG, false);
             LOGGER.warn(exception.getApiErrorResponse());
         }

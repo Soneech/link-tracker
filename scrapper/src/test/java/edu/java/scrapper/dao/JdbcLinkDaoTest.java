@@ -84,7 +84,7 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         Optional<Link> chatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), link.getUrl());
         assertThat(chatLink).isPresent();
 
-        jdbcLinkDao.delete(firstChat.getId(), chatLink.get().getId());
+        jdbcLinkDao.deleteChatLink(firstChat.getId(), chatLink.get().getId());
         chatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), link.getUrl());
         assertThat(chatLink).isEmpty();
     }
@@ -98,11 +98,11 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         Optional<Link> chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
         assertThat(chatLink).isPresent();
 
-        jdbcLinkDao.delete(firstChat.getId(), chatLink.get().getId());
+        jdbcLinkDao.deleteChatLink(firstChat.getId(), chatLink.get().getId());
         chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
         assertThat(chatLink).isPresent();
 
-        jdbcLinkDao.delete(secondChat.getId(), chatLink.get().getId());
+        jdbcLinkDao.deleteChatLink(secondChat.getId(), chatLink.get().getId());
         chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
         assertThat(chatLink).isEmpty();
     }

@@ -6,7 +6,7 @@ import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.model.Link;
 import edu.java.service.jdbc.JdbcChatService;
 import edu.java.service.jdbc.JdbcLinkService;
-import edu.java.service.updater.GitHubLinkUpdater;
+import edu.java.service.updater.github.GitHubLinkUpdater;
 import edu.java.service.updater.LinkUpdatersHolder;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -61,7 +61,7 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
 
     @Test
     public void testAddingLink() {
-        jdbcLinkService.addLink(chat.getId(), link);
+        jdbcLinkService.addLinkForUser(chat.getId(), link);
         verify(jdbcLinkDao).save(chat.getId(), link);
         verify(linkUpdatersHolder).getUpdaterByDomain(GITHUB_DOMAIN);
         verify(gitHubLinkUpdater).setLastUpdateTime(link);
@@ -71,7 +71,7 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
     public void testRepeatedAddingLink() {
         when(jdbcLinkDao.findChatLinkByUrl(chat.getId(), link.getUrl()))
             .thenReturn(Optional.of(link));
-        assertThatThrownBy(() -> jdbcLinkService.addLink(chat.getId(), link))
+        assertThatThrownBy(() -> jdbcLinkService.addLinkForUser(chat.getId(), link))
             .isInstanceOf(LinkAlreadyAddedException.class);
     }
 
@@ -79,7 +79,7 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
     public void testAddingLinkForNonExistentUser() {
         doThrow(TelegramChatNotFoundException.class)
             .when(jdbcChatService).checkThatChatExists(chat.getId());
-        assertThatThrownBy(() -> jdbcLinkService.addLink(chat.getId(), link))
+        assertThatThrownBy(() -> jdbcLinkService.addLinkForUser(chat.getId(), link))
             .isInstanceOf(TelegramChatNotFoundException.class);
     }
 
@@ -90,16 +90,16 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
 
         when(jdbcLinkDao.findChatLinkByUrl(chat.getId(), testLink.getUrl()))
             .thenReturn(Optional.of(testLink));
-        Link linkToDelete = jdbcLinkService.deleteLink(chat.getId(), testLink);
+        Link linkToDelete = jdbcLinkService.deleteUserLink(chat.getId(), testLink);
 
         assertThat(linkToDelete).isEqualTo(testLink);
-        verify(jdbcLinkDao).delete(chat.getId(), linkToDelete.getId());
+        verify(jdbcLinkDao).deleteChatLink(chat.getId(), linkToDelete.getId());
 
     }
 
     @Test
     public void testDeletingNonTrackingLink() {
-        assertThatThrownBy(() -> jdbcLinkService.deleteLink(chat.getId(), link))
+        assertThatThrownBy(() -> jdbcLinkService.deleteUserLink(chat.getId(), link))
             .isInstanceOf(LinkNotFoundException.class);
     }
 
@@ -107,7 +107,7 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
     public void testDeletingLinkForNonExistentUser() {
         doThrow(TelegramChatNotFoundException.class)
             .when(jdbcChatService).checkThatChatExists(chat.getId());
-        assertThatThrownBy(() -> jdbcLinkService.deleteLink(chat.getId(), link))
+        assertThatThrownBy(() -> jdbcLinkService.deleteUserLink(chat.getId(), link))
             .isInstanceOf(TelegramChatNotFoundException.class);
     }
 
