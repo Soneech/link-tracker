@@ -1,9 +1,11 @@
 package edu.java.dto.update;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.http.HttpStatus;
 import java.time.OffsetDateTime;
+import java.util.List;
+import org.springframework.http.HttpStatus;
 
 public record Update(
     @NotNull
@@ -18,6 +20,9 @@ public record Update(
     @NotNull
     HttpStatus httpStatus,
 
-    OffsetDateTime updateTime
+    OffsetDateTime updateTime,
+
+    @NotEmpty
+    List<Long> tgChatIds
 ) {
 }

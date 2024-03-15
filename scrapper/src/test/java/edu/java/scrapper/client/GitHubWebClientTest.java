@@ -5,12 +5,12 @@ import edu.java.dto.github.RepositoryResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import edu.java.exception.github.RepositoryNotExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -54,17 +54,17 @@ public class GitHubWebClientTest extends HttpClientTest {
         File file = ResourceUtils.getFile("classpath:not-found-repo.json");
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
-        String invalidUserName = "invalid user name";
-        String invalidRepo = "invalid repo name";
+        String invalidUserName = "invalid-user-name";
+        String invalidRepo = "invalid-repo-name";
 
         wireMockServer
             .stubFor(get("/repos/%s/%s".formatted(invalidUserName, invalidRepo))
                 .willReturn(aResponse()
                     .withStatus(404)
                     .withBody(json)
-                    .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
+                    .withHeader("Content-Type", "application/json")));
 
-        assertThatExceptionOfType(WebClientResponseException.class)
+        assertThatExceptionOfType(RepositoryNotExistsException.class)
             .isThrownBy(() -> gitHubWebClient.fetchRepository(invalidUserName, invalidRepo));
     }
 }

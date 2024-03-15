@@ -123,7 +123,11 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
     public void testSetUpdateAndCheckTime() {
         OffsetDateTime lastUpdateTime = OffsetDateTime.now();
         OffsetDateTime lastCheckTime = OffsetDateTime.now();
-        jdbcLinkService.setUpdateAndCheckTime(link, lastUpdateTime, lastCheckTime);
-        verify(jdbcLinkDao).setUpdateAndCheckTime(link, lastUpdateTime, lastCheckTime);
+
+        jdbcLinkService.setUpdateTime(link, lastUpdateTime);
+        verify(jdbcLinkDao).setUpdateTime(link, lastUpdateTime);
+
+        jdbcLinkService.setCheckTime(link, lastCheckTime);
+        verify(jdbcLinkDao).setCheckTime(link, lastCheckTime);
     }
 }

@@ -54,8 +54,8 @@ public class LinkTrackingCommandStep implements TrackCommandStep {
             result = new Result(LINK_NOT_EXISTS_MESSAGE, false);
             LOGGER.warn("ChatID: %d; ссылка %s не существует".formatted(chatId, link));
             LOGGER.warn(exception.getApiErrorResponse());
-        }
-        catch (ApiNotFoundException exception) {
+
+        } catch (ApiNotFoundException exception) {
             result = new Result(SOMETHING_WENT_WRONG, false);
             LOGGER.warn(exception.getApiErrorResponse());
         }

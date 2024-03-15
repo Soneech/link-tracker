@@ -13,7 +13,9 @@ public interface LinkService {
 
     List<Link> findAllOutdatedLinks(int count, long interval);
 
-    void setUpdateAndCheckTime(Link link, OffsetDateTime lastUpdateTime, OffsetDateTime lastCheckTime);
+    void setUpdateTime(Link link, OffsetDateTime lastUpdateTime);
+
+    void setCheckTime(Link link, OffsetDateTime lastCheckTime);
 
     void deleteLink(Link link);
 }

@@ -82,10 +82,13 @@ public class JdbcLinkDao {
             );
     }
 
-    public void setUpdateAndCheckTime(Link link, OffsetDateTime lastUpdateTime, OffsetDateTime lastCheckTime) {
+    public void setUpdateTime(Link link, OffsetDateTime lastUpdateTime) {
         jdbcTemplate
-            .update("UPDATE Link SET last_update_time = ?, last_check_time = ? WHERE id = ?",
-                lastUpdateTime, lastCheckTime, link.getId()
-            );
+            .update("UPDATE Link SET last_update_time = ? WHERE id = ?", lastUpdateTime, link.getId());
+    }
+
+    public void setCheckTime(Link link, OffsetDateTime lastCheckTime) {
+        jdbcTemplate
+            .update("UPDATE Link SET last_check_time = ? WHERE id = ?", lastCheckTime, link.getId());
     }
 }

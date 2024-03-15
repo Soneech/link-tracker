@@ -5,9 +5,10 @@ import edu.java.dto.github.RepositoryResponse;
 import edu.java.dto.update.Update;
 import edu.java.exception.github.RepositoryNotExistsException;
 import edu.java.model.Link;
-import java.time.OffsetDateTime;
-import java.util.Optional;
 import edu.java.service.updater.LinkUpdater;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
@@ -45,14 +46,16 @@ public class GitHubLinkUpdater implements LinkUpdater {
             if (response.pushedAt().isAfter(link.getLastUpdateTime())) {
                 update = Optional.of(
                     new Update(link.getId(), link.getUrl(),
-                        "Появился новый коммит.", HttpStatus.OK, response.pushedAt())
+                        "Появился новый коммит.", HttpStatus.OK, response.pushedAt(), new ArrayList<>()
+                    )
                 );
             }
         } catch (RepositoryNotExistsException exception) {
             LOGGER.error(exception.getResponse());
             update = Optional.of(
-                new Update(link.getId(), link.getUrl(), "Репозиторий не существует :(. Ссылка будет удалена.",
-                    HttpStatus.NOT_FOUND, OffsetDateTime.now()));
+                new Update(link.getId(), link.getUrl(),
+                    "Репозиторий больше не существует :(. Ссылка будет удалена.",
+                    HttpStatus.GONE, OffsetDateTime.now(), new ArrayList<>()));
         }
 
         return update;

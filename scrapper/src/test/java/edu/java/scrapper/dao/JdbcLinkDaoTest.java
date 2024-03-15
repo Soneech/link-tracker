@@ -135,7 +135,8 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         OffsetDateTime lastUpdateTime = OffsetDateTime.now();
         OffsetDateTime lastCheckTime = OffsetDateTime.now();
 
-        jdbcLinkDao.setUpdateAndCheckTime(chatLink.get(), lastUpdateTime, lastCheckTime);
+        jdbcLinkDao.setUpdateTime(chatLink.get(), lastUpdateTime);
+        jdbcLinkDao.setCheckTime(chatLink.get(), lastCheckTime);
         chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
         assertThat(chatLink).isPresent();
 

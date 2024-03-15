@@ -70,8 +70,13 @@ public class JdbcLinkService implements LinkService {
     }
 
     @Override
-    public void setUpdateAndCheckTime(Link link, OffsetDateTime lastUpdateTime, OffsetDateTime lastCheckTime) {
-        jdbcLinkDao.setUpdateAndCheckTime(link, lastUpdateTime, lastCheckTime);
+    public void setUpdateTime(Link link, OffsetDateTime lastUpdateTime) {
+        jdbcLinkDao.setUpdateTime(link, lastUpdateTime);
+    }
+
+    @Override
+    public void setCheckTime(Link link, OffsetDateTime lastCheckTime) {
+        jdbcLinkDao.setCheckTime(link, lastCheckTime);
     }
 
     @Override

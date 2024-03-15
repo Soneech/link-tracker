@@ -4,7 +4,6 @@ import edu.java.bot.client.ScrapperClient;
 import edu.java.bot.dto.response.LinkResponse;
 import edu.java.bot.dto.response.ListLinksResponse;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -53,7 +52,7 @@ public class ListCommandTest extends CommandTest {
         StringBuilder message = new StringBuilder();
         message.append("Список отслеживаемых ссылок:");
         for (var link : response.links()) {
-            message.append("\n").append(link.uri().toString());
+            message.append("\n").append(link.uri().toString()).append("\n");
         }
 
         assertThat(listCommand.processCommand(update).getParameters().get("text")).isEqualTo(message.toString());

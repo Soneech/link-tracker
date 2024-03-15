@@ -13,6 +13,9 @@ public class GitHubWebClient implements GitHubClient {
     private String baseUrl;
     private final WebClient webClient;
 
+    @Value("${api.github.personal-access-token}")
+    private String personalAccessToken;
+
     public GitHubWebClient() {
         this.webClient = WebClient.builder().baseUrl(baseUrl).build();
     }
@@ -28,6 +31,7 @@ public class GitHubWebClient implements GitHubClient {
     public RepositoryResponse fetchRepository(String user, String repository) {
         return webClient
             .get().uri("/repos/%s/%s".formatted(user, repository))
+            .header("Authorization", "Bearer " + personalAccessToken)
             .retrieve()
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,

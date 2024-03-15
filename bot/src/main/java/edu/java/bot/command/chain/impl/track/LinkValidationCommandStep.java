@@ -1,10 +1,6 @@
 package edu.java.bot.command.chain.impl.track;
 
 import edu.java.bot.command.chain.Result;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

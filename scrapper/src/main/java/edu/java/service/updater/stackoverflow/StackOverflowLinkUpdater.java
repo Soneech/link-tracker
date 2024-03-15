@@ -4,9 +4,9 @@ import edu.java.client.StackOverflowClient;
 import edu.java.dto.stackoverflow.QuestionResponse;
 import edu.java.dto.update.Update;
 import edu.java.model.Link;
-import java.util.Optional;
-
 import edu.java.service.updater.LinkUpdater;
+import java.util.ArrayList;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,12 +28,15 @@ public class StackOverflowLinkUpdater implements LinkUpdater {
     @Override
     public Optional<Update> fetchUpdate(Link link) {
         long questionId = getQuestionId(link.getUrl());
+
         QuestionResponse response = stackOverflowWebClient.fetchQuestion(questionId);
 
         for (var item: response.items()) {
             if (item.lastActivityDate().isAfter(link.getLastUpdateTime())) {
                 return Optional.of(new Update(link.getId(), link.getUrl(),
-                    "Произошли изменения в вопросе.", HttpStatus.OK, item.lastActivityDate()));
+                    "Произошли изменения в вопросе.",
+                    HttpStatus.OK, item.lastActivityDate(), new ArrayList<>()
+                ));
             }
         }
         return Optional.empty();

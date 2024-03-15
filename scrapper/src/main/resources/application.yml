@@ -1,7 +1,7 @@
 app:
   scheduler:
     enable: true
-    interval: 60s
+    interval: 30s
     force-check-delay: 10s
 
 spring:
@@ -20,6 +20,7 @@ logging:
 
 api:
   github:
+    personal-access-token: ${GITHUB_PERSONAL_ACCESS_TOKEN}
     base-url: https://api.github.com
   stackoverflow:
     base-url: https://api.stackexchange.com/2.3

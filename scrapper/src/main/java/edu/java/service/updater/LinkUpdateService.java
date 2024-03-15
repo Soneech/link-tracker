@@ -33,12 +33,15 @@ public class LinkUpdateService {
             LinkUpdater updater = linkUpdatersHolder.getUpdaterByDomain(host);
 
             Optional<Update> update = updater.fetchUpdate(link);
+            linkService.setCheckTime(link, OffsetDateTime.now(ZoneId.systemDefault()));
 
             update.ifPresent((u) -> {
+                List<Long> chatIds = chatService.findAllChatsIdsWithLink(u.linkId());
+                u.tgChatIds().addAll(chatIds);
                 updates.add(u);
 
                 if (u.httpStatus().equals(HttpStatus.OK)) {
-                    linkService.setUpdateAndCheckTime(link, u.updateTime(), OffsetDateTime.now(ZoneId.systemDefault()));
+                    linkService.setUpdateTime(link, u.updateTime());
                 } else {
                     linkService.deleteLink(link);
                 }
@@ -52,9 +55,8 @@ public class LinkUpdateService {
         List<LinkUpdateRequest> requests = new ArrayList<>();
 
         updates.forEach((update) -> {
-            List<Long> chatIds = chatService.findAllChatsIdsWithLink(update.linkId());
             var linkUpdateRequest =
-                new LinkUpdateRequest(update.linkId(), update.url(), update.description(), chatIds);
+                new LinkUpdateRequest(update.linkId(), update.url(), update.description(), update.tgChatIds());
             requests.add(linkUpdateRequest);
         });
 

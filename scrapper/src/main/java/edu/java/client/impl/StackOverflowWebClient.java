@@ -22,12 +22,13 @@ public class StackOverflowWebClient implements StackOverflowClient {
     }
 
     @Override
-    public QuestionResponse fetchQuestion(Long question) {
+    public QuestionResponse fetchQuestion(Long question) {  // нужно добавить обработку 4хх ответов
         return webClient
             .get()
             .uri(builder -> builder
                 .path("/questions/%d".formatted(question))
                 .queryParam("site", "stackoverflow").build())
-            .retrieve().bodyToMono(QuestionResponse.class).block();
+            .retrieve()
+            .bodyToMono(QuestionResponse.class).block();
     }
 }
