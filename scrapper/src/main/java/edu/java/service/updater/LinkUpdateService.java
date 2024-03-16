@@ -55,12 +55,12 @@ public class LinkUpdateService {
         List<LinkUpdateRequest> requests = new ArrayList<>();
 
         linkUpdates.forEach((updateContainer) -> {
-            List<String> descriptions = new ArrayList<>();
-            updateContainer.getUpdates().forEach(update -> descriptions.add(update.description()));
+            StringBuilder descriptions = new StringBuilder();
+            updateContainer.getUpdates().forEach(update -> descriptions.append(update.description()).append("\n"));
 
             var linkUpdateRequest =
                 new LinkUpdateRequest(updateContainer.getLinkId(), updateContainer.getUrl(),
-                    descriptions, updateContainer.getTgChatIds());
+                    descriptions.toString(), updateContainer.getTgChatIds());
             requests.add(linkUpdateRequest);
         });
 

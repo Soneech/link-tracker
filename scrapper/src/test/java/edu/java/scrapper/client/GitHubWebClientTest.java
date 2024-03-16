@@ -1,7 +1,7 @@
 package edu.java.scrapper.client;
 
 import edu.java.client.impl.GitHubWebClient;
-import edu.java.dto.github.RepositoryPushEventResponse;
+import edu.java.dto.github.response.PushEventResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -41,7 +41,7 @@ public class GitHubWebClientTest extends HttpClientTest {
                     .withBody(json)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
-        RepositoryPushEventResponse response = gitHubWebClient.fetchRepositoryPushEvent(userName, repositoryName);
+        PushEventResponse response = gitHubWebClient.fetchRepositoryPushEvent(userName, repositoryName);
 
         assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(751786052L);

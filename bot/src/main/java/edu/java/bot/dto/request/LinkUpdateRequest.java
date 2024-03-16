@@ -15,7 +15,7 @@ public record LinkUpdateRequest(
 
     @NotEmpty
     @JsonProperty("updates_description")
-    List<String> updatesDescription,
+    String updatesDescription,
 
     @NotEmpty
     @JsonProperty("tg_chat_ids")

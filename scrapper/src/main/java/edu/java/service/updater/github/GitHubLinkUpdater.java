@@ -1,7 +1,7 @@
 package edu.java.service.updater.github;
 
 import edu.java.client.GitHubClient;
-import edu.java.dto.github.RepositoryPushEventResponse;
+import edu.java.dto.github.response.RepositoryInfoResponse;
 import edu.java.dto.update.LinkUpdates;
 import edu.java.dto.update.Update;
 import edu.java.exception.github.RepositoryNotExistsException;
@@ -9,6 +9,7 @@ import edu.java.model.Link;
 import edu.java.service.updater.LinkUpdater;
 import edu.java.service.updater.github.event.GitHubEventHandler;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +64,8 @@ public class GitHubLinkUpdater implements LinkUpdater {
             linkUpdates.setHttpStatus(HttpStatus.GONE);
 
             linkUpdates.getUpdates().add(
-                new Update("Репозиторий больше не существует :(. Ссылка будет удалена.",
+                new Update(
+                    "Репозиторий больше не существует, либо стал приватным :(\nСсылка будет удалена.",
                     OffsetDateTime.now())
             );
         }
@@ -79,9 +81,10 @@ public class GitHubLinkUpdater implements LinkUpdater {
     public void setLastUpdateTime(Link link) {
         var repositoryData = getUserAndRepository(link.getUrl());
 
-        RepositoryPushEventResponse response =
-            gitHubWebClient.fetchRepositoryPushEvent(repositoryData.getKey(), repositoryData.getValue());
-        link.setLastUpdateTime(response.pushedAt());
+        RepositoryInfoResponse response =
+            gitHubWebClient.checkThatRepositoryExists(repositoryData.getKey(), repositoryData.getValue());
+        LOGGER.info("Checks repository: %s".formatted(response.toString()));
+        link.setLastUpdateTime(OffsetDateTime.now(ZoneId.systemDefault()));
     }
 
     private Pair<String, String> getUserAndRepository(String url) {

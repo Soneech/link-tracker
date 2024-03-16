@@ -1,7 +1,7 @@
 package edu.java.service.updater.github.event;
 
 import edu.java.client.GitHubClient;
-import edu.java.dto.github.RepositoryPushEventResponse;
+import edu.java.dto.github.response.PushEventResponse;
 import edu.java.dto.update.Update;
 import edu.java.model.Link;
 import java.util.Optional;
@@ -17,11 +17,11 @@ public class PushEventHandler implements GitHubEventHandler {
 
     @Override
     public Optional<Update> fetchUpdate(Pair<String, String> userAndRepository, Link link) {
-        RepositoryPushEventResponse response =
+        PushEventResponse response =
             gitHubWebClient.fetchRepositoryPushEvent(userAndRepository.getKey(), userAndRepository.getValue());
 
         if (response.pushedAt().isAfter(link.getLastUpdateTime())) {
-            return Optional.of(new Update("Появился новый коммит.", response.pushedAt()));
+            return Optional.of(new Update("Изменения в истории коммитов.", response.pushedAt()));
         }
         return Optional.empty();
     }

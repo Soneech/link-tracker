@@ -1,4 +1,4 @@
-package edu.java.dto.github;
+package edu.java.dto.github.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;

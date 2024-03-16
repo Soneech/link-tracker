@@ -1,6 +1,6 @@
 package edu.java.exception.github;
 
-import edu.java.dto.github.GitHubErrorResponse;
+import edu.java.dto.github.response.GitHubErrorResponse;
 import edu.java.exception.ResourceNotExistsException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
