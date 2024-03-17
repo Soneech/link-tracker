@@ -1,4 +1,3 @@
 package edu.java.exception;
 
-public class ResourceNotExistsException extends RuntimeException {
-}
+public class ResourceNotExistsException extends RuntimeException { }

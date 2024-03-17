@@ -34,13 +34,13 @@ public class StackOverflowWebClientTest extends HttpClientTest {
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
         wireMockServer
-            .stubFor(get("/questions/%d?site=stackoverflow".formatted(questionId))
+            .stubFor(get("/questions/%d/answers?site=stackoverflow&sort=creation".formatted(questionId))
                 .willReturn(aResponse()
                     .withStatus(200)
                     .withBody(json)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
-        QuestionResponse response = stackOverflowWebClient.fetchQuestion(questionId);
+        QuestionResponse response = stackOverflowWebClient.fetchQuestionAnswers(questionId);
 
         assertThat(response).isNotNull();
         assertThat(response.items()).isNotEmpty();
@@ -62,6 +62,6 @@ public class StackOverflowWebClientTest extends HttpClientTest {
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
         assertThatExceptionOfType(WebClientResponseException.class)
-            .isThrownBy(() -> stackOverflowWebClient.fetchQuestion(badQuestionId));
+            .isThrownBy(() -> stackOverflowWebClient.fetchQuestionAnswers(badQuestionId));
     }
 }

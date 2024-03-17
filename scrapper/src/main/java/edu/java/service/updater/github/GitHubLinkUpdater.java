@@ -49,12 +49,7 @@ public class GitHubLinkUpdater implements LinkUpdater {
         try {
             eventHandlers.forEach(handler -> {
                 Optional<Update> update = handler.fetchUpdate(repositoryData, link);
-                update.ifPresent(u -> {
-                    linkUpdates.getUpdates().add(u);
-                    if (u.updateTime().isAfter(linkUpdates.getLastUpdateTime())) {
-                        linkUpdates.setLastUpdateTime(u.updateTime());
-                    }
-                });
+                update.ifPresent(u -> addUpdate(linkUpdates, u));
             });
 
         } catch (RepositoryNotExistsException exception) {
@@ -82,7 +77,7 @@ public class GitHubLinkUpdater implements LinkUpdater {
 
         RepositoryInfoResponse response =
             gitHubWebClient.checkThatRepositoryExists(repositoryData.getKey(), repositoryData.getValue());
-        LOGGER.info("Checks repository: %s".formatted(response.toString()));
+        LOGGER.info("Checks repository: %s".formatted(response));
     }
 
     private Pair<String, String> getUserAndRepository(String url) {

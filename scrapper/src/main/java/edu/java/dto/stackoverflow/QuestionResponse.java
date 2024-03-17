@@ -1,22 +1,27 @@
 package edu.java.dto.stackoverflow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-public record QuestionResponse(List<ItemResponse> items) {
-    public record ItemResponse(
-        @NotNull
+public record QuestionResponse(List<AnswerResponse> items) {
+
+    public record AnswerResponse(
         Owner owner,
-        @NotNull
+
         @JsonProperty("last_activity_date")
         OffsetDateTime lastActivityDate,
 
-        @NotNull
+        @JsonProperty("creation_date")
+        OffsetDateTime creationDate,
+
         @JsonProperty("question_id")
         Long id
     ) {
+        public record Owner(
+            @JsonProperty("display_name")
+            String name
+        ) { }
     }
 }
 
