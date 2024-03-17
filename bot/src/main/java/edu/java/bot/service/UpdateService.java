@@ -13,7 +13,7 @@ public class UpdateService {
 
     public void processUpdate(LinkUpdateRequest updateRequest) {
         updateRequest.telegramChatIds().forEach((telegramId) ->
-            linkBot.execute(new SendMessage(telegramId, "Новая информация по ссылке:\n%s\n%s"
+            linkBot.execute(new SendMessage(telegramId, "Доступно обновление по ссылке:\n%s\n\n%s"
                 .formatted(updateRequest.url(), updateRequest.updatesDescription()))));
     }
 }

@@ -5,19 +5,29 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
-public record PullRequestEventResponse(
+public record EventResponse(
     @NotBlank
-    String title,
+    String type,
 
     @NotNull
-    UserResponse user,
+    Actor actor,
 
     @NotNull
     @JsonProperty("created_at")
     OffsetDateTime createdAt,
 
     @NotNull
-    @JsonProperty("updated_at")
-    OffsetDateTime updatedAt
+    Payload payload
 ) {
+    public record Actor(@NotBlank String login){ }
+
+    public record Payload(
+        String ref,
+
+        @JsonProperty("ref_type")
+        String refType,
+
+        String action
+    ) {
+    }
 }

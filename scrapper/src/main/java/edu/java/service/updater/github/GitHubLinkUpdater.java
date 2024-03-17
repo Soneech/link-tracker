@@ -1,6 +1,7 @@
 package edu.java.service.updater.github;
 
 import edu.java.client.GitHubClient;
+import edu.java.dto.github.response.EventResponse;
 import edu.java.dto.github.response.RepositoryInfoResponse;
 import edu.java.dto.update.LinkUpdates;
 import edu.java.dto.update.Update;
@@ -10,17 +11,20 @@ import edu.java.service.updater.LinkUpdater;
 import edu.java.service.updater.github.event.GitHubEventHandler;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
+@Getter
 public class GitHubLinkUpdater implements LinkUpdater {
     private final String supportDomain = "github.com";
 
@@ -30,27 +34,39 @@ public class GitHubLinkUpdater implements LinkUpdater {
 
     private final int repositoryIndex = 3;
 
-    private final List<GitHubEventHandler> eventHandlers;
+    private final Map<String, GitHubEventHandler> eventHandlers;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    @Override
-    public String getSupportDomain() {
-        return supportDomain;
+    @Autowired
+    public GitHubLinkUpdater(GitHubClient gitHubWebClient, List<GitHubEventHandler> eventHandlers) {
+        this.gitHubWebClient = gitHubWebClient;
+        this.eventHandlers = new HashMap<>();
+        eventHandlers.forEach(handler -> this.eventHandlers.put(handler.getEventTypeName(), handler));
     }
 
     @Override
     public Optional<LinkUpdates> fetchUpdates(Link link) throws RepositoryNotExistsException {
-        var repositoryData = getUserAndRepository(link.getUrl());
+        var userAndRepository = getUserAndRepository(link.getUrl());
 
         LinkUpdates linkUpdates = new LinkUpdates(link.getId(), link.getUrl(), HttpStatus.OK,
             link.getLastUpdateTime(), new ArrayList<>(), new ArrayList<>());
 
         try {
-            eventHandlers.forEach(handler -> {
-                Optional<Update> update = handler.fetchUpdate(repositoryData, link);
-                update.ifPresent(u -> addUpdate(linkUpdates, u));
-            });
+            List<EventResponse> events =
+                gitHubWebClient.fetchRepositoryEvents(userAndRepository.getKey(), userAndRepository.getValue());
+            var newEvents =
+                events.stream().filter(event -> event.createdAt().isAfter(link.getLastUpdateTime())).toList();
+
+            if (!newEvents.isEmpty()) {
+                this.eventHandlers.forEach((eventType, handler) -> {
+                    var currentTypeEvents =
+                        newEvents.stream().filter(event -> event.type().equals(eventType)).toList();
+
+                    Optional<Update> update = handler.fetchUpdate(currentTypeEvents);
+                    update.ifPresent(u -> addUpdate(linkUpdates, u));
+                });
+            }
 
         } catch (RepositoryNotExistsException exception) {
             LOGGER.error(exception.getResponse());
