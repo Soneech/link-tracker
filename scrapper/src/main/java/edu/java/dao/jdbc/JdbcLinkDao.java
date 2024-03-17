@@ -1,5 +1,6 @@
 package edu.java.dao.jdbc;
 
+import edu.java.dao.LinkDao;
 import edu.java.model.Link;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -12,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-public class JdbcLinkDao {
+public class JdbcLinkDao implements LinkDao {
+
     private final JdbcTemplate jdbcTemplate;
 
+    @Override
     public List<Link> findChatLinks(long chatId) {
         return jdbcTemplate
             .query("""
@@ -25,6 +28,7 @@ public class JdbcLinkDao {
             );
     }
 
+    @Override
     public Optional<Link> findChatLinkByUrl(long chatId, String url) {
         return jdbcTemplate
             .query("""
@@ -35,6 +39,7 @@ public class JdbcLinkDao {
             ).stream().findAny();
     }
 
+    @Override
     @Transactional
     public Link save(long chatId, Link link) {
         Optional<Link> savedLink = findLinkByUrl(link.getUrl());
@@ -51,6 +56,7 @@ public class JdbcLinkDao {
         return savedLink.get();
     }
 
+    @Override
     @Transactional
     public void deleteChatLink(long chatId, long linkId) {
         jdbcTemplate.update("DELETE FROM chat_link WHERE chat_id = ? AND link_id = ?", chatId, linkId);
@@ -62,16 +68,19 @@ public class JdbcLinkDao {
         }
     }
 
+    @Override
     public void delete(long linkId) {
         jdbcTemplate.update("DELETE FROM link WHERE id = ?", linkId);
     }
 
+    @Override
     public Optional<Link> findLinkByUrl(String url) {
         return jdbcTemplate
             .query("SELECT * FROM link WHERE url = ?", new BeanPropertyRowMapper<>(Link.class), url)
             .stream().findAny();
     }
 
+    @Override
     public List<Link> findAllOutdatedLinks(int count, long interval) {
         return jdbcTemplate
             .query("""
@@ -82,11 +91,13 @@ public class JdbcLinkDao {
             );
     }
 
+    @Override
     public void setUpdateTime(Link link, OffsetDateTime lastUpdateTime) {
         jdbcTemplate
             .update("UPDATE Link SET last_update_time = ? WHERE id = ?", lastUpdateTime, link.getId());
     }
 
+    @Override
     public void setCheckTime(Link link, OffsetDateTime lastCheckTime) {
         jdbcTemplate
             .update("UPDATE Link SET last_check_time = ? WHERE id = ?", lastCheckTime, link.getId());

@@ -9,7 +9,6 @@ import edu.java.model.Link;
 import edu.java.service.updater.LinkUpdater;
 import edu.java.service.updater.github.event.GitHubEventHandler;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,13 +77,12 @@ public class GitHubLinkUpdater implements LinkUpdater {
     }
 
     @Override
-    public void setLastUpdateTime(Link link) {
+    public void checkThatLinkExists(Link link) throws RepositoryNotExistsException {
         var repositoryData = getUserAndRepository(link.getUrl());
 
         RepositoryInfoResponse response =
             gitHubWebClient.checkThatRepositoryExists(repositoryData.getKey(), repositoryData.getValue());
         LOGGER.info("Checks repository: %s".formatted(response.toString()));
-        link.setLastUpdateTime(OffsetDateTime.now(ZoneId.systemDefault()));
     }
 
     private Pair<String, String> getUserAndRepository(String url) {

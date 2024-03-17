@@ -21,8 +21,9 @@ public class StackOverflowWebClient implements StackOverflowClient {
         this.webClient = WebClient.builder().baseUrl(this.baseUrl).build();
     }
 
+    // нужно добавить обработку ситуации, когда вопрос не существует (api возвращает 200...)
     @Override
-    public QuestionResponse fetchQuestion(Long question) {  // нужно добавить обработку 4хх ответов
+    public QuestionResponse fetchQuestion(Long question) {
         return webClient
             .get()
             .uri(builder -> builder

@@ -73,7 +73,7 @@ public class GitHubWebClient implements GitHubClient {
                 HttpStatus.NOT_FOUND::equals,
                 errorResponse -> errorResponse.bodyToMono(GitHubErrorResponse.class)
                     .map(RepositoryNotExistsException::new))
-            .bodyToMono(new ParameterizedTypeReference<List<PullRequestEventResponse>>() {});
+            .bodyToMono(new ParameterizedTypeReference<>() { });
 
         return response.block();
     }

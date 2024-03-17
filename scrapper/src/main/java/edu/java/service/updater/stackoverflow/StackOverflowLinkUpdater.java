@@ -38,7 +38,7 @@ public class StackOverflowLinkUpdater implements LinkUpdater {
     }
 
     @Override
-    public void setLastUpdateTime(Link link) {
+    public void checkThatLinkExists(Link link) {
         long questionId = getQuestionId(link.getUrl());
         QuestionResponse response = stackOverflowWebClient.fetchQuestion(questionId);
         link.setLastUpdateTime(response.items().getLast().lastActivityDate());

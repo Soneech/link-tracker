@@ -7,7 +7,7 @@ import java.util.Optional;
 public interface LinkUpdater {
     String getSupportDomain();
 
-    void setLastUpdateTime(Link link);
+    void checkThatLinkExists(Link link);
 
     Optional<LinkUpdates> fetchUpdates(Link link);
 }

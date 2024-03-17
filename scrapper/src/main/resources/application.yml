@@ -28,7 +28,7 @@ api:
     base-url: http://localhost:8090
     update-properties:
       count: 5
-      interval: 5
+      interval: 300
 
 springdoc:
   swagger-ui:

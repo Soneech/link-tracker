@@ -1,4 +1,4 @@
-package edu.java.scrapper.migration;
+package edu.java.scrapper.liquibase;
 
 import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
