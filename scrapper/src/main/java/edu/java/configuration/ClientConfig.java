@@ -21,9 +21,15 @@ public class ClientConfig {
     @Value("${api.bot.base-url}")
     private String botBaseUrl;
 
+    @Value("${api.github.personal-access-token}")
+    String gitHubPersonalAccessToken;
+
+    @Value("${api.github.events-count}")
+    int eventsCount;
+
     @Bean
     public GitHubClient gitHubWebClient() {
-        return new GitHubWebClient(gitHubBaseUrl);
+        return new GitHubWebClient(gitHubBaseUrl, gitHubPersonalAccessToken, eventsCount);
     }
 
     @Bean

@@ -10,34 +10,33 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.ResourceUtils;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class GitHubWebClientTest extends HttpClientTest {
     private GitHubWebClient gitHubWebClient;
 
-    private final String repositoryName = "link-tracker";
+    private static final String REPOSITORY_PATH = "/repos/{username}/{repository}";
 
-    private final String userName = "Soneech";
+    private static final String EVENTS_PATH = "/repos/{username}/{repository}/events";
 
-    private final String repositoryPath = "/repos/%s/%s";
+    private static final String PER_PAGE_PARAM = "per_page";
 
-    private final String eventsPath = "/repos/%s/%s/events?per_page=%d";
+    private static final String USERNAME_PARAM = "username";
 
-    @Value("${api.github.events-count}")
-    private int eventsCount;
+    private static final String REPOSITORY_PARAM = "repository";
 
     @BeforeEach
     public void setUp() {
-        gitHubWebClient = new GitHubWebClient(baseUrl);
-        gitHubWebClient.setEventsCount(eventsCount);
+        gitHubWebClient = new GitHubWebClient(baseUrl, "some-token", eventsCount);
     }
 
     @Test
@@ -45,18 +44,24 @@ public class GitHubWebClientTest extends HttpClientTest {
         File file = ResourceUtils.getFile("classpath:repo-response.json");
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
+        String username = "Soneech";
+        String repository = "link-tracker";
+        long repositoryId = 751786052;
+
         wireMockServer
-            .stubFor(get(repositoryPath.formatted(userName, repositoryName))
+            .stubFor(get(urlPathTemplate(REPOSITORY_PATH))
+                .withPathParam(USERNAME_PARAM, equalTo(username))
+                .withPathParam(REPOSITORY_PARAM, equalTo(repository))
                 .willReturn(aResponse()
                     .withStatus(200)
                     .withBody(json)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
-        RepositoryInfoResponse response = gitHubWebClient.checkThatRepositoryExists(userName, repositoryName);
+        RepositoryInfoResponse response = gitHubWebClient.checkThatRepositoryExists(username, repository);
 
         assertThat(response).isNotNull();
-        assertThat(response.id()).isEqualTo(751786052L);
-        assertThat(response.fullName()).isEqualTo(userName + "/" + repositoryName);
+        assertThat(response.id()).isEqualTo(repositoryId);
+        assertThat(response.fullName()).isEqualTo(username + "/" + repository);
     }
 
     @Test
@@ -68,7 +73,9 @@ public class GitHubWebClientTest extends HttpClientTest {
         String invalidRepo = "invalid-repo-name";
 
         wireMockServer
-            .stubFor(get(repositoryPath.formatted(invalidUserName, invalidRepo))
+            .stubFor(get(urlPathTemplate(REPOSITORY_PATH))
+                .withPathParam(USERNAME_PARAM, equalTo(invalidUserName))
+                .withPathParam(REPOSITORY_PARAM, equalTo(invalidRepo))
                 .willReturn(aResponse()
                     .withStatus(404)
                     .withBody(json)
@@ -87,7 +94,10 @@ public class GitHubWebClientTest extends HttpClientTest {
         String repositoryName = "java-course-2023-backend-template";
 
         wireMockServer
-            .stubFor(get(eventsPath.formatted(userName, repositoryName, eventsCount))
+            .stubFor(get(urlPathTemplate(EVENTS_PATH))
+                .withPathParam(USERNAME_PARAM, equalTo(userName))
+                .withPathParam(REPOSITORY_PARAM, equalTo(repositoryName))
+                .withQueryParam(PER_PAGE_PARAM, equalTo(String.valueOf(eventsCount)))
                 .willReturn(aResponse()
                     .withStatus(200)
                     .withBody(json)
@@ -96,7 +106,7 @@ public class GitHubWebClientTest extends HttpClientTest {
         List<EventResponse> events = gitHubWebClient.fetchRepositoryEvents(userName, repositoryName);
         assertThat(events).isNotEmpty();
         assertThat(events).hasSize(1);
-        assertThat(events.getFirst().actor().login()).isEqualTo("sanyarnd");
+        assertThat(events.getFirst().actor().login()).isEqualTo(userName);
     }
 
     @Test
@@ -108,7 +118,10 @@ public class GitHubWebClientTest extends HttpClientTest {
         String invalidRepo = "invalid-repo-name";
 
         wireMockServer
-            .stubFor(get(eventsPath.formatted(invalidUserName, invalidRepo, eventsCount))
+            .stubFor(get(urlPathTemplate(EVENTS_PATH))
+                .withPathParam(USERNAME_PARAM, equalTo(invalidUserName))
+                .withPathParam(REPOSITORY_PARAM, equalTo(invalidRepo))
+                .withQueryParam(PER_PAGE_PARAM, equalTo(String.valueOf(eventsCount)))
                 .willReturn(aResponse()
                     .withStatus(404)
                     .withBody(json)

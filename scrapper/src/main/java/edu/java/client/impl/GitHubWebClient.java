@@ -6,6 +6,7 @@ import edu.java.dto.github.response.GitHubErrorResponse;
 import edu.java.dto.github.response.RepositoryInfoResponse;
 import edu.java.exception.github.RepositoryNotExistsException;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -15,18 +16,17 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Setter
+@RequiredArgsConstructor
 public class GitHubWebClient implements GitHubClient {
 
     private final WebClient webClient;
 
     @Value("${api.github.base-url}")
-    private String baseUrl;
+    private String baseUrl;  // можно менять
 
-    @Value("${api.github.personal-access-token}")
-    private String personalAccessToken;
+    private final String personalAccessToken;
 
-    @Value("${api.github.events-count}")
-    private int eventsCount;
+    private final int eventsCount;
 
     private static final String REPOSITORY_PATH = "/repos/";
 
@@ -36,11 +36,15 @@ public class GitHubWebClient implements GitHubClient {
 
     private static final String BEARER_PREFIX = "Bearer %s";
 
-    public GitHubWebClient() {
+    public GitHubWebClient(String personalAccessToken, int eventsCount) {
+        this.personalAccessToken = personalAccessToken;
+        this.eventsCount = eventsCount;
         this.webClient = WebClient.builder().baseUrl(baseUrl).build();
     }
 
-    public GitHubWebClient(String baseUrl) {
+    public GitHubWebClient(String baseUrl, String personalAccessToken, int eventsCount) {
+        this.personalAccessToken = personalAccessToken;
+        this.eventsCount = eventsCount;
         if (!baseUrl.isEmpty()) {
             this.baseUrl = baseUrl;
         }

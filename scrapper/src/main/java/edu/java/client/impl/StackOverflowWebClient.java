@@ -11,13 +11,13 @@ public class StackOverflowWebClient implements StackOverflowClient {
     private String baseUrl;
     private final WebClient webClient;
 
-    private final String questionPath = "/questions/%d";
+    private static final String QUESTION_PATH = "/questions/";
 
-    private final String answersPath = "/questions/%d/answers";
+    private static final String ANSWERS_PATH = "/answers";
 
-    private final Pair<String, String> siteParam = Pair.of("site", "stackoverflow");
+    private static final Pair<String, String> SITE_PARAM = Pair.of("site", "stackoverflow");
 
-    private final Pair<String, String> sortParam = Pair.of("sort", "creation");
+    private static final Pair<String, String> SORT_PARAM = Pair.of("sort", "creation");
 
     public StackOverflowWebClient() {
         webClient = WebClient.builder().baseUrl(this.baseUrl).build();
@@ -35,8 +35,8 @@ public class StackOverflowWebClient implements StackOverflowClient {
         return webClient
             .get()
             .uri(builder -> builder
-                .path(questionPath.formatted(questionId))
-                .queryParam(siteParam.getKey(), siteParam.getValue()).build())
+                .path(QUESTION_PATH).path(String.valueOf(questionId))
+                .queryParam(SITE_PARAM.getKey(), SITE_PARAM.getValue()).build())
             .retrieve()
             .bodyToMono(QuestionResponse.class)
             .block();
@@ -47,9 +47,9 @@ public class StackOverflowWebClient implements StackOverflowClient {
         return webClient
             .get()
             .uri(builder -> builder
-                .path(answersPath.formatted(questionId))
-                .queryParam(siteParam.getKey(), siteParam.getValue())
-                .queryParam(sortParam.getKey(), sortParam.getValue()).build())
+                .path(QUESTION_PATH).path(String.valueOf(questionId)).path("/").path(ANSWERS_PATH)
+                .queryParam(SITE_PARAM.getKey(), SITE_PARAM.getValue())
+                .queryParam(SORT_PARAM.getKey(), SORT_PARAM.getValue()).build())
             .retrieve()
             .bodyToMono(QuestionResponse.class)
             .block();
