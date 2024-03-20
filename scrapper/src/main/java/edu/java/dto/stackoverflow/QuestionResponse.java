@@ -1,9 +1,9 @@
 package edu.java.dto.stackoverflow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
 import java.time.OffsetDateTime;
 import java.util.List;
+import lombok.Builder;
 
 public record QuestionResponse(List<AnswerResponse> items) {
     @Builder
