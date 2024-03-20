@@ -20,6 +20,10 @@ public interface LinkDao {
 
     List<Link> findAllOutdatedLinks(int count, long interval);
 
+    Boolean exists(String url);
+
+    Boolean existsForChat(String url, long chatId);
+
     void setUpdateTime(Link link, OffsetDateTime lastUpdateTime);
 
     void setCheckTime(Link link, OffsetDateTime lastCheckTime);

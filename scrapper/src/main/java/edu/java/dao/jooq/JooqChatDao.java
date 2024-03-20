@@ -49,4 +49,12 @@ public class JooqChatDao implements ChatDao {
             .where(CHAT_LINK.LINK_ID.eq(linkId))
             .fetchInto(Long.class);
     }
+
+    @Override
+    public Boolean exists(long chatId) {
+        return dslContext
+            .fetchExists(
+                dslContext.select(CHAT.ID).from(CHAT).where(CHAT.ID.eq(chatId))
+            );
+    }
 }

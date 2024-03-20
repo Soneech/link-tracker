@@ -17,8 +17,7 @@ public class MultiDaoChatService implements ChatService {
 
     @Override
     public void registerChat(Chat chat) {
-        Optional<Chat> foundChat = chatDao.findById(chat.getId());
-        if (foundChat.isPresent()) {
+        if (chatDao.exists(chat.getId())) {
             throw new TelegramChatAlreadyExistsException(chat.getId());
         }
         chatDao.save(chat);
@@ -32,8 +31,9 @@ public class MultiDaoChatService implements ChatService {
 
     @Override
     public void checkThatChatExists(long chatId) {
-        chatDao.findById(chatId)
-            .orElseThrow(() -> new TelegramChatNotFoundException(chatId));
+        if (!chatDao.exists(chatId)) {
+            throw new TelegramChatNotFoundException(chatId);
+        }
     }
 
     @Override

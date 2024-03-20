@@ -12,4 +12,6 @@ public interface ChatDao {
     void delete(long chatId);
 
     List<Long> findAllChatIdsWithLink(long linkId);
+
+    Boolean exists(long chatId);
 }

@@ -1,4 +1,4 @@
-package edu.java.scrapper.service;
+package edu.java.scrapper.service.multidao;
 
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
@@ -6,8 +6,8 @@ import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.model.Link;
 import edu.java.service.multidao.MultiDaoChatService;
 import edu.java.service.multidao.MultiDaoLinkService;
-import edu.java.service.updater.github.GitHubLinkUpdater;
 import edu.java.service.updater.LinkUpdatersHolder;
+import edu.java.service.updater.github.GitHubLinkUpdater;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,8 +69,8 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
 
     @Test
     public void testRepeatedAddingLink() {
-        when(linkDao.findChatLinkByUrl(chat.getId(), link.getUrl()))
-            .thenReturn(Optional.of(link));
+        when(linkDao.existsForChat(link.getUrl(), chat.getId()))
+            .thenReturn(true);
         assertThatThrownBy(() -> multiDaoLinkService.addLinkForUser(chat.getId(), link))
             .isInstanceOf(LinkAlreadyAddedException.class);
     }

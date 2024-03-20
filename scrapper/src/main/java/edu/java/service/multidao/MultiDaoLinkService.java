@@ -13,7 +13,6 @@ import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,13 +39,11 @@ public class MultiDaoLinkService implements LinkService {
 
         chatService.checkThatChatExists(chatId);
 
-        Optional<Link> foundLink = linkDao.findChatLinkByUrl(chatId, link.getUrl());
-        if (foundLink.isPresent()) {
+        if (linkDao.existsForChat(link.getUrl(), chatId)) {
             throw new LinkAlreadyAddedException(chatId, link.getUrl());
         }
 
-        foundLink = linkDao.findLinkByUrl(link.getUrl());
-        if (foundLink.isEmpty()) {
+        if (!linkDao.exists(link.getUrl())) {
             LinkUpdater updater = linkUpdatersHolder.getUpdaterByDomain(URI.create(link.getUrl()).getHost());
             updater.checkThatLinkExists(link);
             link.setLastUpdateTime(OffsetDateTime.now(ZoneId.systemDefault()));

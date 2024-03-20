@@ -1,10 +1,9 @@
-package edu.java.scrapper.service;
+package edu.java.scrapper.service.multidao;
 
 import edu.java.exception.TelegramChatAlreadyExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.service.multidao.MultiDaoChatService;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,7 +27,7 @@ public class MultiDaoChatServiceTest extends MultiDaoServiceTest {
 
     @Test
     public void testRepeatedRegistration() {
-        when(chatDao.findById(chat.getId())).thenReturn(Optional.of(chat));
+        when(chatDao.exists(chat.getId())).thenReturn(true);
 
         assertThatExceptionOfType(TelegramChatAlreadyExistsException.class)
             .isThrownBy(() -> multiDaoChatService.registerChat(chat));
@@ -36,7 +35,7 @@ public class MultiDaoChatServiceTest extends MultiDaoServiceTest {
 
     @Test
     public void testUnregisterUser() {
-        when(chatDao.findById(chat.getId())).thenReturn(Optional.of(chat));
+        when(chatDao.exists(chat.getId())).thenReturn(true);
         multiDaoChatService.unregisterChat(chat.getId());
 
         verify(chatDao).delete(chat.getId());

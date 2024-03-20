@@ -1,4 +1,4 @@
-package edu.java.scrapper.service;
+package edu.java.scrapper.service.multidao;
 
 import edu.java.dao.ChatDao;
 import edu.java.dao.LinkDao;

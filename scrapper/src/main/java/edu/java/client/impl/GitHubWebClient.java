@@ -16,23 +16,25 @@ import reactor.core.publisher.Mono;
 
 @Setter
 public class GitHubWebClient implements GitHubClient {
+
+    private final WebClient webClient;
+
     @Value("${api.github.base-url}")
     private String baseUrl;
-    private final WebClient webClient;
 
     @Value("${api.github.personal-access-token}")
     private String personalAccessToken;
 
-    private final String repositoryPath = "/repos/%s/%s";
-
-    private final String eventsPath = "/repos/%s/%s/events";
-
-    private final String perPageParam = "per_page";
-
     @Value("${api.github.events-count}")
     private int eventsCount;
 
-    private final String bearerPrefix = "Bearer %s";
+    private static final String REPOSITORY_PATH = "/repos/";
+
+    private static final String EVENTS_PATH = "/events";
+
+    private static final String PER_PAGE_PARAM = "per_page";
+
+    private static final String BEARER_PREFIX = "Bearer %s";
 
     public GitHubWebClient() {
         this.webClient = WebClient.builder().baseUrl(baseUrl).build();
@@ -48,8 +50,9 @@ public class GitHubWebClient implements GitHubClient {
     @Override
     public RepositoryInfoResponse checkThatRepositoryExists(String user, String repository) {
         return webClient
-            .get().uri(repositoryPath.formatted(user, repository))
-            .header(HttpHeaders.AUTHORIZATION, bearerPrefix.formatted(personalAccessToken))
+            .get().uri(
+                builder -> builder.path(REPOSITORY_PATH).path(user).path("/").path(repository).build())
+            .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX.formatted(personalAccessToken))
             .retrieve()
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
@@ -63,9 +66,9 @@ public class GitHubWebClient implements GitHubClient {
         Mono<List<EventResponse>> events = webClient
             .get()
             .uri(builder -> builder
-                .path(eventsPath.formatted(user, repository))
-                .queryParam(perPageParam, eventsCount).build())
-            .header(HttpHeaders.AUTHORIZATION, bearerPrefix.formatted(personalAccessToken))
+                .path(REPOSITORY_PATH).path(user).path("/").path(repository).path("/").path(EVENTS_PATH)
+                .queryParam(PER_PAGE_PARAM, eventsCount).build())
+            .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX.formatted(personalAccessToken))
             .retrieve()
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,

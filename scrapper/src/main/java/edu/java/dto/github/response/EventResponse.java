@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
+import lombok.Builder;
 
+@Builder
 public record EventResponse(
     @NotBlank
     String type,
@@ -21,6 +23,7 @@ public record EventResponse(
 ) {
     public record Actor(@NotBlank String login){ }
 
+    @Builder
     public record Payload(
         String ref,
 

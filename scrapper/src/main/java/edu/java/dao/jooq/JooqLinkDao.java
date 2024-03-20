@@ -41,7 +41,7 @@ public class JooqLinkDao implements LinkDao {
                 .select(LINK.fields())
                 .from(LINK)
                 .join(CHAT_LINK).on(CHAT_LINK.CHAT_ID.eq(chatId))
-                    .and(CHAT_LINK.LINK_ID.eq(LINK.ID))
+                .and(CHAT_LINK.LINK_ID.eq(LINK.ID))
                 .where(LINK.URL.eq(url))
                 .fetchOneInto(Link.class)
         );
@@ -69,7 +69,7 @@ public class JooqLinkDao implements LinkDao {
         dslContext
             .deleteFrom(CHAT_LINK)
             .where(CHAT_LINK.CHAT_ID.eq(chatId))
-                .and(CHAT_LINK.LINK_ID.eq(linkId))
+            .and(CHAT_LINK.LINK_ID.eq(linkId))
             .execute();
 
         List<Long> chatIdsWithThisLink =
@@ -108,9 +108,30 @@ public class JooqLinkDao implements LinkDao {
         return dslContext
             .select(LINK.fields()).from(LINK)
             .where(intervalFromLastCheckTime.greaterOrEqual(interval))
-                .or(LINK.LAST_UPDATE_TIME.isNull())
+            .or(LINK.LAST_UPDATE_TIME.isNull())
             .limit(count)
             .fetchInto(Link.class);
+    }
+
+    @Override
+    public Boolean exists(String url) {
+        return dslContext
+            .fetchExists(
+                dslContext.select(LINK.ID).from(LINK).where(LINK.URL.eq(url))
+            );
+    }
+
+    @Override
+    public Boolean existsForChat(String url, long chatId) {
+        return dslContext
+            .fetchExists(
+                dslContext
+                    .select(LINK.ID)
+                    .from(LINK)
+                    .join(CHAT_LINK).on(CHAT_LINK.CHAT_ID.eq(chatId))
+                    .and(CHAT_LINK.LINK_ID.eq(LINK.ID))
+                    .where(LINK.URL.eq(url))
+            );
     }
 
     @Override

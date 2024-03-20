@@ -37,4 +37,10 @@ public class JdbcChatDao implements ChatDao {
         return
             jdbcTemplate.queryForList("SELECT chat_id FROM chat_link WHERE link_id = ?", Long.class, linkId);
     }
+
+    @Override
+    public Boolean exists(long chatId) {
+        return
+            jdbcTemplate.queryForObject("SELECT EXISTS (SELECT id FROM Chat WHERE id = ?)", Boolean.class, chatId);
+    }
 }

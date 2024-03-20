@@ -15,26 +15,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
-@Getter
 public class GitHubLinkUpdater implements LinkUpdater {
-    private final String supportDomain = "github.com";
 
     private final GitHubClient gitHubWebClient;
 
-    private final int userIndex = 2;
-
-    private final int repositoryIndex = 3;
-
     private final Map<String, GitHubEventHandler> eventHandlers;
+
+    private static final String SUPPORT_DOMAIN = "github.com";
+
+    private static final String REPOSITORY_NOT_FOUND_MESSAGE =
+        "Репозиторий больше не существует, либо стал приватным :(\nСсылка будет удалена.";
+
+    private static final int USER_INDEX = 2;
+
+    private static final int REPOSITORY_INDEX = 3;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -49,42 +52,39 @@ public class GitHubLinkUpdater implements LinkUpdater {
     public Optional<LinkUpdates> fetchUpdates(Link link) throws RepositoryNotExistsException {
         var userAndRepository = getUserAndRepository(link.getUrl());
 
-        LinkUpdates linkUpdates = new LinkUpdates(link.getId(), link.getUrl(), HttpStatus.OK,
-            link.getLastUpdateTime(), new ArrayList<>(), new ArrayList<>());
+        LinkUpdates linkUpdates = LinkUpdates.builder()
+            .linkId(link.getId())
+            .url(link.getUrl())
+            .httpStatus(HttpStatus.OK)
+            .lastUpdateTime(link.getLastUpdateTime())
+            .updates(new ArrayList<>()).tgChatIds(new ArrayList<>())
+            .build();
 
         try {
-            List<EventResponse> events =
-                gitHubWebClient.fetchRepositoryEvents(userAndRepository.getKey(), userAndRepository.getValue());
-            var newEvents =
-                events.stream().filter(event -> event.createdAt().isAfter(link.getLastUpdateTime())).toList();
+            List<EventResponse> newEvents = fetchEventsAndGetNew(userAndRepository.getKey(),
+                userAndRepository.getValue(), link.getLastUpdateTime());
 
             if (!newEvents.isEmpty()) {
                 this.eventHandlers.forEach((eventType, handler) -> {
-                    var currentTypeEvents =
-                        newEvents.stream().filter(event -> event.type().equals(eventType)).toList();
-
-                    Optional<Update> update = handler.fetchUpdate(currentTypeEvents);
+                    Optional<Update> update = fetchUpdateForEventType(newEvents, eventType, handler);
                     update.ifPresent(u -> addUpdate(linkUpdates, u));
                 });
             }
-
         } catch (RepositoryNotExistsException exception) {
             LOGGER.error(exception.getResponse());
-            linkUpdates.getUpdates().clear();
-            linkUpdates.setHttpStatus(HttpStatus.GONE);
-
-            linkUpdates.getUpdates().add(
-                new Update(
-                    "Репозиторий больше не существует, либо стал приватным :(\nСсылка будет удалена.",
-                    OffsetDateTime.now())
-            );
+            addResourceNotFoundUpdate(linkUpdates, REPOSITORY_NOT_FOUND_MESSAGE);
         }
 
-        if (linkUpdates.getUpdates().isEmpty()) {
+        if (CollectionUtils.isEmpty(linkUpdates.getUpdates())) {
             return Optional.empty();
         }
 
         return Optional.of(linkUpdates);
+    }
+
+    @Override
+    public String getSupportDomain() {
+        return SUPPORT_DOMAIN;
     }
 
     @Override
@@ -96,8 +96,22 @@ public class GitHubLinkUpdater implements LinkUpdater {
         LOGGER.info("Checks repository: %s".formatted(response));
     }
 
-    private Pair<String, String> getUserAndRepository(String url) {
+    public Pair<String, String> getUserAndRepository(String url) {
         String[] urlParts = url.split("/+");
-        return Pair.of(urlParts[userIndex], urlParts[repositoryIndex]);
+        return Pair.of(urlParts[USER_INDEX], urlParts[REPOSITORY_INDEX]);
+    }
+
+    public List<EventResponse> fetchEventsAndGetNew(String username, String repository, OffsetDateTime lastUpdateTime) {
+        List<EventResponse> events = gitHubWebClient.fetchRepositoryEvents(username, repository);
+        return events.stream()
+            .filter(event -> event.createdAt().isAfter(lastUpdateTime)).toList();
+    }
+
+    public Optional<Update> fetchUpdateForEventType(List<EventResponse> newEvents,
+        String eventTypeName, GitHubEventHandler handler) {
+
+        var currentTypeEvents =
+            newEvents.stream().filter(event -> event.type().equals(eventTypeName)).toList();
+        return handler.fetchUpdate(currentTypeEvents);
     }
 }

@@ -92,6 +92,21 @@ public class JdbcLinkDao implements LinkDao {
     }
 
     @Override
+    public Boolean exists(String url) {
+        return jdbcTemplate
+            .queryForObject("SELECT EXISTS (SELECT id FROM Link WHERE url = ?)", Boolean.class, url);
+    }
+
+    @Override
+    public Boolean existsForChat(String url, long chatId) {
+        return jdbcTemplate
+            .queryForObject("""
+                SELECT EXISTS (SELECT l.id FROM link l JOIN chat_link cl ON cl.chat_id = ?
+                        AND cl.link_id = l.id WHERE l.url = ?)
+                """, Boolean.class, chatId, url);
+    }
+
+    @Override
     public void setUpdateTime(Link link, OffsetDateTime lastUpdateTime) {
         jdbcTemplate
             .update("UPDATE Link SET last_update_time = ? WHERE id = ?", lastUpdateTime, link.getId());

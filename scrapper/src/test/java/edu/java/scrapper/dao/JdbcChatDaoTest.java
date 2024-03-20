@@ -26,7 +26,8 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
         chats = List.of(
             new Chat(11111L, createdAt),
             new Chat(22222L, createdAt),
-            new Chat(33333L, createdAt)
+            new Chat(33333L, createdAt),
+            new Chat(44444L, createdAt)
         );
     }
 
@@ -61,6 +62,14 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
         jdbcChatDao.delete(chat.getId());
         foundChat = jdbcChatDao.findById(chat.getId());
         assertThat(foundChat).isEmpty();
+    }
+
+    @Test
+    public void testChatExistence() {
+        Chat chat = chats.get(2);
+        jdbcChatDao.save(chat);
+        assertThat(jdbcChatDao.exists(chat.getId())).isTrue();
+        assertThat(jdbcChatDao.exists(123456789L)).isFalse();
     }
 
     @Test

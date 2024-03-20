@@ -8,7 +8,6 @@ import edu.java.exception.stackoverflow.QuestionNotExistsException;
 import edu.java.model.Link;
 import edu.java.service.updater.LinkUpdater;
 import edu.java.service.updater.stackoverflow.event.StackOverflowEventHandler;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,41 +16,42 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @RequiredArgsConstructor
 public class StackOverflowLinkUpdater implements LinkUpdater {
-    private final String supportDomain = "stackoverflow.com";
 
     private final StackOverflowClient stackOverflowWebClient;
 
-    private final int idIndex = 3;
-
-    private static final Logger LOGGER = LogManager.getLogger();
-
     private final List<StackOverflowEventHandler> eventHandlers;
 
-    @Override
-    public String getSupportDomain() {
-        return supportDomain;
-    }
+    private static final String SUPPORT_DOMAIN = "stackoverflow.com";
+
+    private static final String QUESTION_NOT_EXISTS_MESSAGE =
+        "Вопрос больше не существует :(\nСсылка будет удалена";
+
+    private static final int ID_INDEX = 3;
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     @Override
     public Optional<LinkUpdates> fetchUpdates(Link link) {
         long questionId = getQuestionId(link.getUrl());
-        LinkUpdates linkUpdates = new LinkUpdates(link.getId(), link.getUrl(), HttpStatus.OK,
-            link.getLastUpdateTime(), new ArrayList<>(), new ArrayList<>());
+        LinkUpdates linkUpdates = LinkUpdates.builder()
+            .linkId(link.getId())
+            .url(link.getUrl())
+            .httpStatus(HttpStatus.OK)
+            .lastUpdateTime(link.getLastUpdateTime())
+            .tgChatIds(new ArrayList<>()).updates(new ArrayList<>())
+            .build();
 
         // пока проверка на существование такая, по другим эндпоинам ответы ни о чём не говорящие
         try {
             checkThatLinkExists(link);
         } catch (QuestionNotExistsException exception) {
-            linkUpdates.setHttpStatus(HttpStatus.GONE);
-            linkUpdates.getUpdates().add(
-                new Update(
-                    "Вопрос больше не существует :(\nСсылка будет удалена",
-                    OffsetDateTime.now())
-            );
+            LOGGER.error(exception.getMessage());
+            addResourceNotFoundUpdate(linkUpdates, QUESTION_NOT_EXISTS_MESSAGE);
             return Optional.of(linkUpdates);
         }
 
@@ -60,11 +60,16 @@ public class StackOverflowLinkUpdater implements LinkUpdater {
             update.ifPresent(u -> addUpdate(linkUpdates, u));
         });
 
-        if (linkUpdates.getUpdates().isEmpty()) {
+        if (CollectionUtils.isEmpty(linkUpdates.getUpdates())) {
             return Optional.empty();
         }
 
         return Optional.of(linkUpdates);
+    }
+
+    @Override
+    public String getSupportDomain() {
+        return SUPPORT_DOMAIN;
     }
 
     @Override
@@ -78,8 +83,8 @@ public class StackOverflowLinkUpdater implements LinkUpdater {
         }
     }
 
-    private long getQuestionId(String url) {
+    public long getQuestionId(String url) {
         String[] urlParts = url.split("/+");
-        return Long.parseLong(urlParts[idIndex]);
+        return Long.parseLong(urlParts[ID_INDEX]);
     }
 }
