@@ -104,8 +104,7 @@ public class GitHubWebClientTest extends HttpClientTest {
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
         List<EventResponse> events = gitHubWebClient.fetchRepositoryEvents(userName, repositoryName);
-        assertThat(events).isNotEmpty();
-        assertThat(events).hasSize(1);
+        assertThat(events).isNotEmpty().hasSize(1);
         assertThat(events.getFirst().actor().login()).isEqualTo(userName);
     }
 

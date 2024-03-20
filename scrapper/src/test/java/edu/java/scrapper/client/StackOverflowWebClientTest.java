@@ -56,8 +56,7 @@ public class StackOverflowWebClientTest extends HttpClientTest {
         QuestionResponse response = stackOverflowWebClient.fetchQuestion(QUESTION_ID);
 
         assertThat(response).isNotNull();
-        assertThat(response.items()).isNotEmpty();
-        assertThat(response.items()).hasSize(1);
+        assertThat(response.items()).isNotEmpty().hasSize(1);
     }
 
     @Test
@@ -78,7 +77,6 @@ public class StackOverflowWebClientTest extends HttpClientTest {
         QuestionResponse response = stackOverflowWebClient.fetchQuestionAnswers(QUESTION_ID);
 
         assertThat(response).isNotNull();
-        assertThat(response.items()).isNotEmpty();
-        assertThat(response.items()).hasSize(2);
+        assertThat(response.items()).isNotEmpty().hasSize(2);
     }
 }
