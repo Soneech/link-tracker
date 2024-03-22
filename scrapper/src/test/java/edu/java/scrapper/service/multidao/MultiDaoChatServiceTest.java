@@ -1,10 +1,9 @@
-package edu.java.scrapper.service;
+package edu.java.scrapper.service.multidao;
 
 import edu.java.exception.TelegramChatAlreadyExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
-import edu.java.service.jdbc.JdbcChatService;
+import edu.java.service.multidao.MultiDaoChatService;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,51 +14,51 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class JdbcChatServiceTest extends JdbcServiceTest {
+public class MultiDaoChatServiceTest extends MultiDaoServiceTest {
 
     @InjectMocks
-    private JdbcChatService jdbcChatService;
+    private MultiDaoChatService multiDaoChatService;
 
     @Test
     public void testRegistration() {
-        jdbcChatService.registerChat(chat);
-        verify(jdbcChatDao).save(chat);
+        multiDaoChatService.registerChat(chat);
+        verify(chatDao).save(chat);
     }
 
     @Test
     public void testRepeatedRegistration() {
-        when(jdbcChatDao.findById(chat.getId())).thenReturn(Optional.of(chat));
+        when(chatDao.exists(chat.getId())).thenReturn(true);
 
         assertThatExceptionOfType(TelegramChatAlreadyExistsException.class)
-            .isThrownBy(() -> jdbcChatService.registerChat(chat));
+            .isThrownBy(() -> multiDaoChatService.registerChat(chat));
     }
 
     @Test
     public void testUnregisterUser() {
-        when(jdbcChatDao.findById(chat.getId())).thenReturn(Optional.of(chat));
-        jdbcChatService.unregisterChat(chat.getId());
+        when(chatDao.exists(chat.getId())).thenReturn(true);
+        multiDaoChatService.unregisterChat(chat.getId());
 
-        verify(jdbcChatDao).delete(chat.getId());
+        verify(chatDao).delete(chat.getId());
     }
 
     @Test
     public void testUnregisterNonExistentChat() {
         assertThatExceptionOfType(TelegramChatNotFoundException.class)
-            .isThrownBy(() -> jdbcChatService.unregisterChat(chat.getId()));
+            .isThrownBy(() -> multiDaoChatService.unregisterChat(chat.getId()));
     }
 
     @Test
     public void testFindChat() {
-        jdbcChatService.findChat(chat.getId());
-        verify(jdbcChatDao).findById(chat.getId());
+        multiDaoChatService.findChat(chat.getId());
+        verify(chatDao).findById(chat.getId());
     }
 
     @Test
     public void testFindAllChatsIdsWithLink() {
         long testLinkId = 123;
-        when(jdbcChatDao.findAllChatIdsWithLink(testLinkId)).thenReturn(List.of(chat.getId()));
+        when(chatDao.findAllChatIdsWithLink(testLinkId)).thenReturn(List.of(chat.getId()));
 
-        List<Long> chatIds = jdbcChatService.findAllChatsIdsWithLink(testLinkId);
+        List<Long> chatIds = multiDaoChatService.findAllChatsIdsWithLink(testLinkId);
         assertThat(chatIds).hasSize(1);
         assertThat(chatIds.getFirst()).isEqualTo(chat.getId());
     }

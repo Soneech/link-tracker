@@ -39,9 +39,9 @@ public class ListCommand implements Command {
                 LOGGER.info("ChatID: %d; command: %s; result: список ссылок пуст".formatted(chatId, type()));
             } else {
                 botMessage.append(LINKS_LIST_MESSAGE_TITLE);
-                for (var link: response.links()) {
-                    botMessage.append("\n").append(link.uri().toString());
-                }
+                response.links().forEach(link ->
+                    botMessage.append("\n").append(link.uri().toString()).append("\n"));
+
                 LOGGER.info("ChatID: %d; command: %s; result: список ссылок отправлен".formatted(chatId, type()));
             }
 

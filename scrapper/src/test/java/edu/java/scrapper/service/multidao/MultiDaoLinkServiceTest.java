@@ -1,13 +1,13 @@
-package edu.java.scrapper.service;
+package edu.java.scrapper.service.multidao;
 
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
 import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.model.Link;
-import edu.java.service.jdbc.JdbcChatService;
-import edu.java.service.jdbc.JdbcLinkService;
-import edu.java.service.updater.GitHubLinkUpdater;
+import edu.java.service.multidao.MultiDaoChatService;
+import edu.java.service.multidao.MultiDaoLinkService;
 import edu.java.service.updater.LinkUpdatersHolder;
+import edu.java.service.updater.github.GitHubLinkUpdater;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,13 +24,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class JdbcLinkServiceTest extends JdbcServiceTest {
+public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
 
     @InjectMocks
-    private JdbcLinkService jdbcLinkService;
+    private MultiDaoLinkService multiDaoLinkService;
 
     @Mock
-    private JdbcChatService jdbcChatService;
+    private MultiDaoChatService multiDaoChatService;
 
     @Mock
     private LinkUpdatersHolder linkUpdatersHolder;
@@ -47,39 +47,39 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
 
     @Test
     public void testGettingUserLinks() {
-        jdbcLinkService.getUserLinks(chat.getId());
-        verify(jdbcLinkDao).findChatLinks(chat.getId());
+        multiDaoLinkService.getUserLinks(chat.getId());
+        verify(linkDao).findChatLinks(chat.getId());
     }
 
     @Test
     public void testGettingLinksForNonExistentUser() {
         doThrow(TelegramChatNotFoundException.class)
-            .when(jdbcChatService).checkThatChatExists(chat.getId());
-        assertThatThrownBy(() -> jdbcLinkService.getUserLinks(chat.getId()))
+            .when(multiDaoChatService).checkThatChatExists(chat.getId());
+        assertThatThrownBy(() -> multiDaoLinkService.getUserLinks(chat.getId()))
             .isInstanceOf(TelegramChatNotFoundException.class);
     }
 
     @Test
     public void testAddingLink() {
-        jdbcLinkService.addLink(chat.getId(), link);
-        verify(jdbcLinkDao).save(chat.getId(), link);
+        multiDaoLinkService.addLinkForUser(chat.getId(), link);
+        verify(linkDao).save(chat.getId(), link);
         verify(linkUpdatersHolder).getUpdaterByDomain(GITHUB_DOMAIN);
-        verify(gitHubLinkUpdater).setLastUpdateTime(link);
+        verify(gitHubLinkUpdater).checkThatLinkExists(link);
     }
 
     @Test
     public void testRepeatedAddingLink() {
-        when(jdbcLinkDao.findChatLinkByUrl(chat.getId(), link.getUrl()))
-            .thenReturn(Optional.of(link));
-        assertThatThrownBy(() -> jdbcLinkService.addLink(chat.getId(), link))
+        when(linkDao.existsForChat(link.getUrl(), chat.getId()))
+            .thenReturn(true);
+        assertThatThrownBy(() -> multiDaoLinkService.addLinkForUser(chat.getId(), link))
             .isInstanceOf(LinkAlreadyAddedException.class);
     }
 
     @Test
     public void testAddingLinkForNonExistentUser() {
         doThrow(TelegramChatNotFoundException.class)
-            .when(jdbcChatService).checkThatChatExists(chat.getId());
-        assertThatThrownBy(() -> jdbcLinkService.addLink(chat.getId(), link))
+            .when(multiDaoChatService).checkThatChatExists(chat.getId());
+        assertThatThrownBy(() -> multiDaoLinkService.addLinkForUser(chat.getId(), link))
             .isInstanceOf(TelegramChatNotFoundException.class);
     }
 
@@ -88,26 +88,26 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
         Link testLink = link;
         testLink.setId(123L);
 
-        when(jdbcLinkDao.findChatLinkByUrl(chat.getId(), testLink.getUrl()))
+        when(linkDao.findChatLinkByUrl(chat.getId(), testLink.getUrl()))
             .thenReturn(Optional.of(testLink));
-        Link linkToDelete = jdbcLinkService.deleteLink(chat.getId(), testLink);
+        Link linkToDelete = multiDaoLinkService.deleteUserLink(chat.getId(), testLink);
 
         assertThat(linkToDelete).isEqualTo(testLink);
-        verify(jdbcLinkDao).delete(chat.getId(), linkToDelete.getId());
+        verify(linkDao).deleteChatLink(chat.getId(), linkToDelete.getId());
 
     }
 
     @Test
     public void testDeletingNonTrackingLink() {
-        assertThatThrownBy(() -> jdbcLinkService.deleteLink(chat.getId(), link))
+        assertThatThrownBy(() -> multiDaoLinkService.deleteUserLink(chat.getId(), link))
             .isInstanceOf(LinkNotFoundException.class);
     }
 
     @Test
     public void testDeletingLinkForNonExistentUser() {
         doThrow(TelegramChatNotFoundException.class)
-            .when(jdbcChatService).checkThatChatExists(chat.getId());
-        assertThatThrownBy(() -> jdbcLinkService.deleteLink(chat.getId(), link))
+            .when(multiDaoChatService).checkThatChatExists(chat.getId());
+        assertThatThrownBy(() -> multiDaoLinkService.deleteUserLink(chat.getId(), link))
             .isInstanceOf(TelegramChatNotFoundException.class);
     }
 
@@ -115,15 +115,19 @@ public class JdbcLinkServiceTest extends JdbcServiceTest {
     public void testFindAllOutdatedLinks() {
         int count = 10;
         int interval = 60;
-        jdbcLinkService.findAllOutdatedLinks(count, interval);
-        verify(jdbcLinkDao).findAllOutdatedLinks(count, interval);
+        multiDaoLinkService.findAllOutdatedLinks(count, interval);
+        verify(linkDao).findAllOutdatedLinks(count, interval);
     }
 
     @Test
     public void testSetUpdateAndCheckTime() {
         OffsetDateTime lastUpdateTime = OffsetDateTime.now();
         OffsetDateTime lastCheckTime = OffsetDateTime.now();
-        jdbcLinkService.setUpdateAndCheckTime(link, lastUpdateTime, lastCheckTime);
-        verify(jdbcLinkDao).setUpdateAndCheckTime(link, lastUpdateTime, lastCheckTime);
+
+        multiDaoLinkService.setUpdateTime(link, lastUpdateTime);
+        verify(linkDao).setUpdateTime(link, lastUpdateTime);
+
+        multiDaoLinkService.setCheckTime(link, lastCheckTime);
+        verify(linkDao).setCheckTime(link, lastCheckTime);
     }
 }

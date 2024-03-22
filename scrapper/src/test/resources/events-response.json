@@ -1,0 +1,42 @@
+[
+    {
+        "id": "35902686422",
+        "type": "PushEvent",
+        "actor": {
+            "id": 6544384,
+            "login": "sanyarnd",
+            "display_login": "sanyarnd",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/sanyarnd",
+            "avatar_url": "https://avatars.githubusercontent.com/u/6544384?"
+        },
+        "repo": {
+            "id": 751082162,
+            "name": "sanyarnd/java-course-2023-backend-template",
+            "url": "https://api.github.com/repos/sanyarnd/java-course-2023-backend-template"
+        },
+        "payload": {
+            "repository_id": 751082162,
+            "push_id": 17209669725,
+            "size": 1,
+            "distinct_size": 1,
+            "ref": "refs/heads/master",
+            "head": "205e919ffd1ab09f8277fe734d7cb4106ef76125",
+            "before": "ec6600cbeaf3e5090cfbc4498c7284bc5b2e354f",
+            "commits": [
+                {
+                    "sha": "205e919ffd1ab09f8277fe734d7cb4106ef76125",
+                    "author": {
+                        "email": "sanya.rnd@gmail.com",
+                        "name": "Alexander Biryukov"
+                    },
+                    "message": "Add sample test for bot module",
+                    "distinct": true,
+                    "url": "https://api.github.com/repos/sanyarnd/java-course-2023-backend-template/commits/205e919ffd1ab09f8277fe734d7cb4106ef76125"
+                }
+            ]
+        },
+        "public": true,
+        "created_at": "2024-02-22T09:18:34Z"
+    }
+]

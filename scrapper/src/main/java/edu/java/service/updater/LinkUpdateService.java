@@ -1,7 +1,7 @@
 package edu.java.service.updater;
 
 import edu.java.dto.bot.request.LinkUpdateRequest;
-import edu.java.dto.update.Update;
+import edu.java.dto.update.LinkUpdates;
 import edu.java.model.Link;
 import edu.java.service.ChatService;
 import edu.java.service.LinkService;
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,29 +26,41 @@ public class LinkUpdateService {
 
     public List<LinkUpdateRequest> fetchAllUpdates(int updatesCount, long interval) {
         List<Link> links = linkService.findAllOutdatedLinks(updatesCount, interval);
-        List<Update> updates = new ArrayList<>();
+        List<LinkUpdates> updates = new ArrayList<>();
 
         links.forEach((link) -> {
             String host = URI.create(link.getUrl()).getHost();
             LinkUpdater updater = linkUpdatersHolder.getUpdaterByDomain(host);
 
-            Optional<Update> update = updater.fetchUpdate(link);
-            update.ifPresent((u) -> {
-                updates.add(u);
-                linkService.setUpdateAndCheckTime(link, u.updateTime(), OffsetDateTime.now(ZoneId.systemDefault()));
+            Optional<LinkUpdates> linkUpdates = updater.fetchUpdates(link);
+            linkService.setCheckTime(link, OffsetDateTime.now(ZoneId.systemDefault()));
+
+            linkUpdates.ifPresent(updatesContainer -> {
+                List<Long> chatIds = chatService.findAllChatsIdsWithLink(link.getId());
+                updatesContainer.getTgChatIds().addAll(chatIds);
+                updates.add(updatesContainer);
+
+                if (updatesContainer.getHttpStatus().equals(HttpStatus.OK)) {
+                    linkService.setUpdateTime(link, updatesContainer.getLastUpdateTime());
+                } else {
+                    linkService.deleteLink(link);
+                }
             });
         });
 
         return convertToLinkUpdateRequests(updates);
     }
 
-    public List<LinkUpdateRequest> convertToLinkUpdateRequests(List<Update> updates) {
+    public List<LinkUpdateRequest> convertToLinkUpdateRequests(List<LinkUpdates> linkUpdates) {
         List<LinkUpdateRequest> requests = new ArrayList<>();
 
-        updates.forEach((update) -> {
-            List<Long> chatIds = chatService.findAllChatsIdsWithLink(update.linkId());
+        linkUpdates.forEach((updateContainer) -> {
+            StringBuilder descriptions = new StringBuilder();
+            updateContainer.getUpdates().forEach(update -> descriptions.append(update.description()).append("\n"));
+
             var linkUpdateRequest =
-                new LinkUpdateRequest(update.linkId(), update.url(), update.description(), chatIds);
+                new LinkUpdateRequest(updateContainer.getLinkId(), updateContainer.getUrl(),
+                    descriptions.toString(), updateContainer.getTgChatIds());
             requests.add(linkUpdateRequest);
         });
 

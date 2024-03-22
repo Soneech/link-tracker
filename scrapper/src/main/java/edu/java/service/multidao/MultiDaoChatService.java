@@ -1,6 +1,6 @@
-package edu.java.service.jdbc;
+package edu.java.service.multidao;
 
-import edu.java.dao.jdbc.JdbcChatDao;
+import edu.java.dao.ChatDao;
 import edu.java.exception.TelegramChatAlreadyExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.model.Chat;
@@ -12,38 +12,37 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class JdbcChatService implements ChatService {
-
-    private final JdbcChatDao jdbcChatDao;
+public class MultiDaoChatService implements ChatService {
+    private final ChatDao chatDao;  // jooq или jdbc
 
     @Override
     public void registerChat(Chat chat) {
-        Optional<Chat> foundChat = jdbcChatDao.findById(chat.getId());
-        if (foundChat.isPresent()) {
+        if (chatDao.exists(chat.getId())) {
             throw new TelegramChatAlreadyExistsException(chat.getId());
         }
-        jdbcChatDao.save(chat);
+        chatDao.save(chat);
     }
 
     @Override
     public void unregisterChat(long chatId) throws TelegramChatNotFoundException {
         checkThatChatExists(chatId);
-        jdbcChatDao.delete(chatId);
+        chatDao.delete(chatId);
     }
 
     @Override
     public void checkThatChatExists(long chatId) {
-        jdbcChatDao.findById(chatId)
-            .orElseThrow(() -> new TelegramChatNotFoundException(chatId));
+        if (!chatDao.exists(chatId)) {
+            throw new TelegramChatNotFoundException(chatId);
+        }
     }
 
     @Override
     public Optional<Chat> findChat(long chatId) {
-        return jdbcChatDao.findById(chatId);
+        return chatDao.findById(chatId);
     }
 
     @Override
     public List<Long> findAllChatsIdsWithLink(long linkId) {
-        return jdbcChatDao.findAllChatIdsWithLink(linkId);
+        return chatDao.findAllChatIdsWithLink(linkId);
     }
 }

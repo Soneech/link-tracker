@@ -1,7 +1,7 @@
-package edu.java.scrapper.service;
+package edu.java.scrapper.service.multidao;
 
-import edu.java.dao.jdbc.JdbcChatDao;
-import edu.java.dao.jdbc.JdbcLinkDao;
+import edu.java.dao.ChatDao;
+import edu.java.dao.LinkDao;
 import edu.java.model.Chat;
 import edu.java.model.Link;
 import java.time.OffsetDateTime;
@@ -11,16 +11,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public abstract class JdbcServiceTest {
+public abstract class MultiDaoServiceTest {
     protected static Chat chat;
 
     protected static Link link;
 
     @Mock
-    protected JdbcLinkDao jdbcLinkDao;
+    protected LinkDao linkDao;
 
     @Mock
-    protected JdbcChatDao jdbcChatDao;
+    protected ChatDao chatDao;
 
     @BeforeAll
     public static void setUp() {

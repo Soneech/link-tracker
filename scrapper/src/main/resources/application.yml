@@ -1,7 +1,7 @@
 app:
   scheduler:
     enable: true
-    interval: 300s
+    interval: 60s
     force-check-delay: 10s
 
 spring:
@@ -20,6 +20,8 @@ logging:
 
 api:
   github:
+    personal-access-token: ${GITHUB_PERSONAL_ACCESS_TOKEN}
+    events-count: 30
     base-url: https://api.github.com
   stackoverflow:
     base-url: https://api.stackexchange.com/2.3
@@ -27,7 +29,7 @@ api:
     base-url: http://localhost:8090
     update-properties:
       count: 5
-      interval: 1800
+      interval: 300
 
 springdoc:
   swagger-ui:

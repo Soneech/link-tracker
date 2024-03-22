@@ -6,6 +6,7 @@ import edu.java.bot.dto.response.ApiErrorResponse;
 import edu.java.bot.dto.response.LinkResponse;
 import edu.java.bot.dto.response.ListLinksResponse;
 import edu.java.bot.dto.response.SuccessMessageResponse;
+import edu.java.bot.exception.ApiAddedResourceNotExistsException;
 import edu.java.bot.exception.ApiBadRequestException;
 import edu.java.bot.exception.ApiNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
@@ -96,6 +97,10 @@ public class ScrapperWebClient implements ScrapperClient {
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
                 response -> response.bodyToMono(ApiErrorResponse.class).map(ApiNotFoundException::new)
+            )
+            .onStatus(
+                HttpStatus.I_AM_A_TEAPOT::equals,  // временно
+                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiAddedResourceNotExistsException::new)
             )
             .bodyToMono(LinkResponse.class)
             .block();

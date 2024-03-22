@@ -34,7 +34,7 @@ public class LinkUpdaterScheduler {
         List<LinkUpdateRequest> updates = linkUpdateService.fetchAllUpdates(updatesCount, interval);
         updates.forEach((update) -> {
             LinkUpdateResponse response = botWebClient.sendUpdate(update);
-            LOGGER.info("Update for link with id %d: %s".formatted(update.id(), response.message()));
+            LOGGER.info("Updates for link with id %d: %s".formatted(update.id(), response.message()));
         });
     }
 }

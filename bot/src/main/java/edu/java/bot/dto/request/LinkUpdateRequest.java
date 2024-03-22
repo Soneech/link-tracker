@@ -13,10 +13,12 @@ public record LinkUpdateRequest(
     @NotBlank
     String url,
 
-    String description,
+    @NotEmpty
+    @JsonProperty("updates_description")
+    String updatesDescription,
 
     @NotEmpty
-    @JsonProperty("tgChatIds")
+    @JsonProperty("tg_chat_ids")
     List<Long> telegramChatIds
 ) {
 }

@@ -12,10 +12,8 @@ public class UpdateService {
     private final LinkBot linkBot;
 
     public void processUpdate(LinkUpdateRequest updateRequest) {
-        String message = "По ссылке %s произошли изменения: %s"
-            .formatted(updateRequest.url(), updateRequest.description());
-
         updateRequest.telegramChatIds().forEach((telegramId) ->
-            linkBot.execute(new SendMessage(telegramId, message)));
+            linkBot.execute(new SendMessage(telegramId, "Доступно обновление по ссылке:\n%s\n\n%s"
+                .formatted(updateRequest.url(), updateRequest.updatesDescription()))));
     }
 }

@@ -3,6 +3,7 @@ package edu.java.controller;
 import edu.java.dto.api.response.ApiErrorResponse;
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
+import edu.java.exception.ResourceNotExistsException;
 import edu.java.exception.TelegramChatAlreadyExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.util.StackTraceUtil;
@@ -72,5 +73,18 @@ public class ApiExceptionHandler {
             StackTraceUtil.getStackTrace(e)
         );
         return ResponseEntity.status(e.getStatusCode()).body(response);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiErrorResponse> handleResourceNotExistsException(ResourceNotExistsException e) {
+        var response = new ApiErrorResponse(
+            "Ресурс не найден.",
+            HttpStatus.I_AM_A_TEAPOT.toString(),
+            e.getClass().getSimpleName(),
+            "Ссылка на несуществующий ресурс, либо ресурс был удалён.",
+            StackTraceUtil.getStackTrace(e)
+        );
+
+        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(response);  // временно
     }
 }

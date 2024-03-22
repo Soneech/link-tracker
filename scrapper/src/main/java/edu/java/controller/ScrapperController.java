@@ -56,7 +56,7 @@ public class ScrapperController implements ApiController {
         @RequestBody @Valid AddLinkRequest request) {
 
         Link link = mapper.convertToLink(request);
-        Link addedLink = linkService.addLink(chatId, link);
+        Link addedLink = linkService.addLinkForUser(chatId, link);
         return mapper.convertToLinkResponse(addedLink);
     }
 
@@ -66,7 +66,7 @@ public class ScrapperController implements ApiController {
         @RequestBody @Valid RemoveLinkRequest request) {
 
         Link link = mapper.convertToLink(request);
-        Link removedLink = linkService.deleteLink(chatId, link);
+        Link removedLink = linkService.deleteUserLink(chatId, link);
         return mapper.convertToLinkResponse(removedLink);
     }
 }

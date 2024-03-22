@@ -1,7 +1,11 @@
 package edu.java.client;
 
-import edu.java.dto.github.RepositoryResponse;
+import edu.java.dto.github.response.EventResponse;
+import edu.java.dto.github.response.RepositoryInfoResponse;
+import java.util.List;
 
 public interface GitHubClient extends HttpClient {
-    RepositoryResponse fetchRepository(String user, String repository);
+    RepositoryInfoResponse checkThatRepositoryExists(String user, String repository);
+
+    List<EventResponse> fetchRepositoryEvents(String user, String repository);
 }

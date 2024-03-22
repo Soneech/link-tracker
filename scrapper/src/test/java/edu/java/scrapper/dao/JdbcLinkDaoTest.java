@@ -41,7 +41,8 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
             new Link("https://stackoverflow.com/questions/28295625/mockito-spy-vs-mock"),
             new Link("https://github.com/Soneech/polls-client"),
             new Link("https://github.com/Soneech/polls-server"),
-            new Link("https://github.com/ivannikolaev/java_h2")
+            new Link("https://github.com/ivannikolaev/java_h2"),
+            new Link("https://stackoverflow.com/questions/74669679/return-boolean-if-postgresql-match-is-found")
         );
     }
 
@@ -84,7 +85,7 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         Optional<Link> chatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), link.getUrl());
         assertThat(chatLink).isPresent();
 
-        jdbcLinkDao.delete(firstChat.getId(), chatLink.get().getId());
+        jdbcLinkDao.deleteChatLink(firstChat.getId(), chatLink.get().getId());
         chatLink = jdbcLinkDao.findChatLinkByUrl(firstChat.getId(), link.getUrl());
         assertThat(chatLink).isEmpty();
     }
@@ -98,11 +99,11 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         Optional<Link> chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
         assertThat(chatLink).isPresent();
 
-        jdbcLinkDao.delete(firstChat.getId(), chatLink.get().getId());
+        jdbcLinkDao.deleteChatLink(firstChat.getId(), chatLink.get().getId());
         chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
         assertThat(chatLink).isPresent();
 
-        jdbcLinkDao.delete(secondChat.getId(), chatLink.get().getId());
+        jdbcLinkDao.deleteChatLink(secondChat.getId(), chatLink.get().getId());
         chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
         assertThat(chatLink).isEmpty();
     }
@@ -126,7 +127,7 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
 
     @Test
     public void testSetUpdateAndCheckTime() {
-        Link link = links.getLast();
+        Link link = links.get(5);
         jdbcLinkDao.save(secondChat.getId(), link);
 
         Optional<Link> chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
@@ -135,11 +136,25 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         OffsetDateTime lastUpdateTime = OffsetDateTime.now();
         OffsetDateTime lastCheckTime = OffsetDateTime.now();
 
-        jdbcLinkDao.setUpdateAndCheckTime(chatLink.get(), lastUpdateTime, lastCheckTime);
+        jdbcLinkDao.setUpdateTime(chatLink.get(), lastUpdateTime);
+        jdbcLinkDao.setCheckTime(chatLink.get(), lastCheckTime);
         chatLink = jdbcLinkDao.findLinkByUrl(link.getUrl());
         assertThat(chatLink).isPresent();
 
         assertThat(chatLink.get().getLastCheckTime().toEpochSecond()).isEqualTo(lastCheckTime.toEpochSecond());
         assertThat(chatLink.get().getLastUpdateTime().toEpochSecond()).isEqualTo(lastUpdateTime.toEpochSecond());
+    }
+
+    @Test
+    public void testLinkExistence() {
+        Link link = links.getLast();
+        String exampleUrl = "https://example.com";
+
+        jdbcLinkDao.save(firstChat.getId(), link);
+        assertThat(jdbcLinkDao.exists(link.getUrl())).isTrue();
+        assertThat(jdbcLinkDao.existsForChat(link.getUrl(), firstChat.getId())).isTrue();
+
+        assertThat(jdbcLinkDao.exists(exampleUrl)).isFalse();
+        assertThat(jdbcLinkDao.existsForChat(exampleUrl, firstChat.getId())).isFalse();
     }
 }

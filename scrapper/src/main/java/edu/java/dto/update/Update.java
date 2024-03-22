@@ -5,12 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
 public record Update(
-    @NotNull
-    Long linkId,
-
-    @NotBlank
-    String url,
-
     @NotBlank
     String description,
 
