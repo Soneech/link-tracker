@@ -3,6 +3,7 @@ app:
     enable: true
     interval: 60s
     force-check-delay: 10s
+  database-access-type: jdbc
 
 spring:
   application:

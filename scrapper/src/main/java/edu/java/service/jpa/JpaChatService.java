@@ -8,11 +8,8 @@ import edu.java.service.ChatService;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
-@Service
-@Primary
+
 @RequiredArgsConstructor
 public class JpaChatService implements ChatService {
 
