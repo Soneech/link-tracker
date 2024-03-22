@@ -1,49 +1,51 @@
-package edu.java.service.multidao;
+package edu.java.service.jpa;
 
-import edu.java.dao.ChatDao;
 import edu.java.exception.TelegramChatAlreadyExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.model.Chat;
+import edu.java.repository.JpaChatRepository;
 import edu.java.service.ChatService;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 @Service
+@Primary
 @RequiredArgsConstructor
-public class MultiDaoChatService implements ChatService {
+public class JpaChatService implements ChatService {
 
-    private final ChatDao chatDao;  // jooq или jdbc
+    private final JpaChatRepository jpaChatRepository;
 
     @Override
     public void registerChat(Chat chat) {
-        if (chatDao.exists(chat.getId())) {
+        if (jpaChatRepository.existsById(chat.getId())) {
             throw new TelegramChatAlreadyExistsException(chat.getId());
         }
-        chatDao.save(chat);
+        jpaChatRepository.save(chat);
     }
 
     @Override
-    public void unregisterChat(long chatId) throws TelegramChatNotFoundException {
+    public void unregisterChat(long chatId) {
         checkThatChatExists(chatId);
-        chatDao.delete(chatId);
+        jpaChatRepository.deleteById(chatId);
     }
 
     @Override
     public void checkThatChatExists(long chatId) {
-        if (!chatDao.exists(chatId)) {
+        if (!jpaChatRepository.existsById(chatId)) {
             throw new TelegramChatNotFoundException(chatId);
         }
     }
 
     @Override
     public Optional<Chat> findChat(long chatId) {
-        return chatDao.findById(chatId);
+        return jpaChatRepository.findById(chatId);
     }
 
     @Override
     public List<Long> findAllChatsIdsWithLink(long linkId) {
-        return chatDao.findAllChatIdsWithLink(linkId);
+        return jpaChatRepository.findAllChatsIdsWithLink(linkId);
     }
 }

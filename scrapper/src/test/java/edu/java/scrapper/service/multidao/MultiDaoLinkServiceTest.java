@@ -47,7 +47,7 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
 
     @Test
     public void testGettingUserLinks() {
-        multiDaoLinkService.getUserLinks(chat.getId());
+        multiDaoLinkService.getChatLinks(chat.getId());
         verify(linkDao).findChatLinks(chat.getId());
     }
 
@@ -55,13 +55,13 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
     public void testGettingLinksForNonExistentUser() {
         doThrow(TelegramChatNotFoundException.class)
             .when(multiDaoChatService).checkThatChatExists(chat.getId());
-        assertThatThrownBy(() -> multiDaoLinkService.getUserLinks(chat.getId()))
+        assertThatThrownBy(() -> multiDaoLinkService.getChatLinks(chat.getId()))
             .isInstanceOf(TelegramChatNotFoundException.class);
     }
 
     @Test
     public void testAddingLink() {
-        multiDaoLinkService.addLinkForUser(chat.getId(), link);
+        multiDaoLinkService.addLinkForChat(chat.getId(), link);
         verify(linkDao).save(chat.getId(), link);
         verify(linkUpdatersHolder).getUpdaterByDomain(GITHUB_DOMAIN);
         verify(gitHubLinkUpdater).checkThatLinkExists(link);
@@ -71,7 +71,7 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
     public void testRepeatedAddingLink() {
         when(linkDao.existsForChat(link.getUrl(), chat.getId()))
             .thenReturn(true);
-        assertThatThrownBy(() -> multiDaoLinkService.addLinkForUser(chat.getId(), link))
+        assertThatThrownBy(() -> multiDaoLinkService.addLinkForChat(chat.getId(), link))
             .isInstanceOf(LinkAlreadyAddedException.class);
     }
 
@@ -79,7 +79,7 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
     public void testAddingLinkForNonExistentUser() {
         doThrow(TelegramChatNotFoundException.class)
             .when(multiDaoChatService).checkThatChatExists(chat.getId());
-        assertThatThrownBy(() -> multiDaoLinkService.addLinkForUser(chat.getId(), link))
+        assertThatThrownBy(() -> multiDaoLinkService.addLinkForChat(chat.getId(), link))
             .isInstanceOf(TelegramChatNotFoundException.class);
     }
 
@@ -90,7 +90,7 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
 
         when(linkDao.findChatLinkByUrl(chat.getId(), testLink.getUrl()))
             .thenReturn(Optional.of(testLink));
-        Link linkToDelete = multiDaoLinkService.deleteUserLink(chat.getId(), testLink);
+        Link linkToDelete = multiDaoLinkService.deleteChatLink(chat.getId(), testLink);
 
         assertThat(linkToDelete).isEqualTo(testLink);
         verify(linkDao).deleteChatLink(chat.getId(), linkToDelete.getId());
@@ -99,7 +99,7 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
 
     @Test
     public void testDeletingNonTrackingLink() {
-        assertThatThrownBy(() -> multiDaoLinkService.deleteUserLink(chat.getId(), link))
+        assertThatThrownBy(() -> multiDaoLinkService.deleteChatLink(chat.getId(), link))
             .isInstanceOf(LinkNotFoundException.class);
     }
 
@@ -107,7 +107,7 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
     public void testDeletingLinkForNonExistentUser() {
         doThrow(TelegramChatNotFoundException.class)
             .when(multiDaoChatService).checkThatChatExists(chat.getId());
-        assertThatThrownBy(() -> multiDaoLinkService.deleteUserLink(chat.getId(), link))
+        assertThatThrownBy(() -> multiDaoLinkService.deleteChatLink(chat.getId(), link))
             .isInstanceOf(TelegramChatNotFoundException.class);
     }
 

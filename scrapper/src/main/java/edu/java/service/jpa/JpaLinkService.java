@@ -1,11 +1,11 @@
-package edu.java.service.multidao;
+package edu.java.service.jpa;
 
-import edu.java.dao.LinkDao;
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
 import edu.java.exception.ResourceNotExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.model.Link;
+import edu.java.repository.JpaLinkRepository;
 import edu.java.service.LinkService;
 import edu.java.service.updater.LinkUpdater;
 import edu.java.service.updater.LinkUpdatersHolder;
@@ -14,22 +14,25 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Primary
 @RequiredArgsConstructor
-public class MultiDaoLinkService implements LinkService {
-    private final LinkDao linkDao; // jooq или jdbc
+public class JpaLinkService implements LinkService {
 
-    private final MultiDaoChatService chatService;
+    private final JpaLinkRepository jpaLinkRepository;
+
+    private final JpaChatService jpaChatService;
 
     private final LinkUpdatersHolder linkUpdatersHolder;
 
     @Override
-    public List<Link> getChatLinks(long chatId) throws TelegramChatNotFoundException {
-        chatService.checkThatChatExists(chatId);
-        return linkDao.findChatLinks(chatId);
+    public List<Link> getChatLinks(long chatId) {
+        jpaChatService.checkThatChatExists(chatId);
+        return jpaLinkRepository.findAllByTgChatsId(chatId);
     }
 
     @Override
@@ -37,49 +40,62 @@ public class MultiDaoLinkService implements LinkService {
     public Link addLinkForChat(long chatId, Link link) throws TelegramChatNotFoundException,
         ResourceNotExistsException {
 
-        chatService.checkThatChatExists(chatId);
-
-        if (linkDao.existsForChat(link.getUrl(), chatId)) {
+        jpaChatService.checkThatChatExists(chatId);
+        if (jpaLinkRepository.existsLinkByTgChatsIdAndUrl(chatId, link.getUrl())) {
             throw new LinkAlreadyAddedException(chatId, link.getUrl());
         }
 
-        if (!linkDao.exists(link.getUrl())) {
+        Link savedLink = jpaLinkRepository.findByUrl(link.getUrl());
+
+        if (savedLink == null) {
             LinkUpdater updater = linkUpdatersHolder.getUpdaterByDomain(URI.create(link.getUrl()).getHost());
             updater.checkThatLinkExists(link);
+
+            link.setLastCheckTime(OffsetDateTime.now(ZoneId.systemDefault()));
             link.setLastUpdateTime(OffsetDateTime.now(ZoneId.systemDefault()));
+            savedLink = jpaLinkRepository.save(link);
         }
-        return linkDao.save(chatId, link);
+
+        jpaLinkRepository.saveLinkForChat(savedLink.getId(), chatId);
+        return savedLink;
     }
 
     @Override
+    @Transactional
     public Link deleteChatLink(long chatId, Link link) throws TelegramChatNotFoundException {
-        chatService.checkThatChatExists(chatId);
+        jpaChatService.checkThatChatExists(chatId);
 
-        Link linkToDelete = linkDao.findChatLinkByUrl(chatId, link.getUrl())
-            .orElseThrow(() ->
-                new LinkNotFoundException(chatId, link.getUrl()));
+        Link linkToDelete = jpaLinkRepository.findByTgChatsIdAndUrl(chatId, link.getUrl())
+            .orElseThrow(() -> new LinkNotFoundException(chatId, link.getUrl()));
 
-        linkDao.deleteChatLink(chatId, linkToDelete.getId());
+        jpaLinkRepository.deleteForChat(chatId, linkToDelete.getId());
+
+        if (!jpaLinkRepository.existsLinkForAtLeastOneChat(linkToDelete.getId())) {
+            jpaLinkRepository.delete(linkToDelete);
+        }
+
         return linkToDelete;
     }
 
     @Override
     public List<Link> findAllOutdatedLinks(int count, long interval) {
-        return linkDao.findAllOutdatedLinks(count, interval);
+        return jpaLinkRepository.findAllOutdatedLinks(count, interval);
     }
 
     @Override
     public void setUpdateTime(Link link, OffsetDateTime lastUpdateTime) {
-        linkDao.setUpdateTime(link, lastUpdateTime);
+        link.setLastUpdateTime(lastUpdateTime);
+        jpaLinkRepository.save(link);
     }
 
     @Override
     public void setCheckTime(Link link, OffsetDateTime lastCheckTime) {
-        linkDao.setCheckTime(link, lastCheckTime);
+        link.setLastCheckTime(lastCheckTime);
+        jpaLinkRepository.save(link);
     }
 
     @Override
     public void deleteLink(Link link) {
-        linkDao.delete(link.getId());
+        jpaLinkRepository.delete(link);
     }
 }
