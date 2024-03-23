@@ -35,8 +35,8 @@ public interface JpaLinkRepository extends JpaRepository<Link, Long> {
 
     @Query(nativeQuery = true,
            value = """
-                   SELECT * FROM Link WHERE EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_check_time)) >= :interval OR
-                                           last_update_time IS NULL ORDER BY last_check_time LIMIT :count
+                   SELECT * FROM Link WHERE EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_check_time)) >= :interval
+                   ORDER BY last_check_time LIMIT :count
                    """)
     List<Link> findAllOutdatedLinks(int count, long interval);
 }

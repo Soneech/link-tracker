@@ -1,10 +1,9 @@
-package edu.java.scrapper.dao;
+package edu.java.scrapper.dao.jdbc;
 
 import edu.java.dao.jdbc.JdbcChatDao;
 import edu.java.dao.jdbc.JdbcLinkDao;
 import edu.java.model.Chat;
 import edu.java.model.Link;
-import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
-public class JdbcLinkDaoTest extends IntegrationEnvironment {
+public class JdbcLinkDaoTest extends JdbcDaoTest {
     private static JdbcLinkDao jdbcLinkDao;
 
     private static JdbcChatDao jdbcChatDao;
