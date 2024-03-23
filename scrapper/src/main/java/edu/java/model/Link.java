@@ -12,6 +12,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,6 +26,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @Builder
 @ToString(exclude = "tgChats")
+@EqualsAndHashCode(exclude = "tgChats")
 public class Link {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

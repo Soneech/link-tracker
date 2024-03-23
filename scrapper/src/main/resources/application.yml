@@ -3,7 +3,7 @@ app:
     enable: true
     interval: 60s
     force-check-delay: 10s
-  database-access-type: jdbc
+  database-access-type: jpa
 
 spring:
   application:
@@ -16,6 +16,8 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
+  liquibase:
+    enabled: false
 
 server:
   port: 8080
