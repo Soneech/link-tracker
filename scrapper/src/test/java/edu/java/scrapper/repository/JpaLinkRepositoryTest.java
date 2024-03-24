@@ -126,6 +126,20 @@ public class JpaLinkRepositoryTest extends IntegrationEnvironment {
     }
 
     @Test
+    public void testDeleteLink() {
+        Chat chat = chats.getLast();
+        Link link = links.get(1);
+
+        jpaChatRepository.save(chat);
+        Link savedLink = jpaLinkRepository.save(link);
+        jpaLinkRepository.saveLinkForChat(savedLink.getId(), chat.getId());
+        assertThat(jpaLinkRepository.existsLinkForAtLeastOneChat(savedLink.getId())).isTrue();
+
+        jpaLinkRepository.delete(savedLink);
+        assertThat(jpaLinkRepository.existsLinkForAtLeastOneChat(savedLink.getId())).isFalse();
+    }
+
+    @Test
     public void testFindAllOutdatedLinks() {
         Link firstLink = links.getFirst();
         Link secondLink = links.get(1);
@@ -140,5 +154,19 @@ public class JpaLinkRepositoryTest extends IntegrationEnvironment {
         foundLinks = jpaLinkRepository.findAllOutdatedLinks(2, 0);
         assertThat(foundLinks).isNotEmpty();
         assertThat(foundLinks).hasSize(2);
+    }
+
+    @Test
+    public void testLinkExistenceForChat() {
+        Chat chat = chats.getLast();
+        Link link = links.getFirst();
+
+        jpaChatRepository.save(chat);
+        Link savedLink = jpaLinkRepository.save(link);
+
+        assertThat(jpaLinkRepository.existsLinkByTgChatsIdAndUrl(chat.getId(), savedLink.getUrl())).isFalse();
+
+        jpaLinkRepository.saveLinkForChat(savedLink.getId(), chat.getId());
+        assertThat(jpaLinkRepository.existsLinkByTgChatsIdAndUrl(chat.getId(), savedLink.getUrl())).isTrue();
     }
 }
