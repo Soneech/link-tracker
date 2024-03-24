@@ -84,8 +84,8 @@ public class JdbcLinkDao implements LinkDao {
     public List<Link> findAllOutdatedLinks(int count, long interval) {
         return jdbcTemplate
             .query("""
-                    SELECT * FROM Link WHERE EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_check_time)) >= ? OR
-                        last_update_time IS NULL LIMIT ?
+                    SELECT * FROM Link WHERE EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - last_check_time)) >= ?
+                    ORDER BY last_check_time LIMIT ?
                     """,
                 new BeanPropertyRowMapper<>(Link.class), interval, count
             );

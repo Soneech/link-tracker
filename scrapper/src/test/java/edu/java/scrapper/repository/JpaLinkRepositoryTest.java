@@ -109,6 +109,7 @@ public class JpaLinkRepositoryTest extends IntegrationEnvironment {
     }
 
     @Test
+    @Transactional
     public void testDeleteLinkForChat() {
         Link link = links.getFirst();
         Chat chat = chats.getFirst();
@@ -126,6 +127,7 @@ public class JpaLinkRepositoryTest extends IntegrationEnvironment {
     }
 
     @Test
+    @Transactional
     public void testDeleteLink() {
         Chat chat = chats.getLast();
         Link link = links.get(1);
@@ -140,6 +142,7 @@ public class JpaLinkRepositoryTest extends IntegrationEnvironment {
     }
 
     @Test
+    @Transactional
     public void testFindAllOutdatedLinks() {
         Link firstLink = links.getFirst();
         Link secondLink = links.get(1);
@@ -157,6 +160,7 @@ public class JpaLinkRepositoryTest extends IntegrationEnvironment {
     }
 
     @Test
+    @Transactional
     public void testLinkExistenceForChat() {
         Chat chat = chats.getLast();
         Link link = links.getFirst();

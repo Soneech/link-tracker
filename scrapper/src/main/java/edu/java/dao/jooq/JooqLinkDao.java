@@ -108,7 +108,7 @@ public class JooqLinkDao implements LinkDao {
         return dslContext
             .select(LINK.fields()).from(LINK)
             .where(intervalFromLastCheckTime.greaterOrEqual(interval))
-            .or(LINK.LAST_UPDATE_TIME.isNull())
+            .orderBy(LINK.LAST_CHECK_TIME)
             .limit(count)
             .fetchInto(Link.class);
     }
