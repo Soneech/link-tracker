@@ -2,7 +2,6 @@ package edu.java.configuration.domain.jdbc;
 
 import edu.java.dao.jdbc.JdbcChatDao;
 import edu.java.dao.jdbc.JdbcLinkDao;
-import edu.java.service.ChatService;
 import edu.java.service.LinkService;
 import edu.java.service.multidao.MultiDaoChatService;
 import edu.java.service.multidao.MultiDaoLinkService;
@@ -17,12 +16,12 @@ public class JdbcAccessConfig {
 
     @Bean
     public LinkService jdbcLinkService(JdbcLinkDao jdbcLinkDao, LinkUpdatersHolder linkUpdatersHolder,
-        ChatService jdbcChatService) {
-        return new MultiDaoLinkService(jdbcLinkDao, (MultiDaoChatService) jdbcChatService, linkUpdatersHolder);
+        MultiDaoChatService jdbcChatService) {
+        return new MultiDaoLinkService(jdbcLinkDao, jdbcChatService, linkUpdatersHolder);
     }
 
     @Bean
-    public ChatService jdbcChatService(JdbcChatDao jdbcChatDao) {
+    public MultiDaoChatService jdbcChatService(JdbcChatDao jdbcChatDao) {
         return new MultiDaoChatService(jdbcChatDao);
     }
 }

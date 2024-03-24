@@ -2,7 +2,6 @@ package edu.java.configuration.domain.jpa;
 
 import edu.java.repository.JpaChatRepository;
 import edu.java.repository.JpaLinkRepository;
-import edu.java.service.ChatService;
 import edu.java.service.LinkService;
 import edu.java.service.jpa.JpaChatService;
 import edu.java.service.jpa.JpaLinkService;
@@ -16,13 +15,13 @@ import org.springframework.context.annotation.Configuration;
 public class JpaAccessConfig {
 
     @Bean
-    public LinkService jpaLinkService(JpaLinkRepository jpaLinkRepository, ChatService jpaChatService,
+    public LinkService jpaLinkService(JpaLinkRepository jpaLinkRepository, JpaChatService jpaChatService,
         LinkUpdatersHolder linkUpdatersHolder) {
-        return new JpaLinkService(jpaLinkRepository, (JpaChatService) jpaChatService, linkUpdatersHolder);
+        return new JpaLinkService(jpaLinkRepository, jpaChatService, linkUpdatersHolder);
     }
 
     @Bean
-    public ChatService jpaChatService(JpaChatRepository jpaChatRepository) {
+    public JpaChatService jpaChatService(JpaChatRepository jpaChatRepository) {
         return new JpaChatService(jpaChatRepository);
     }
 }

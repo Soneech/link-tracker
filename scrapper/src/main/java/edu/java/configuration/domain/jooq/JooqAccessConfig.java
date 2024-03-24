@@ -2,7 +2,6 @@ package edu.java.configuration.domain.jooq;
 
 import edu.java.dao.jooq.JooqChatDao;
 import edu.java.dao.jooq.JooqLinkDao;
-import edu.java.service.ChatService;
 import edu.java.service.LinkService;
 import edu.java.service.multidao.MultiDaoChatService;
 import edu.java.service.multidao.MultiDaoLinkService;
@@ -16,13 +15,13 @@ import org.springframework.context.annotation.Configuration;
 public class JooqAccessConfig {
 
     @Bean
-    public LinkService jooqLinkService(JooqLinkDao jooqLinkDao, ChatService jooqChatService,
+    public LinkService jooqLinkService(JooqLinkDao jooqLinkDao, MultiDaoChatService jooqChatService,
         LinkUpdatersHolder linkUpdatersHolder) {
-        return new MultiDaoLinkService(jooqLinkDao, (MultiDaoChatService) jooqChatService, linkUpdatersHolder);
+        return new MultiDaoLinkService(jooqLinkDao, jooqChatService, linkUpdatersHolder);
     }
 
     @Bean
-    public ChatService jooqChatService(JooqChatDao jooqChatDao) {
+    public MultiDaoChatService jooqChatService(JooqChatDao jooqChatDao) {
         return new MultiDaoChatService(jooqChatDao);
     }
 }
