@@ -46,13 +46,13 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
     }
 
     @Test
-    public void testGettingUserLinks() {
+    public void testGetChatLinks() {
         multiDaoLinkService.getChatLinks(chat.getId());
         verify(linkDao).findChatLinks(chat.getId());
     }
 
     @Test
-    public void testGettingLinksForNonExistentUser() {
+    public void testGetLinksForNonExistentChat() {
         doThrow(TelegramChatNotFoundException.class)
             .when(multiDaoChatService).checkThatChatExists(chat.getId());
         assertThatThrownBy(() -> multiDaoLinkService.getChatLinks(chat.getId()))
@@ -60,7 +60,7 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
     }
 
     @Test
-    public void testAddingLink() {
+    public void testAddLink() {
         multiDaoLinkService.addLinkForChat(chat.getId(), link);
         verify(linkDao).save(chat.getId(), link);
         verify(linkUpdatersHolder).getUpdaterByDomain(GITHUB_DOMAIN);
@@ -76,7 +76,7 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
     }
 
     @Test
-    public void testAddingLinkForNonExistentUser() {
+    public void testAddLinkForNonExistentChat() {
         doThrow(TelegramChatNotFoundException.class)
             .when(multiDaoChatService).checkThatChatExists(chat.getId());
         assertThatThrownBy(() -> multiDaoLinkService.addLinkForChat(chat.getId(), link))
@@ -84,7 +84,7 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
     }
 
     @Test
-    public void testDeletingLink() {
+    public void testDeleteLink() {
         Link testLink = link;
         testLink.setId(123L);
 
@@ -98,13 +98,13 @@ public class MultiDaoLinkServiceTest extends MultiDaoServiceTest {
     }
 
     @Test
-    public void testDeletingNonTrackingLink() {
+    public void testDeleteNonTrackingLink() {
         assertThatThrownBy(() -> multiDaoLinkService.deleteChatLink(chat.getId(), link))
             .isInstanceOf(LinkNotFoundException.class);
     }
 
     @Test
-    public void testDeletingLinkForNonExistentUser() {
+    public void testDeleteLinkForNonExistentChat() {
         doThrow(TelegramChatNotFoundException.class)
             .when(multiDaoChatService).checkThatChatExists(chat.getId());
         assertThatThrownBy(() -> multiDaoLinkService.deleteChatLink(chat.getId(), link))

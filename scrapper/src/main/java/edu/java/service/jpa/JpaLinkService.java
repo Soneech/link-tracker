@@ -68,7 +68,7 @@ public class JpaLinkService implements LinkService {
         jpaLinkRepository.deleteForChat(chatId, linkToDelete.getId());
 
         if (!jpaLinkRepository.existsLinkForAtLeastOneChat(linkToDelete.getId())) {
-            jpaLinkRepository.delete(linkToDelete);
+            deleteLink(linkToDelete);
         }
 
         return linkToDelete;
