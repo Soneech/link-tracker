@@ -5,6 +5,7 @@ import edu.java.dao.jdbc.JdbcLinkDao;
 import edu.java.model.Chat;
 import edu.java.model.Link;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,7 +22,8 @@ public class JdbcChatDaoTest extends JdbcDaoTest {
     static void chatDaoSetUp() {
         jdbcChatDao = new JdbcChatDao(jdbcTemplate);
 
-        OffsetDateTime createdAt = OffsetDateTime.now();
+        OffsetDateTime createdAt =
+            OffsetDateTime.of(2024, 3, 15, 13, 13, 0, 0, ZoneOffset.UTC);
         chats = List.of(
             new Chat(11111L, createdAt),
             new Chat(22222L, createdAt),

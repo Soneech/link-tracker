@@ -9,21 +9,15 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 @Entity
 @Table
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-@ToString(exclude = "trackingLinks")
-@EqualsAndHashCode(exclude = "trackingLinks")
 public class Chat {
     @Id
     private Long id;
@@ -37,6 +31,8 @@ public class Chat {
         joinColumns = @JoinColumn(name = "chat_id"),
         inverseJoinColumns = @JoinColumn(name = "link_id")
     )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Link> trackingLinks;
 
     public Chat(Long id) {

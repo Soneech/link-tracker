@@ -5,15 +5,16 @@ import edu.java.model.Link;
 import edu.java.repository.JpaChatRepository;
 import edu.java.repository.JpaLinkRepository;
 import edu.java.scrapper.IntegrationEnvironment;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -36,7 +37,8 @@ public class JpaChatRepositoryTest extends IntegrationEnvironment {
 
     @BeforeAll
     public static void testDataSetUp() {
-        OffsetDateTime testDateTime = OffsetDateTime.now();
+        OffsetDateTime testDateTime =
+            OffsetDateTime.of(2024, 3, 15, 13, 13, 0, 0, ZoneOffset.UTC);
 
         chats = List.of(
             new Chat(11111L, testDateTime),

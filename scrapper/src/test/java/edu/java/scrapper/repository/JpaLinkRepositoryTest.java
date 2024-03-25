@@ -5,15 +5,16 @@ import edu.java.model.Link;
 import edu.java.repository.JpaChatRepository;
 import edu.java.repository.JpaLinkRepository;
 import edu.java.scrapper.IntegrationEnvironment;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -36,7 +37,8 @@ public class JpaLinkRepositoryTest extends IntegrationEnvironment {
 
     @BeforeAll
     public static void testDataSetUp() {
-        OffsetDateTime testDateTime = OffsetDateTime.now();
+        OffsetDateTime testDateTime =
+            OffsetDateTime.of(2024, 3, 15, 13, 13, 0, 0, ZoneOffset.UTC);
         links = List.of(
             Link.builder().url("https://github.com/maximal/http-267")
                 .lastCheckTime(testDateTime).lastUpdateTime(testDateTime).build(),
@@ -144,10 +146,14 @@ public class JpaLinkRepositoryTest extends IntegrationEnvironment {
     @Test
     @Transactional
     public void testFindAllOutdatedLinks() {
-        Link firstLink = links.getFirst();
-        Link secondLink = links.get(1);
-        firstLink.setLastUpdateTime(OffsetDateTime.now());
-        secondLink.setLastUpdateTime(OffsetDateTime.now());
+        OffsetDateTime testDateTime = OffsetDateTime.now(); // тут нужно именно текущее время
+
+        Link firstLink = Link.builder()
+            .url(links.getFirst().getUrl()).lastCheckTime(testDateTime).lastUpdateTime(testDateTime)
+            .build();
+        Link secondLink = Link.builder()
+            .url(links.get(1).getUrl()).lastCheckTime(testDateTime).lastUpdateTime(testDateTime)
+            .build();
 
         jpaLinkRepository.save(firstLink);
         jpaLinkRepository.save(secondLink);
