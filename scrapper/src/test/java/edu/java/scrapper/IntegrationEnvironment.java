@@ -16,11 +16,7 @@ import liquibase.exception.LiquibaseException;
 import liquibase.resource.DirectoryResourceAccessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -33,27 +29,13 @@ public abstract class IntegrationEnvironment {
     @ServiceConnection
     protected static PostgreSQLContainer<?> postgres;
 
-    protected static JdbcTemplate jdbcTemplate;
-
-    @BeforeAll
-    static void setup() {
+    static {
         postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"))
             .withDatabaseName("scrapper")
             .withUsername("postgres")
             .withPassword("postgres");
         postgres.start();
         runMigrations(postgres);
-
-        jdbcTemplate = new JdbcTemplate(DataSourceBuilder.create()
-            .url(postgres.getJdbcUrl())
-            .username(postgres.getUsername())
-            .password(postgres.getPassword())
-            .build());
-    }
-
-    @AfterAll
-    static void stop() {
-        postgres.stop();
     }
 
     private static void runMigrations(JdbcDatabaseContainer<?> c) {

@@ -5,11 +5,11 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface LinkService {
-    List<Link> getUserLinks(long chatId);
+    List<Link> getChatLinks(long chatId);
 
-    Link addLinkForUser(long chatId, Link link);
+    Link addLinkForChat(long chatId, Link link);
 
-    Link deleteUserLink(long chatId, Link link);
+    Link deleteChatLink(long chatId, Link link);
 
     List<Link> findAllOutdatedLinks(int count, long interval);
 

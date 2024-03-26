@@ -1,11 +1,11 @@
-package edu.java.scrapper.dao;
+package edu.java.scrapper.dao.jdbc;
 
 import edu.java.dao.jdbc.JdbcChatDao;
 import edu.java.dao.jdbc.JdbcLinkDao;
 import edu.java.model.Chat;
 import edu.java.model.Link;
-import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
-public class JdbcLinkDaoTest extends IntegrationEnvironment {
+public class JdbcLinkDaoTest extends JdbcDaoTest {
     private static JdbcLinkDao jdbcLinkDao;
 
     private static JdbcChatDao jdbcChatDao;
@@ -30,8 +30,10 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
         jdbcLinkDao = new JdbcLinkDao(jdbcTemplate);
         jdbcChatDao = new JdbcChatDao(jdbcTemplate);
 
-        firstChat = new Chat(888888L, OffsetDateTime.now());
-        secondChat = new Chat(77777L, OffsetDateTime.now());
+        OffsetDateTime createdAt =
+            OffsetDateTime.of(2024, 3, 15, 13, 13, 0, 0, ZoneOffset.UTC);
+        firstChat = new Chat(888888L, createdAt);
+        secondChat = new Chat(77777L, createdAt);
         jdbcChatDao.save(firstChat);
         jdbcChatDao.save(secondChat);
 
@@ -112,8 +114,10 @@ public class JdbcLinkDaoTest extends IntegrationEnvironment {
     public void testFindAllOutdatedLinks() {
         Link firstLink = links.getFirst();
         Link secondLink = links.get(1);
-        firstLink.setLastUpdateTime(OffsetDateTime.now());
-        secondLink.setLastUpdateTime(OffsetDateTime.now());
+
+        OffsetDateTime testDateTime = OffsetDateTime.now(); // тут нужно именно текущее время
+        firstLink.setLastUpdateTime(testDateTime);
+        secondLink.setLastUpdateTime(testDateTime);
 
         jdbcLinkDao.save(secondChat.getId(), firstLink);
         jdbcLinkDao.save(secondChat.getId(), secondLink);

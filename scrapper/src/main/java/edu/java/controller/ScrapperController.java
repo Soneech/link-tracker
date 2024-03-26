@@ -46,7 +46,7 @@ public class ScrapperController implements ApiController {
     @Override
     @GetMapping("/links")
     public ListLinksResponse getLinks(@RequestHeader("Tg-Chat-Id") Long chatId) {
-        List<Link> userLinks = linkService.getUserLinks(chatId);
+        List<Link> userLinks = linkService.getChatLinks(chatId);
         return mapper.mapToListLinksResponse(userLinks);
     }
 
@@ -56,7 +56,7 @@ public class ScrapperController implements ApiController {
         @RequestBody @Valid AddLinkRequest request) {
 
         Link link = mapper.convertToLink(request);
-        Link addedLink = linkService.addLinkForUser(chatId, link);
+        Link addedLink = linkService.addLinkForChat(chatId, link);
         return mapper.convertToLinkResponse(addedLink);
     }
 
@@ -66,7 +66,7 @@ public class ScrapperController implements ApiController {
         @RequestBody @Valid RemoveLinkRequest request) {
 
         Link link = mapper.convertToLink(request);
-        Link removedLink = linkService.deleteUserLink(chatId, link);
+        Link removedLink = linkService.deleteChatLink(chatId, link);
         return mapper.convertToLinkResponse(removedLink);
     }
 }

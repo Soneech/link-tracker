@@ -1,11 +1,11 @@
-package edu.java.scrapper.dao;
+package edu.java.scrapper.dao.jdbc;
 
 import edu.java.dao.jdbc.JdbcChatDao;
 import edu.java.dao.jdbc.JdbcLinkDao;
 import edu.java.model.Chat;
 import edu.java.model.Link;
-import edu.java.scrapper.IntegrationEnvironment;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JdbcChatDaoTest extends IntegrationEnvironment {
+public class JdbcChatDaoTest extends JdbcDaoTest {
     private static JdbcChatDao jdbcChatDao;
 
     private static List<Chat> chats;
@@ -22,7 +22,8 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
     static void chatDaoSetUp() {
         jdbcChatDao = new JdbcChatDao(jdbcTemplate);
 
-        OffsetDateTime createdAt = OffsetDateTime.now();
+        OffsetDateTime createdAt =
+            OffsetDateTime.of(2024, 3, 15, 13, 13, 0, 0, ZoneOffset.UTC);
         chats = List.of(
             new Chat(11111L, createdAt),
             new Chat(22222L, createdAt),
@@ -76,7 +77,7 @@ public class JdbcChatDaoTest extends IntegrationEnvironment {
     @Transactional
     public void testFindChatsByLinkId() {
         Chat chat = chats.getLast();
-        Link link = new Link("https://github.com/Soneech/link-tracker");
+        Link link = new Link("https://github.com/Soneech/polls-client");
         JdbcLinkDao jdbcLinkDao = new JdbcLinkDao(jdbcTemplate);
 
         jdbcChatDao.save(chat);
