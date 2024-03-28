@@ -1,27 +1,18 @@
 package edu.java.client.impl;
 
 import edu.java.client.GitHubClient;
-import edu.java.client.retry.RetryPolicy;
-import edu.java.client.retry.RetryPolicyHolder;
 import edu.java.dto.github.response.EventResponse;
 import edu.java.dto.github.response.GitHubErrorResponse;
 import edu.java.dto.github.response.RepositoryInfoResponse;
 import edu.java.exception.github.RepositoryNotExistsException;
-import edu.java.util.StackTraceUtil;
-import io.github.resilience4j.retry.Retry;
-import jakarta.annotation.PostConstruct;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 @Setter
@@ -30,23 +21,12 @@ public class GitHubWebClient implements GitHubClient {
 
     private final WebClient webClient;
 
-    private final RetryPolicyHolder retryPolicyHolder;
+    @Value("${api.github.base-url}")
+    private String baseUrl;  // можно менять
 
     private final String personalAccessToken;
 
-    @Value("${api.github.base-url}")
-    private String baseUrl;
-
-    @Value("${api.github.events-count}")
-    private int eventsCount;
-
-    @Value("${api.github.retry.policy}")
-    private String retryPolicyName;
-
-    @Value("${api.github.retry.error-status-codes}")
-    private List<HttpStatus> errorStatusCodes;
-
-    private Retry retry;
+    private final int eventsCount;
 
     private static final String REPOSITORY_PATH = "/repos/";
 
@@ -56,31 +36,19 @@ public class GitHubWebClient implements GitHubClient {
 
     private static final String BEARER_PREFIX = "Bearer %s";
 
-    private static final Logger LOGGER = LogManager.getLogger();
-
-
-    public GitHubWebClient(RetryPolicyHolder retryPolicyHolder, String personalAccessToken) {
-        this.retryPolicyHolder = retryPolicyHolder;
+    public GitHubWebClient(String personalAccessToken, int eventsCount) {
         this.personalAccessToken = personalAccessToken;
-
+        this.eventsCount = eventsCount;
         this.webClient = WebClient.builder().baseUrl(baseUrl).build();
     }
 
-    public GitHubWebClient(RetryPolicyHolder retryPolicyHolder, String personalAccessToken, String baseUrl) {
-        this.retryPolicyHolder = retryPolicyHolder;
+    public GitHubWebClient(String baseUrl, String personalAccessToken, int eventsCount) {
         this.personalAccessToken = personalAccessToken;
-
+        this.eventsCount = eventsCount;
         if (!baseUrl.isEmpty()) {
             this.baseUrl = baseUrl;
         }
         this.webClient = WebClient.builder().baseUrl(this.baseUrl).build();
-    }
-
-    @Override
-    @PostConstruct
-    public void initializeRetry() {
-        RetryPolicy retryPolicy = retryPolicyHolder.getRetryPolicyByName(this.retryPolicyName);
-        retry = retryPolicy.setUpRetry(errorStatusCodes);
     }
 
     @Override
@@ -98,17 +66,6 @@ public class GitHubWebClient implements GitHubClient {
     }
 
     @Override
-    public RepositoryInfoResponse checkThatRepositoryExistsWithRetry(String user, String repository) {
-        try {
-            return Retry.decorateSupplier(retry, () -> checkThatRepositoryExists(user, repository)).get();
-        } catch (WebClientResponseException exception) {
-            LOGGER.error("Retry error: resource unavailable; status: %s".formatted(exception.getStatusCode()));
-            return null;
-            // TODO
-        }
-    }
-
-    @Override
     public List<EventResponse> fetchRepositoryEvents(String user, String repository) {
         Mono<List<EventResponse>> events = webClient
             .get()
@@ -123,16 +80,5 @@ public class GitHubWebClient implements GitHubClient {
             .bodyToMono(new ParameterizedTypeReference<>() { });
 
         return events.block();
-    }
-
-    @Override
-    public List<EventResponse> fetchRepositoryEventsWithRetry(String user, String repository) {
-        try {
-            return Retry.decorateSupplier(retry, () -> fetchRepositoryEvents(user, repository)).get();
-        } catch (WebClientResponseException exception) {
-            LOGGER.error("Retry error with status: %s; stack trace:\n%s"
-                .formatted(exception.getStatusCode(), String.join("\n", StackTraceUtil.getStackTrace(exception))));
-            return Collections.emptyList();
-        }
     }
 }

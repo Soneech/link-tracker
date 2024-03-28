@@ -1,7 +1,6 @@
 package edu.java.scrapper.client;
 
 import edu.java.client.impl.GitHubWebClient;
-import edu.java.client.retry.RetryPolicyHolder;
 import edu.java.dto.github.response.EventResponse;
 import edu.java.dto.github.response.RepositoryInfoResponse;
 import edu.java.exception.github.RepositoryNotExistsException;
@@ -11,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.ResourceUtils;
@@ -26,9 +24,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class GitHubWebClientTest extends HttpClientTest {
     private GitHubWebClient gitHubWebClient;
 
-    @Mock
-    private RetryPolicyHolder retryPolicyHolder;
-
     private static final String REPOSITORY_PATH = "/repos/{username}/{repository}";
 
     private static final String EVENTS_PATH = "/repos/{username}/{repository}/events";
@@ -41,8 +36,7 @@ public class GitHubWebClientTest extends HttpClientTest {
 
     @BeforeEach
     public void setUp() {
-        gitHubWebClient = new GitHubWebClient(retryPolicyHolder, "some-token", baseUrl);
-        gitHubWebClient.setEventsCount(eventsCount);
+        gitHubWebClient = new GitHubWebClient(baseUrl, "some-token", eventsCount);
     }
 
     @Test

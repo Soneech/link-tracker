@@ -92,12 +92,6 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- Retry -->
-        <dependency>
-            <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-retry</artifactId>
-        </dependency>
-
         <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

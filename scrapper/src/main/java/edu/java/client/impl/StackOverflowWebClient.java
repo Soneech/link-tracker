@@ -2,7 +2,6 @@ package edu.java.client.impl;
 
 import edu.java.client.StackOverflowClient;
 import edu.java.dto.stackoverflow.QuestionResponse;
-import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -29,12 +28,6 @@ public class StackOverflowWebClient implements StackOverflowClient {
             this.baseUrl = baseUrl;
         }
         this.webClient = WebClient.builder().baseUrl(this.baseUrl).build();
-    }
-
-    @Override
-    @PostConstruct
-    public void initializeRetry() {
-
     }
 
     @Override
