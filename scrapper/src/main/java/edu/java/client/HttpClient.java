@@ -1,3 +1,5 @@
 package edu.java.client;
 
-public interface HttpClient { }
+public interface HttpClient {
+    void initializeRetry();
+}

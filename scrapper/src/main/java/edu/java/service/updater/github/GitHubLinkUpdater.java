@@ -5,6 +5,7 @@ import edu.java.dto.github.response.EventResponse;
 import edu.java.dto.github.response.RepositoryInfoResponse;
 import edu.java.dto.update.LinkUpdates;
 import edu.java.dto.update.Update;
+import edu.java.exception.ResourceUnavailableException;
 import edu.java.exception.github.RepositoryNotExistsException;
 import edu.java.model.Link;
 import edu.java.service.updater.LinkUpdater;
@@ -88,11 +89,11 @@ public class GitHubLinkUpdater implements LinkUpdater {
     }
 
     @Override
-    public void checkThatLinkExists(Link link) throws RepositoryNotExistsException {
+    public void checkThatLinkExists(Link link) throws RepositoryNotExistsException, ResourceUnavailableException {
         var repositoryData = getUserAndRepository(link.getUrl());
 
         RepositoryInfoResponse response =
-            gitHubWebClient.checkThatRepositoryExists(repositoryData.getKey(), repositoryData.getValue());
+            gitHubWebClient.checkThatRepositoryExistsWithRetry(repositoryData.getKey(), repositoryData.getValue());
         LOGGER.info("Checks repository: %s".formatted(response));
     }
 
@@ -102,7 +103,7 @@ public class GitHubLinkUpdater implements LinkUpdater {
     }
 
     public List<EventResponse> fetchEventsAndGetNew(String username, String repository, OffsetDateTime lastUpdateTime) {
-        List<EventResponse> events = gitHubWebClient.fetchRepositoryEvents(username, repository);
+        List<EventResponse> events = gitHubWebClient.fetchRepositoryEventsWithRetry(username, repository);
         return events.stream()
             .filter(event -> event.createdAt().isAfter(lastUpdateTime)).toList();
     }

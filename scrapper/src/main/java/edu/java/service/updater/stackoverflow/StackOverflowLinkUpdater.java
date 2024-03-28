@@ -4,6 +4,7 @@ import edu.java.client.StackOverflowClient;
 import edu.java.dto.stackoverflow.QuestionResponse;
 import edu.java.dto.update.LinkUpdates;
 import edu.java.dto.update.Update;
+import edu.java.exception.ResourceUnavailableException;
 import edu.java.exception.stackoverflow.QuestionNotExistsException;
 import edu.java.model.Link;
 import edu.java.service.updater.LinkUpdater;
@@ -53,6 +54,8 @@ public class StackOverflowLinkUpdater implements LinkUpdater {
             LOGGER.error(exception.getMessage());
             addResourceNotFoundUpdate(linkUpdates, QUESTION_NOT_EXISTS_MESSAGE);
             return Optional.of(linkUpdates);
+        } catch (ResourceUnavailableException exception) {
+            // TODO
         }
 
         eventHandlers.forEach(handler -> {
