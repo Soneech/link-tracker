@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.ResourceUtils;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
@@ -37,6 +38,8 @@ public class GitHubWebClientTest extends HttpClientTest {
     @BeforeEach
     public void setUp() {
         gitHubWebClient = new GitHubWebClient(baseUrl, "some-token", eventsCount);
+        List<HttpStatus> errorStatusCodes = List.of(HttpStatus.SERVICE_UNAVAILABLE, HttpStatus.BAD_GATEWAY);
+        gitHubWebClient.setErrorStatusCodes(errorStatusCodes);
     }
 
     @Test

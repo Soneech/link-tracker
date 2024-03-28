@@ -4,6 +4,7 @@ import edu.java.dto.api.response.ApiErrorResponse;
 import edu.java.exception.LinkAlreadyAddedException;
 import edu.java.exception.LinkNotFoundException;
 import edu.java.exception.ResourceNotExistsException;
+import edu.java.exception.ResourceUnavailableException;
 import edu.java.exception.TelegramChatAlreadyExistsException;
 import edu.java.exception.TelegramChatNotFoundException;
 import edu.java.util.StackTraceUtil;
@@ -86,5 +87,18 @@ public class ApiExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(response);  // временно
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiErrorResponse> handleResourceUnavailableException(ResourceUnavailableException e) {
+        var response = new ApiErrorResponse(
+            "Ресурс недоступен",
+            e.getHttpStatusCode().toString(),
+            e.getClass().getSimpleName(),
+            "Ресурс временно недоступен",
+            StackTraceUtil.getStackTrace(e)
+        );
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
     }
 }
