@@ -7,6 +7,7 @@ import edu.java.bot.dto.request.RemoveLinkRequest;
 import edu.java.bot.dto.response.LinkResponse;
 import edu.java.bot.exception.ApiBadRequestException;
 import edu.java.bot.exception.ApiNotFoundException;
+import edu.java.bot.exception.ScrapperUnavailableException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +31,8 @@ public class LinkUntrackingCommandStep implements UntrackCommandStep {
 
     private static final String SOMETHING_WENT_WRONG = "Что-то пошло не так :(";
 
+    private static final String SERVICE_UNAVAILABLE_MESSAGE = "Функция временно недоступна. Попробуйте позже";
+
     @Override
     public Result handle(String[] messageParts, Long chatId) {
         String link = messageParts[messageParts.length - 1];
@@ -49,6 +52,11 @@ public class LinkUntrackingCommandStep implements UntrackCommandStep {
             result = new Result(NOT_FOUND_MESSAGE, false);
             LOGGER.warn("ChatID: %d; ссылка %s не найдена в списке отслеживаемых".formatted(chatId, link));
             LOGGER.warn(exception.getApiErrorResponse());
+
+        } catch (ScrapperUnavailableException exception) {
+            result = new Result(SERVICE_UNAVAILABLE_MESSAGE, false);
+            LOGGER.error("Scrapper недоступен; %s; status code: %s"
+                .formatted(exception.getMessage(), exception.getHttpStatusCode()));
         }
 
         return result;

@@ -1,7 +1,7 @@
 package edu.java.service.updater.stackoverflow.event;
 
 import edu.java.client.StackOverflowClient;
-import edu.java.dto.stackoverflow.QuestionResponse;
+import edu.java.dto.stackoverflow.AnswersResponse;
 import edu.java.dto.update.Update;
 import edu.java.model.Link;
 import java.time.OffsetDateTime;
@@ -21,7 +21,7 @@ public class AnswerEventHandler implements StackOverflowEventHandler {
 
     @Override
     public Optional<Update> fetchUpdate(Long questionId, Link link) {
-        QuestionResponse response = stackOverflowWebClient.fetchQuestionAnswers(questionId);
+        AnswersResponse response = stackOverflowWebClient.fetchQuestionAnswers(questionId);
 
         if (!response.items().isEmpty()) {
             StringBuilder updateDescriptions = new StringBuilder();
@@ -34,7 +34,7 @@ public class AnswerEventHandler implements StackOverflowEventHandler {
 
                 } else if (answer.lastActivityDate().isAfter(link.getLastUpdateTime())) {
                     addNewUpdateDescription(updateDescriptions, UPDATE_ANSWER_MESSAGE, answer.owner().name());
-                    newLastUpdateTime = getLatestUpdateTime(newLastUpdateTime, answer.creationDate());
+                    newLastUpdateTime = getLatestUpdateTime(newLastUpdateTime, answer.lastActivityDate());
                 }
             }
 

@@ -1,10 +1,8 @@
 package edu.java.client.impl;
 
 import edu.java.client.BotClient;
-import edu.java.dto.api.response.ApiErrorResponse;
 import edu.java.dto.bot.request.LinkUpdateRequest;
 import edu.java.dto.bot.response.LinkUpdateResponse;
-import edu.java.exception.ApiErrorResponseException;
 import edu.java.exception.ResourceUnavailableException;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -52,9 +50,6 @@ public class BotWebClient implements BotClient {
             .body(BodyInserters.fromValue(request))
             .retrieve()
             .onStatus(
-                HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiErrorResponseException::new))
-            .onStatus(
                 statusCode -> errorStatusCodes.contains(statusCode),
                 response -> Mono.error(new ResourceUnavailableException(response.statusCode()))
             )
@@ -62,19 +57,16 @@ public class BotWebClient implements BotClient {
             .block();
     }
 
-    @Override
     @Recover
     public LinkUpdateResponse recoverSendUpdate(ResourceUnavailableException exception, LinkUpdateRequest request) {
         return handleErrors(exception.getHttpStatusCode().toString(), request);
     }
 
-    @Override
     @Recover
     public LinkUpdateResponse recoverSendUpdate(WebClientRequestException exception, LinkUpdateRequest request) {
         return handleErrors(exception.getMessage(), request);
     }
 
-    @Override
     public LinkUpdateResponse handleErrors(String message, LinkUpdateRequest request) {
         LOGGER.error("Cannot get response from bot: %s; update request: %s".formatted(message, request));
         return new LinkUpdateResponse("Bot unavailable");

@@ -63,7 +63,7 @@ public class GitHubWebClient implements GitHubClient {
         this.webClient = WebClient.builder().baseUrl(this.baseUrl).build();
     }
 
-    @Override  // exponential retry
+    @Override  // exponential backoff
     @Retryable(retryFor = ResourceUnavailableException.class, maxAttemptsExpression = "${retry.github.max-attempts}",
                backoff = @Backoff(delayExpression = "${retry.github.delay}",
                                   multiplierExpression = "${retry.github.multiplier}"))
@@ -84,10 +84,10 @@ public class GitHubWebClient implements GitHubClient {
             .block();
     }
 
-    @Override  // exponential retry
+    @Override  // random backoff
     @Retryable(retryFor = ResourceUnavailableException.class, maxAttemptsExpression = "${retry.github.max-attempts}",
                backoff = @Backoff(delayExpression = "${retry.github.delay}",
-                                  multiplierExpression = "${retry.github.multiplier}"))
+                                  maxDelayExpression = "${retry.github.max-delay}", random = true))
     public List<EventResponse> fetchRepositoryEvents(String user, String repository) {
         Mono<List<EventResponse>> events = webClient
             .get()
@@ -108,7 +108,6 @@ public class GitHubWebClient implements GitHubClient {
     }
 
     @Recover
-    @Override
     public List<EventResponse> recoverFetchRepositoryEvents(ResourceUnavailableException exception,
         String user, String repository) {
         LOGGER.error("Cannot get response from repository: %s/%s; status code: %s"

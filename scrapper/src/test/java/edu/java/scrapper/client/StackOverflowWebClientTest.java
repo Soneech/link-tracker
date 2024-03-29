@@ -1,10 +1,11 @@
 package edu.java.scrapper.client;
 
 import edu.java.client.impl.StackOverflowWebClient;
-import edu.java.dto.stackoverflow.QuestionResponse;
+import edu.java.dto.stackoverflow.AnswersResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import edu.java.dto.stackoverflow.QuestionResponse;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,7 +75,7 @@ public class StackOverflowWebClientTest extends HttpClientTest {
                     .withBody(json)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
-        QuestionResponse response = stackOverflowWebClient.fetchQuestionAnswers(QUESTION_ID);
+        AnswersResponse response = stackOverflowWebClient.fetchQuestionAnswers(QUESTION_ID);
 
         assertThat(response).isNotNull();
         assertThat(response.items()).isNotEmpty().hasSize(2);

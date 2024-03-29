@@ -42,15 +42,20 @@ retry:
   github:
     max-attempts: 5
     delay: 1000
+    max-delay: 5000
     multiplier: 2
     # FORBIDDEN - for test
     error-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE, FORBIDDEN
   stackoverflow:
-    max-attempts: 5
+    max-attempts: 3
     delay: 1000
+    max-delay: 5000
+    multiplier: 3
+    # BAD_REQUEST - for test
+    error-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE, FORBIDDEN, BAD_REQUEST
   bot:
     max-attempts: 5
-    delay: 1000
+    delay: 3000
     error-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
 
 springdoc:

@@ -9,6 +9,7 @@ import edu.java.bot.exception.ApiAddedResourceNotExistsException;
 import edu.java.bot.exception.ApiBadRequestException;
 import edu.java.bot.exception.ApiNotFoundException;
 import edu.java.bot.exception.ApiResourceUnavailableException;
+import edu.java.bot.exception.ScrapperUnavailableException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +38,8 @@ public class LinkTrackingCommandStep implements TrackCommandStep {
     private static final String RESOURCE_UNAVAILABLE_MESSAGE =
         "Кажется, ресурс временно недоступен. Попробуйте позже.";
 
+    private static final String SERVICE_UNAVAILABLE_MESSAGE = "Функция временно недоступна. Попробуйте позже";
+
     @Override
     public Result handle(String[] messageParts, Long chatId) {
         Result result;
@@ -62,6 +65,11 @@ public class LinkTrackingCommandStep implements TrackCommandStep {
             result = new Result(RESOURCE_UNAVAILABLE_MESSAGE, false);
             LOGGER.warn("ChatID: %d; добавляемый ресурс %s недоступен".formatted(chatId, link));
             LOGGER.warn(exception.getApiErrorResponse());
+
+        } catch (ScrapperUnavailableException exception) {
+            result = new Result(SERVICE_UNAVAILABLE_MESSAGE, false);
+            LOGGER.error("Scrapper недоступен; %s; status code: %s"
+                .formatted(exception.getMessage(), exception.getHttpStatusCode()));
 
         } catch (ApiNotFoundException exception) {
             result = new Result(SOMETHING_WENT_WRONG, false);

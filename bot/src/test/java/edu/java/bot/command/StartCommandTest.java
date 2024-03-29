@@ -1,7 +1,7 @@
 package edu.java.bot.command;
 
 import edu.java.bot.client.ScrapperClient;
-import edu.java.bot.dto.response.SuccessMessageResponse;
+import edu.java.bot.dto.response.ResponseMessage;
 import edu.java.bot.exception.ApiBadRequestException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,14 +41,14 @@ public class StartCommandTest extends CommandTest {
 
     @Test
     void testThatCommandReturnCorrectMessageForNewUser() {
-        when(scrapperWebClient.registerChat(chatId)).thenReturn(new SuccessMessageResponse("some message"));
+        when(scrapperWebClient.registerChat(chatId)).thenReturn(new ResponseMessage("some message"));
         assertThat(startCommand.processCommand(update).getParameters().get("text"))
             .isEqualTo(WELCOME_MESSAGE.formatted(chat.username()) + "\n" + SUPPORTED_COMMANDS_MESSAGE);
     }
 
     @Test
     void testThatCommandReturnCorrectMessageForRegisteredUser() {
-        when(scrapperWebClient.registerChat(chatId)).thenReturn(new SuccessMessageResponse("some message"));
+        when(scrapperWebClient.registerChat(chatId)).thenReturn(new ResponseMessage("some message"));
         startCommand.processCommand(update);
 
         when(scrapperWebClient.registerChat(chatId)).thenThrow(ApiBadRequestException.class);

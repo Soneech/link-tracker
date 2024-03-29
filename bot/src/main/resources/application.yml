@@ -21,3 +21,10 @@ springdoc:
 api:
   scrapper:
     base-url: http://localhost:8080
+
+retry:
+  scrapper:
+    max-attempts: 5
+    delay: 1000
+    multiplier: 2
+    error-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE, FORBIDDEN
