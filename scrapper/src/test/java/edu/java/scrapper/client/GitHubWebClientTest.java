@@ -39,7 +39,7 @@ public class GitHubWebClientTest extends HttpClientTest {
     public void setUp() {
         gitHubWebClient = new GitHubWebClient(baseUrl, "some-token", eventsCount);
         List<HttpStatus> errorStatusCodes = List.of(HttpStatus.SERVICE_UNAVAILABLE, HttpStatus.BAD_GATEWAY);
-        gitHubWebClient.setErrorStatusCodes(errorStatusCodes);
+        gitHubWebClient.setRetryStatusCodes(errorStatusCodes);
     }
 
     @Test

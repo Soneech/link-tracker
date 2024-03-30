@@ -4,8 +4,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.client.ScrapperClient;
 import edu.java.bot.dto.response.ResponseMessage;
-import edu.java.bot.exception.ApiBadRequestException;
-import edu.java.bot.exception.ScrapperUnavailableException;
+import edu.java.bot.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,8 +27,6 @@ public class StartCommand implements Command {
     private static final String SUPPORTED_COMMANDS_MESSAGE =
         "Чтобы вывести список доступных команд, используйте " + CommandInfo.HELP.getType();
 
-    private static final String SERVICE_UNAVAILABLE_MESSAGE = "Функция временно недоступна. Попробуйте позже";
-
     @Override
     public SendMessage processCommand(Update update) {
         StringBuilder botMessage = new StringBuilder();
@@ -42,14 +39,9 @@ public class StartCommand implements Command {
             botMessage.append("\n").append(SUPPORTED_COMMANDS_MESSAGE);
             LOGGER.info(response.message());
 
-        } catch (ApiBadRequestException exception) {
+        } catch (BadRequestException exception) {
             botMessage.append(ALREADY_REGISTERED_MESSAGE);
             LOGGER.warn(exception.getApiErrorResponse());
-
-        } catch (ScrapperUnavailableException exception) {
-            botMessage.append(SERVICE_UNAVAILABLE_MESSAGE);
-            LOGGER.error("Scrapper недоступен; %s; status code: %s"
-                .formatted(exception.getMessage(), exception.getHttpStatusCode()));
         }
 
         return new SendMessage(chatId, botMessage.toString());

@@ -4,9 +4,8 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.client.ScrapperClient;
 import edu.java.bot.dto.response.ListLinksResponse;
-import edu.java.bot.exception.ApiBadRequestException;
-import edu.java.bot.exception.ApiNotFoundException;
-import edu.java.bot.exception.ScrapperUnavailableException;
+import edu.java.bot.exception.BadRequestException;
+import edu.java.bot.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,8 +27,6 @@ public class ListCommand implements Command {
 
     private static final String SOMETHING_WENT_WRONG = "Что-то пошло не так :(";
 
-    private static final String SERVICE_UNAVAILABLE_MESSAGE = "Функция временно недоступна. Попробуйте позже";
-
     @Override
     public SendMessage processCommand(Update update) {
         StringBuilder botMessage = new StringBuilder();
@@ -48,14 +45,9 @@ public class ListCommand implements Command {
                 LOGGER.info("ChatID: %d; command: %s; result: список ссылок отправлен".formatted(chatId, type()));
             }
 
-        } catch (ApiBadRequestException | ApiNotFoundException exception) {
+        } catch (BadRequestException | NotFoundException exception) {
             botMessage.append(SOMETHING_WENT_WRONG);
             LOGGER.error(exception.getApiErrorResponse());
-
-        } catch (ScrapperUnavailableException exception) {
-            botMessage.append(SERVICE_UNAVAILABLE_MESSAGE);
-            LOGGER.error("Scrapper недоступен; %s; status code: %s"
-                .formatted(exception.getMessage(), exception.getHttpStatusCode()));
         }
 
         return new SendMessage(update.message().chat().id(), botMessage.toString());

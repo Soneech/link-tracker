@@ -24,8 +24,8 @@ public class StackOverflowWebClient implements StackOverflowClient {
     @Value("${api.stackoverflow.base-url}")
     private String baseUrl;
 
-    @Value("${retry.stackoverflow.error-status-codes}")
-    private List<HttpStatus> errorStatusCodes;
+    @Value("${retry.stackoverflow.retry-status-codes}")
+    private List<HttpStatus> retryStatusCodes;
 
     private static final String QUESTION_PATH = "/questions/";
 
@@ -64,7 +64,7 @@ public class StackOverflowWebClient implements StackOverflowClient {
                 .queryParam(SITE_PARAM.getKey(), SITE_PARAM.getValue()).build())
             .retrieve()
             .onStatus(
-                statusCode -> errorStatusCodes.contains(statusCode),
+                statusCode -> retryStatusCodes.contains(statusCode),
                 response -> Mono.error(new ResourceUnavailableException(response.statusCode()))
             )
             .bodyToMono(QuestionResponse.class)
@@ -85,7 +85,7 @@ public class StackOverflowWebClient implements StackOverflowClient {
                 .queryParam(SORT_PARAM.getKey(), SORT_PARAM.getValue()).build())
             .retrieve()
             .onStatus(
-                statusCode -> errorStatusCodes.contains(statusCode),
+                statusCode -> retryStatusCodes.contains(statusCode),
                 response -> Mono.error(new ResourceUnavailableException(response.statusCode()))
             )
             .bodyToMono(AnswersResponse.class)

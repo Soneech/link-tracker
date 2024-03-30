@@ -24,8 +24,8 @@ public class BotWebClient implements BotClient {
     @Value("${api.bot.base-url}")
     private String baseUrl;
 
-    @Value("${retry.bot.error-status-codes}")
-    private List<HttpStatus> errorStatusCodes;
+    @Value("${retry.bot.retry-status-codes}")
+    private List<HttpStatus> retryStatusCodes;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -50,7 +50,7 @@ public class BotWebClient implements BotClient {
             .body(BodyInserters.fromValue(request))
             .retrieve()
             .onStatus(
-                statusCode -> errorStatusCodes.contains(statusCode),
+                statusCode -> retryStatusCodes.contains(statusCode),
                 response -> Mono.error(new ResourceUnavailableException(response.statusCode()))
             )
             .bodyToMono(LinkUpdateResponse.class)

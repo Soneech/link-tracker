@@ -31,8 +31,8 @@ public class GitHubWebClient implements GitHubClient {
     @Value("${api.github.base-url}")
     private String baseUrl;  // можно менять
 
-    @Value("${retry.github.error-status-codes}")
-    private List<HttpStatus> errorStatusCodes;
+    @Value("${retry.github.retry-status-codes}")
+    private List<HttpStatus> retryStatusCodes;
 
     private final String personalAccessToken;
 
@@ -77,7 +77,7 @@ public class GitHubWebClient implements GitHubClient {
                 HttpStatus.NOT_FOUND::equals,
                 response -> response.bodyToMono(GitHubErrorResponse.class).map(RepositoryNotExistsException::new))
             .onStatus(
-                statusCode -> errorStatusCodes.contains(statusCode),
+                statusCode -> retryStatusCodes.contains(statusCode),
                 response -> Mono.error(new ResourceUnavailableException(response.statusCode()))
             )
             .bodyToMono(RepositoryInfoResponse.class)
@@ -100,7 +100,7 @@ public class GitHubWebClient implements GitHubClient {
                 HttpStatus.NOT_FOUND::equals,
                 response -> response.bodyToMono(GitHubErrorResponse.class).map(RepositoryNotExistsException::new))
             .onStatus(
-                statusCode -> errorStatusCodes.contains(statusCode),
+                statusCode -> retryStatusCodes.contains(statusCode),
                 response -> Mono.error(new ResourceUnavailableException(response.statusCode())))
             .bodyToMono(new ParameterizedTypeReference<>() { });
 

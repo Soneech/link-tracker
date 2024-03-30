@@ -5,7 +5,7 @@ import edu.java.bot.command.CommandInfo;
 import edu.java.bot.command.chain.Result;
 import edu.java.bot.dto.request.AddLinkRequest;
 import edu.java.bot.dto.response.LinkResponse;
-import edu.java.bot.exception.ApiBadRequestException;
+import edu.java.bot.exception.BadRequestException;
 import java.net.URI;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +37,7 @@ public class LinkTrackingCommandStepTest extends TrackCommandStepTest {
         messageParts = new String[] {"/track", GIT_HUB_LINK};
 
         when(scrapperWebClient.addLink(chatId, new AddLinkRequest(GIT_HUB_LINK)))
-            .thenThrow(ApiBadRequestException.class);
+            .thenThrow(BadRequestException.class);
         assertThat(linkTrackingCommandStep.handle(messageParts, chatId)).isEqualTo(result);
     }
 

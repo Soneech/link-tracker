@@ -5,7 +5,7 @@ import edu.java.bot.command.CommandInfo;
 import edu.java.bot.command.chain.Result;
 import edu.java.bot.dto.request.RemoveLinkRequest;
 import edu.java.bot.dto.response.LinkResponse;
-import edu.java.bot.exception.ApiNotFoundException;
+import edu.java.bot.exception.NotFoundException;
 import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ public class LinkUntrackingCommandStepTest {
         Result result = new Result(NOT_FOUND_MESSAGE, false);
 
         when(scrapperWebClient.deleteLink(chatId, new RemoveLinkRequest(STACK_OVERFLOW_LINK)))
-            .thenThrow(ApiNotFoundException.class);
+            .thenThrow(NotFoundException.class);
         assertThat(linkUntrackingCommandStep.handle(messageParts, chatId)).isEqualTo(result);
     }
 }

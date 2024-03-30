@@ -8,6 +8,7 @@ app:
 spring:
   application:
     name: scrapper
+
   datasource:
     url: jdbc:postgresql://localhost:5433/scrapper
     username: postgres
@@ -16,8 +17,30 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
+
   liquibase:
     enabled: false
+
+  cache:
+    jcache:
+      provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+    cache-names:
+      - rate-limit-buckets-scrapper
+    caffeine:
+      spec: maximumSize=100000,expireAfterAccess=3600s
+
+bucket4j:
+  enabled: true
+  filters:
+    - cache-name: rate-limit-buckets-scrapper
+      url: /.*
+      http-response-body: "{ \"description\": \"Too Many Requests\", \"code\": \"429 TOO MANY REQUESTS\", \"exception_name\": \"TooManyRequestsException\", \"message\": \"You have exhausted your API Request Quota, try later\", \"stack_trace\": [] }"
+      rate-limits:
+        - bandwidths:
+            - capacity: 10
+              time: 1
+              unit: minutes
+              refill-speed: interval
 
 server:
   port: 8080
@@ -38,6 +61,11 @@ api:
       count: 5
       interval: 60
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+  default-produces-media-type: application/json
+
 retry:
   github:
     max-attempts: 5
@@ -45,20 +73,15 @@ retry:
     max-delay: 5000
     multiplier: 2
     # FORBIDDEN - for test
-    error-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE, FORBIDDEN
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE, FORBIDDEN
   stackoverflow:
     max-attempts: 3
     delay: 1000
     max-delay: 5000
     multiplier: 3
     # BAD_REQUEST - for test
-    error-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE, FORBIDDEN, BAD_REQUEST
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE, FORBIDDEN, BAD_REQUEST
   bot:
     max-attempts: 5
     delay: 3000
-    error-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui
-  default-produces-media-type: application/json
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE

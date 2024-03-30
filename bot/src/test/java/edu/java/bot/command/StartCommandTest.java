@@ -2,7 +2,7 @@ package edu.java.bot.command;
 
 import edu.java.bot.client.ScrapperClient;
 import edu.java.bot.dto.response.ResponseMessage;
-import edu.java.bot.exception.ApiBadRequestException;
+import edu.java.bot.exception.BadRequestException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -51,9 +51,9 @@ public class StartCommandTest extends CommandTest {
         when(scrapperWebClient.registerChat(chatId)).thenReturn(new ResponseMessage("some message"));
         startCommand.processCommand(update);
 
-        when(scrapperWebClient.registerChat(chatId)).thenThrow(ApiBadRequestException.class);
+        when(scrapperWebClient.registerChat(chatId)).thenThrow(BadRequestException.class);
         String botMessage = startCommand.processCommand(update).getParameters().get("text").toString();
 
-        assertThat(botMessage).isEqualTo(ALREADY_REGISTERED_MESSAGE + "\n" + SUPPORTED_COMMANDS_MESSAGE);
+        assertThat(botMessage).isEqualTo(ALREADY_REGISTERED_MESSAGE);
     }
 }

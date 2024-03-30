@@ -6,11 +6,12 @@ import edu.java.bot.dto.response.ApiErrorResponse;
 import edu.java.bot.dto.response.LinkResponse;
 import edu.java.bot.dto.response.ListLinksResponse;
 import edu.java.bot.dto.response.ResponseMessage;
-import edu.java.bot.exception.ApiAddedResourceNotExistsException;
-import edu.java.bot.exception.ApiBadRequestException;
-import edu.java.bot.exception.ApiNotFoundException;
-import edu.java.bot.exception.ApiResourceUnavailableException;
+import edu.java.bot.exception.AddedResourceNotExistsException;
+import edu.java.bot.exception.BadRequestException;
+import edu.java.bot.exception.NotFoundException;
+import edu.java.bot.exception.ResourceUnavailableException;
 import edu.java.bot.exception.ScrapperUnavailableException;
+import edu.java.bot.exception.TooManyRequestsException;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.function.Predicate;
@@ -34,10 +35,10 @@ public class ScrapperWebClient implements ScrapperClient {
     @Value("${api.scrapper.base-url}")
     private String baseUrl;
 
-    @Value("${retry.scrapper.error-status-codes}")
-    private List<HttpStatus> errorStatusCodes;
+    @Value("${retry.scrapper.retry-status-codes}")
+    private List<HttpStatus> retryStatusCodes;
 
-    private Predicate<HttpStatusCode> statusPredicate;
+    private Predicate<HttpStatusCode> retryStatusesPredicate;
 
     private static final String TELEGRAM_CHAT_ID_HEADER = "Tg-Chat-Id";
 
@@ -58,7 +59,7 @@ public class ScrapperWebClient implements ScrapperClient {
 
     @PostConstruct
     public void setPredicate() {
-        this.statusPredicate = statusCode -> errorStatusCodes.contains(statusCode);
+        this.retryStatusesPredicate = statusCode -> retryStatusCodes.contains(statusCode);
     }
 
     @Override
@@ -72,10 +73,14 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(BadRequestException::new)
             )
             .onStatus(
-                statusPredicate,
+                HttpStatus.TOO_MANY_REQUESTS::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
+            )
+            .onStatus(
+                retryStatusesPredicate,
                 response -> Mono.error(new ScrapperUnavailableException(response.statusCode(), "Cannot register chat"))
             )
             .bodyToMono(ResponseMessage.class).block();
@@ -92,14 +97,18 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(BadRequestException::new)
             )
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiNotFoundException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(NotFoundException::new)
             )
             .onStatus(
-                statusPredicate,
+                HttpStatus.TOO_MANY_REQUESTS::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
+            )
+            .onStatus(
+                retryStatusesPredicate,
                 response -> Mono.error(new ScrapperUnavailableException(response.statusCode(), "Cannot delete chat"))
             )
             .bodyToMono(ResponseMessage.class)
@@ -118,14 +127,18 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(BadRequestException::new)
             )
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiNotFoundException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(NotFoundException::new)
             )
             .onStatus(
-                statusPredicate,
+                HttpStatus.TOO_MANY_REQUESTS::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
+            )
+            .onStatus(
+                retryStatusesPredicate,
                 response -> Mono.error(new ScrapperUnavailableException(response.statusCode(), "Cannot get chat links"))
             )
             .bodyToMono(ListLinksResponse.class)
@@ -145,22 +158,26 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(BadRequestException::new)
             )
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiNotFoundException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(NotFoundException::new)
+            )
+            .onStatus(
+                HttpStatus.TOO_MANY_REQUESTS::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
             )
             .onStatus(
                 HttpStatus.I_AM_A_TEAPOT::equals,  // временно
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiAddedResourceNotExistsException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(AddedResourceNotExistsException::new)
             )
             .onStatus(
                 HttpStatus.SERVICE_UNAVAILABLE::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiResourceUnavailableException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(ResourceUnavailableException::new)
             )
             .onStatus(
-                statusPredicate,
+                retryStatusesPredicate,
                 response -> Mono.error(new ScrapperUnavailableException(response.statusCode(), "Cannot add link"))
             )
             .bodyToMono(LinkResponse.class)
@@ -180,14 +197,18 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(BadRequestException::new)
             )
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiNotFoundException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(NotFoundException::new)
             )
             .onStatus(
-                statusPredicate,
+                HttpStatus.TOO_MANY_REQUESTS::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
+            )
+            .onStatus(
+                retryStatusesPredicate,
                 response -> Mono.error(new ScrapperUnavailableException(response.statusCode(), "Cannot delete link"))
             )
             .bodyToMono(LinkResponse.class)
