@@ -1,3 +1,10 @@
+app:
+  scheduler:
+    enable: true
+    interval: 60s
+    force-check-delay: 10s
+  database-access-type: jpa
+
 spring:
   application:
     name: scrapper
