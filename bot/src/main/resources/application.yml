@@ -27,4 +27,4 @@ retry:
     max-attempts: 5
     delay: 1000
     multiplier: 2
-    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE, FORBIDDEN
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
