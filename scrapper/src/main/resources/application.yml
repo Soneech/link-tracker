@@ -37,7 +37,7 @@ bucket4j:
       http-response-body: "{ \"description\": \"Too Many Requests\", \"code\": \"429 TOO_MANY_REQUESTS\", \"exception_name\": \"TooManyRequestsException\", \"message\": \"You have exhausted your API Request Quota\", \"stack_trace\": [] }"
       rate-limits:
         - bandwidths:
-            - capacity: 10
+            - capacity: 100
               time: 1
               unit: minutes
               refill-speed: interval
@@ -72,15 +72,13 @@ retry:
     delay: 1000
     max-delay: 5000
     multiplier: 2
-    # FORBIDDEN - for test
-    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE, FORBIDDEN
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
   stackoverflow:
     max-attempts: 3
     delay: 1000
     max-delay: 5000
     multiplier: 3
-    # BAD_REQUEST - for test
-    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE, FORBIDDEN, BAD_REQUEST
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
   bot:
     max-attempts: 5
     delay: 3000

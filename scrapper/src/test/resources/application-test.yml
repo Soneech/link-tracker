@@ -1,0 +1,30 @@
+api:
+  github:
+    personal-access-token: some-token
+    events-count: 10
+    base-url: http://localhost:8081
+  stackoverflow:
+    base-url: http://localhost:8081
+  bot:
+    base-url: http://localhost:8081
+    update-properties:
+      count: 5
+      interval: 60
+
+retry:
+  github:
+    max-attempts: 3
+    delay: 1000
+    max-delay: 5000
+    multiplier: 2
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
+  stackoverflow:
+    max-attempts: 3
+    delay: 1000
+    max-delay: 5000
+    multiplier: 3
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
+  bot:
+    max-attempts: 3
+    delay: 3000
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE

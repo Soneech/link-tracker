@@ -86,9 +86,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForRegisterChat(429, jsonBody, CHAT_ID);
 
-        TooManyRequestsException exception = assertThrows(TooManyRequestsException.class, () -> {
-            scrapperWebClient.registerChat(CHAT_ID);
-        });
+        TooManyRequestsException exception = assertThrows(TooManyRequestsException.class,
+            () -> scrapperWebClient.registerChat(CHAT_ID));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(tooManyRequestsApiResponse);
     }
 
@@ -109,9 +108,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForDeleteChat(404, jsonBody, CHAT_ID);
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            scrapperWebClient.deleteChat(CHAT_ID);
-        });
+        NotFoundException exception = assertThrows(NotFoundException.class,
+            () -> scrapperWebClient.deleteChat(CHAT_ID));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(notFoundApiResponse);
     }
 
@@ -121,9 +119,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForDeleteChat(429, jsonBody, CHAT_ID);
 
-        TooManyRequestsException exception = assertThrows(TooManyRequestsException.class, () -> {
-            scrapperWebClient.deleteChat(CHAT_ID);
-        });
+        TooManyRequestsException exception = assertThrows(TooManyRequestsException.class,
+            () -> scrapperWebClient.deleteChat(CHAT_ID));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(tooManyRequestsApiResponse);
     }
 
@@ -148,9 +145,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForGetLinks(404, jsonBody, CHAT_ID);
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            scrapperWebClient.getLinks(CHAT_ID);
-        });
+        NotFoundException exception = assertThrows(NotFoundException.class,
+            () -> scrapperWebClient.getLinks(CHAT_ID));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(notFoundApiResponse);
     }
 
@@ -160,9 +156,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForGetLinks(429, jsonBody, CHAT_ID);
 
-        TooManyRequestsException exception = assertThrows(TooManyRequestsException.class, () -> {
-            scrapperWebClient.getLinks(CHAT_ID);
-        });
+        TooManyRequestsException exception = assertThrows(TooManyRequestsException.class,
+            () -> scrapperWebClient.getLinks(CHAT_ID));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(tooManyRequestsApiResponse);
     }
 
@@ -184,9 +179,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForAddLink(404, jsonBody, CHAT_ID);
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            scrapperWebClient.addLink(CHAT_ID, new AddLinkRequest(TEST_LINK));
-        });
+        NotFoundException exception = assertThrows(NotFoundException.class,
+            () -> scrapperWebClient.addLink(CHAT_ID, new AddLinkRequest(TEST_LINK)));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(notFoundApiResponse);
     }
 
@@ -196,9 +190,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForAddLink(429, jsonBody, CHAT_ID);
 
-        TooManyRequestsException exception = assertThrows(TooManyRequestsException.class, () -> {
-            scrapperWebClient.addLink(CHAT_ID, new AddLinkRequest(TEST_LINK));
-        });
+        TooManyRequestsException exception = assertThrows(TooManyRequestsException.class,
+            () -> scrapperWebClient.addLink(CHAT_ID, new AddLinkRequest(TEST_LINK)));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(tooManyRequestsApiResponse);
     }
 
@@ -214,9 +207,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForAddLink(418, jsonBody, CHAT_ID);
 
-        AddedResourceNotExistsException exception = assertThrows(AddedResourceNotExistsException.class, () -> {
-            scrapperWebClient.addLink(CHAT_ID, new AddLinkRequest(TEST_LINK));
-        });
+        AddedResourceNotExistsException exception = assertThrows(AddedResourceNotExistsException.class,
+            () -> scrapperWebClient.addLink(CHAT_ID, new AddLinkRequest(TEST_LINK)));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(resourceNotExistsResponse);
     }
 
@@ -232,9 +224,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForAddLink(503, jsonBody, CHAT_ID);
 
-        ResourceUnavailableException exception = assertThrows(ResourceUnavailableException.class, () -> {
-            scrapperWebClient.addLink(CHAT_ID, new AddLinkRequest(TEST_LINK));
-        });
+        ResourceUnavailableException exception = assertThrows(ResourceUnavailableException.class,
+            () -> scrapperWebClient.addLink(CHAT_ID, new AddLinkRequest(TEST_LINK)));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(resourceUnavailableResponse);
     }
 
@@ -256,9 +247,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForDeleteLink(404, jsonBody, CHAT_ID);
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            scrapperWebClient.deleteLink(CHAT_ID, new RemoveLinkRequest(TEST_LINK));
-        });
+        NotFoundException exception = assertThrows(NotFoundException.class,
+            () -> scrapperWebClient.deleteLink(CHAT_ID, new RemoveLinkRequest(TEST_LINK)));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(notFoundApiResponse);
     }
 
@@ -268,9 +258,8 @@ public class ScrapperWebClientTest extends ScrapperClientTest {
 
         stubForDeleteLink(429, jsonBody, CHAT_ID);
 
-        TooManyRequestsException exception = assertThrows(TooManyRequestsException.class, () -> {
-            scrapperWebClient.deleteLink(CHAT_ID, new RemoveLinkRequest(TEST_LINK));
-        });
+        TooManyRequestsException exception = assertThrows(TooManyRequestsException.class,
+            () -> scrapperWebClient.deleteLink(CHAT_ID, new RemoveLinkRequest(TEST_LINK)));
         assertThat(exception.getApiErrorResponse()).isNotNull().isEqualTo(tooManyRequestsApiResponse);
     }
 }

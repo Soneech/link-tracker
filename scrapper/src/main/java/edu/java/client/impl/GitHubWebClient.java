@@ -108,10 +108,23 @@ public class GitHubWebClient implements GitHubClient {
     }
 
     @Recover
+    public RepositoryInfoResponse recoverCheckThatRepositoryExists(ResourceUnavailableException exception,
+        String user, String repository) {
+
+        handleErrors(exception, user, repository);
+        throw exception;
+    }
+
+    @Recover
     public List<EventResponse> recoverFetchRepositoryEvents(ResourceUnavailableException exception,
         String user, String repository) {
+
+        handleErrors(exception, user, repository);
+        return Collections.emptyList();
+    }
+
+    public void handleErrors(ResourceUnavailableException exception, String user, String repository) {
         LOGGER.error("Cannot get response from repository: %s/%s; status code: %s"
             .formatted(user, repository, exception.getHttpStatusCode()));
-        return Collections.emptyList();
     }
 }

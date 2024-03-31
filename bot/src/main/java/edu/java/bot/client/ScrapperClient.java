@@ -25,10 +25,8 @@ public interface ScrapperClient {
 
     LinkResponse deleteLink(Long chatId, RemoveLinkRequest request);
 
-    /* Теперь правда требуется @Recover метод на каждый бросаемый exception, а не только на те,
-    на которые настроент retry. Инача падает с "ExhaustedRetryException: Cannot locate recovery method",
-    что странно... Возможно можно сделать лучше :\
-     */
+    // Теперь правда требуется @Recover метод на каждый бросаемый exception... Возможно можно сделать лучше :\
+
     @Recover
     default ResponseMessage recoverRegisterOrDelete(ApiException exception, Long chatId) {
         throw exception;

@@ -65,7 +65,7 @@ public class StackOverflowWebClientTest extends HttpClientTest {
     }
 
     @Test
-    public void testFetchQuestionAnswers() throws IOException {
+    public void testSuccessFetchQuestionAnswers() throws IOException {
         File file = ResourceUtils.getFile("classpath:question-answers-response.json");
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
