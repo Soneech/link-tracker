@@ -58,7 +58,7 @@ public class ScrapperWebClient implements ScrapperClient {
     }
 
     @PostConstruct
-    public void setPredicate() {
+    public void initPredicate() {
         this.retryStatusesPredicate = statusCode -> retryStatusCodes.contains(statusCode);
     }
 
@@ -69,7 +69,8 @@ public class ScrapperWebClient implements ScrapperClient {
                                   multiplierExpression = "${retry.scrapper.multiplier}"))
     public ResponseMessage registerChat(Long chatId) {
         return webClient
-            .post().uri(TELEGRAM_CHAT_ENDPOINTS_PATH + chatId)
+            .post().uri(builder -> builder
+                .path(TELEGRAM_CHAT_ENDPOINTS_PATH).path(String.valueOf(chatId)).build())
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
@@ -93,7 +94,8 @@ public class ScrapperWebClient implements ScrapperClient {
                                   multiplierExpression = "${retry.scrapper.multiplier}"))
     public ResponseMessage deleteChat(Long chatId) {
         return webClient
-            .delete().uri(TELEGRAM_CHAT_ENDPOINTS_PATH + chatId)
+            .delete().uri(builder -> builder
+                .path(TELEGRAM_CHAT_ENDPOINTS_PATH).path(String.valueOf(chatId)).build())
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
@@ -169,7 +171,7 @@ public class ScrapperWebClient implements ScrapperClient {
                 response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
             )
             .onStatus(
-                HttpStatus.I_AM_A_TEAPOT::equals,  // временно
+                HttpStatus.I_AM_A_TEAPOT::equals,
                 response -> response.bodyToMono(ApiErrorResponse.class).map(AddedResourceNotExistsException::new)
             )
             .onStatus(

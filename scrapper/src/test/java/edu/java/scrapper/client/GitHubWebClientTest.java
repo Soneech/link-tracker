@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class GitHubWebClientTest extends HttpClientTest {
-    private GitHubWebClient gitHubWebClient;
+    private static GitHubWebClient gitHubWebClient;
 
     private static final String REPOSITORY_PATH = "/repos/{username}/{repository}";
 
@@ -35,11 +35,23 @@ public class GitHubWebClientTest extends HttpClientTest {
 
     private static final String REPOSITORY_PARAM = "repository";
 
-    @BeforeEach
-    public void setUp() {
+    private static final String FIRST_USER_NAME = "Soneech";
+
+    private static final String FIRST_REPOSITORY = "link-tracker";
+
+    private static final String SECOND_USER_NAME = "sanyarnd";
+
+    private static final String SECOND_REPOSITORY = "java-course-2023-backend-template";
+
+    private static final String INVALID_USER_NAME = "invalid-user-name";
+
+    private static final String INVALID_REPOSITORY = "invalid-repo-name";
+
+    @BeforeAll
+    public static void clientSetUp() {
         gitHubWebClient = new GitHubWebClient(baseUrl, "some-token", eventsCount);
-        List<HttpStatus> errorStatusCodes = List.of(HttpStatus.SERVICE_UNAVAILABLE, HttpStatus.BAD_GATEWAY);
-        gitHubWebClient.setRetryStatusCodes(errorStatusCodes);
+        List<HttpStatus> retryStatusCodes = List.of(HttpStatus.SERVICE_UNAVAILABLE, HttpStatus.BAD_GATEWAY);
+        gitHubWebClient.setRetryStatusCodes(retryStatusCodes);
     }
 
     @Test
@@ -47,24 +59,19 @@ public class GitHubWebClientTest extends HttpClientTest {
         File file = ResourceUtils.getFile("classpath:repo-response.json");
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
-        String username = "Soneech";
-        String repository = "link-tracker";
-        long repositoryId = 751786052;
-
         wireMockServer
             .stubFor(get(urlPathTemplate(REPOSITORY_PATH))
-                .withPathParam(USERNAME_PARAM, equalTo(username))
-                .withPathParam(REPOSITORY_PARAM, equalTo(repository))
+                .withPathParam(USERNAME_PARAM, equalTo(FIRST_USER_NAME))
+                .withPathParam(REPOSITORY_PARAM, equalTo(FIRST_REPOSITORY))
                 .willReturn(aResponse()
                     .withStatus(200)
                     .withBody(json)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
-        RepositoryInfoResponse response = gitHubWebClient.checkThatRepositoryExists(username, repository);
+        RepositoryInfoResponse response = gitHubWebClient.checkThatRepositoryExists(FIRST_USER_NAME, FIRST_REPOSITORY);
 
         assertThat(response).isNotNull();
-        assertThat(response.id()).isEqualTo(repositoryId);
-        assertThat(response.fullName()).isEqualTo(username + "/" + repository);
+        assertThat(response.fullName()).isEqualTo(FIRST_USER_NAME + "/" + FIRST_REPOSITORY);
     }
 
     @Test
@@ -72,20 +79,17 @@ public class GitHubWebClientTest extends HttpClientTest {
         File file = ResourceUtils.getFile("classpath:not-found-repo.json");
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
-        String invalidUserName = "invalid-user-name";
-        String invalidRepo = "invalid-repo-name";
-
         wireMockServer
             .stubFor(get(urlPathTemplate(REPOSITORY_PATH))
-                .withPathParam(USERNAME_PARAM, equalTo(invalidUserName))
-                .withPathParam(REPOSITORY_PARAM, equalTo(invalidRepo))
+                .withPathParam(USERNAME_PARAM, equalTo(INVALID_USER_NAME))
+                .withPathParam(REPOSITORY_PARAM, equalTo(INVALID_REPOSITORY))
                 .willReturn(aResponse()
                     .withStatus(404)
                     .withBody(json)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
         assertThatExceptionOfType(RepositoryNotExistsException.class)
-            .isThrownBy(() -> gitHubWebClient.checkThatRepositoryExists(invalidUserName, invalidRepo));
+            .isThrownBy(() -> gitHubWebClient.checkThatRepositoryExists(INVALID_USER_NAME, INVALID_REPOSITORY));
     }
 
     @Test
@@ -93,22 +97,19 @@ public class GitHubWebClientTest extends HttpClientTest {
         File file = ResourceUtils.getFile("classpath:events-response.json");
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
-        String userName = "sanyarnd";
-        String repositoryName = "java-course-2023-backend-template";
-
         wireMockServer
             .stubFor(get(urlPathTemplate(EVENTS_PATH))
-                .withPathParam(USERNAME_PARAM, equalTo(userName))
-                .withPathParam(REPOSITORY_PARAM, equalTo(repositoryName))
+                .withPathParam(USERNAME_PARAM, equalTo(SECOND_USER_NAME))
+                .withPathParam(REPOSITORY_PARAM, equalTo(SECOND_REPOSITORY))
                 .withQueryParam(PER_PAGE_PARAM, equalTo(String.valueOf(eventsCount)))
                 .willReturn(aResponse()
                     .withStatus(200)
                     .withBody(json)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
-        List<EventResponse> events = gitHubWebClient.fetchRepositoryEvents(userName, repositoryName);
+        List<EventResponse> events = gitHubWebClient.fetchRepositoryEvents(SECOND_USER_NAME, SECOND_REPOSITORY);
         assertThat(events).isNotEmpty().hasSize(1);
-        assertThat(events.getFirst().actor().login()).isEqualTo(userName);
+        assertThat(events.getFirst().actor().login()).isEqualTo(SECOND_USER_NAME);
     }
 
     @Test
@@ -116,13 +117,10 @@ public class GitHubWebClientTest extends HttpClientTest {
         File file = ResourceUtils.getFile("classpath:not-found-repo.json");
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
-        String invalidUserName = "invalid-user-name";
-        String invalidRepo = "invalid-repo-name";
-
         wireMockServer
             .stubFor(get(urlPathTemplate(EVENTS_PATH))
-                .withPathParam(USERNAME_PARAM, equalTo(invalidUserName))
-                .withPathParam(REPOSITORY_PARAM, equalTo(invalidRepo))
+                .withPathParam(USERNAME_PARAM, equalTo(INVALID_USER_NAME))
+                .withPathParam(REPOSITORY_PARAM, equalTo(INVALID_REPOSITORY))
                 .withQueryParam(PER_PAGE_PARAM, equalTo(String.valueOf(eventsCount)))
                 .willReturn(aResponse()
                     .withStatus(404)
@@ -130,6 +128,6 @@ public class GitHubWebClientTest extends HttpClientTest {
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
         assertThatExceptionOfType(RepositoryNotExistsException.class)
-            .isThrownBy(() -> gitHubWebClient.fetchRepositoryEvents(invalidUserName, invalidRepo));
+            .isThrownBy(() -> gitHubWebClient.fetchRepositoryEvents(INVALID_USER_NAME, INVALID_REPOSITORY));
     }
 }

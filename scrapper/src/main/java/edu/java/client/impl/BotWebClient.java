@@ -5,6 +5,7 @@ import edu.java.dto.bot.request.LinkUpdateRequest;
 import edu.java.dto.bot.response.LinkUpdateResponse;
 import edu.java.exception.ResourceUnavailableException;
 import java.util.List;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
 
+@Setter
 public class BotWebClient implements BotClient {
 
     private final WebClient webClient;

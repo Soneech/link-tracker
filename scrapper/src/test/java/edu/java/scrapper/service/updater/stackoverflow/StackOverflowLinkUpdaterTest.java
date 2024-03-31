@@ -11,6 +11,7 @@ import edu.java.service.updater.stackoverflow.event.AnswerEventHandler;
 import edu.java.service.updater.stackoverflow.event.StackOverflowEventHandler;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -56,13 +57,8 @@ public class StackOverflowLinkUpdaterTest {
 
     @BeforeAll
     public static void setUp() {
-        questionResponse = new QuestionResponse(new ArrayList<>());
-        questionResponse.items().add(
-            QuestionResponse.AnswerResponse.builder()
-                .id(QUESTION_ID)
-                .owner(new QuestionResponse.AnswerResponse.Owner("Chubakka"))
-                .creationDate(OffsetDateTime.now())
-                .lastActivityDate(OffsetDateTime.now()).build()
+        questionResponse = new QuestionResponse(List.of(
+            new QuestionResponse.Item(List.of("java", "spring", "spring security")))
         );
 
         link = Link.builder().id(123456L).url(TEST_URL)
@@ -75,7 +71,6 @@ public class StackOverflowLinkUpdaterTest {
     @Test
     public void testSuccessFetchUpdates() {
         eventHandlers.add(answerEventHandler);
-
         when(stackOverflowWebClient.fetchQuestion(QUESTION_ID)).thenReturn(questionResponse);
         when(answerEventHandler.fetchUpdate(QUESTION_ID, link)).thenReturn(Optional.of(update));
 

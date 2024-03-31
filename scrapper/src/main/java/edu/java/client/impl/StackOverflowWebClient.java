@@ -6,6 +6,7 @@ import edu.java.dto.stackoverflow.QuestionResponse;
 import edu.java.exception.ResourceUnavailableException;
 import java.util.Collections;
 import java.util.List;
+import lombok.Setter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+@Setter
 public class StackOverflowWebClient implements StackOverflowClient {
 
     private final WebClient webClient;
