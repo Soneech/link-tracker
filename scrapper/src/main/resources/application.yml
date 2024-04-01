@@ -37,10 +37,13 @@ bucket4j:
       url: /.*
       http-response-body: "{ \"description\": \"Too Many Requests\", \"code\": \"429 TOO_MANY_REQUESTS\", \"exception_name\": \"TooManyRequestsException\", \"message\": \"You have exhausted your API Request Quota\", \"stack_trace\": [] }"
       rate-limits:
-        - bandwidths:
+#        - cache-key: "getHeader('X-Forwarded-For')"
+#        - cache-key: "getRemoteAddr()"
+        - cache-key: "@rateLimitingService.getClientIdentifier(#this)"
+          bandwidths:
             - capacity: 100
               time: 1
-              unit: minutes
+              unit: hours
               refill-speed: interval
 
 server:

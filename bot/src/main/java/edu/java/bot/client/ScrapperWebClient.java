@@ -71,6 +71,7 @@ public class ScrapperWebClient implements ScrapperClient {
         return webClient
             .post().uri(builder -> builder
                 .path(TELEGRAM_CHAT_ENDPOINTS_PATH).path(String.valueOf(chatId)).build())
+            .header(TELEGRAM_CHAT_ID_HEADER, String.valueOf(chatId))
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
@@ -96,6 +97,7 @@ public class ScrapperWebClient implements ScrapperClient {
         return webClient
             .delete().uri(builder -> builder
                 .path(TELEGRAM_CHAT_ENDPOINTS_PATH).path(String.valueOf(chatId)).build())
+            .header(TELEGRAM_CHAT_ID_HEADER, String.valueOf(chatId))
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
