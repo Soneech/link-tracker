@@ -1,11 +1,12 @@
 package edu.java.scrapper.client.retry;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import edu.java.scrapper.IntegrationEnvironment;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 
-public class HttpClientTest {
+public class HttpClientTest extends IntegrationEnvironment {
     protected static WireMockServer wireMockServer;
 
     @BeforeAll
