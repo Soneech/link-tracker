@@ -1,6 +1,6 @@
 package edu.java.dto.api.response;
 
-public record SuccessResponse(
+public record ResponseMessage(
     String message
 ) {
 }
