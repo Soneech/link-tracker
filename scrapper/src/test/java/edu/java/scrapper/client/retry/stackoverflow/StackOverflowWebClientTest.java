@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.ResourceUtils;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -76,8 +77,7 @@ public class StackOverflowWebClientTest extends StackOverflowClientTest {
         stubFailedFetchQuestionAnswersState(SCENARIO_NAME, "state3", "state4",
             504, QUESTION_ID);
 
-        AnswersResponse response = stackOverflowWebClient.fetchQuestionAnswers(QUESTION_ID);
-        assertThat(response).isNotNull();
-        assertThat(response.items()).isEmpty();
+        assertThatExceptionOfType(ResourceUnavailableException.class)
+            .isThrownBy(() -> stackOverflowWebClient.fetchQuestionAnswers(QUESTION_ID));
     }
 }

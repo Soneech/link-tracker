@@ -74,6 +74,11 @@ public class GitHubLinkUpdater implements LinkUpdater {
         } catch (RepositoryNotExistsException exception) {
             LOGGER.error(exception.getResponse());
             addResourceNotFoundUpdate(linkUpdates, REPOSITORY_NOT_FOUND_MESSAGE);
+
+        } catch (ResourceUnavailableException exception) {
+            LOGGER.error("Cannot get response from repository: %s; status code: %s"
+                .formatted(link.getUrl(), exception.getHttpStatusCode()));
+            return Optional.empty();
         }
 
         if (CollectionUtils.isEmpty(linkUpdates.getUpdates())) {

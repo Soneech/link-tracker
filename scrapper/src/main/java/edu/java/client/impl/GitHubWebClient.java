@@ -6,7 +6,6 @@ import edu.java.dto.github.response.GitHubErrorResponse;
 import edu.java.dto.github.response.RepositoryInfoResponse;
 import edu.java.exception.ResourceUnavailableException;
 import edu.java.exception.github.RepositoryNotExistsException;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -17,7 +16,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -105,26 +103,5 @@ public class GitHubWebClient implements GitHubClient {
             .bodyToMono(new ParameterizedTypeReference<>() { });
 
         return events.block();
-    }
-
-    @Recover
-    public RepositoryInfoResponse recoverCheckThatRepositoryExists(ResourceUnavailableException exception,
-        String user, String repository) {
-
-        handleErrors(exception, user, repository);
-        throw exception;
-    }
-
-    @Recover
-    public List<EventResponse> recoverFetchRepositoryEvents(ResourceUnavailableException exception,
-        String user, String repository) {
-
-        handleErrors(exception, user, repository);
-        return Collections.emptyList();
-    }
-
-    public void handleErrors(ResourceUnavailableException exception, String user, String repository) {
-        LOGGER.error("Cannot get response from repository: %s/%s; status code: %s"
-            .formatted(user, repository, exception.getHttpStatusCode()));
     }
 }

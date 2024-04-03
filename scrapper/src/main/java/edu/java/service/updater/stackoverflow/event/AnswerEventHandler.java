@@ -3,10 +3,14 @@ package edu.java.service.updater.stackoverflow.event;
 import edu.java.client.StackOverflowClient;
 import edu.java.dto.stackoverflow.AnswersResponse;
 import edu.java.dto.update.Update;
+import edu.java.exception.ResourceUnavailableException;
 import edu.java.model.Link;
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,9 +23,18 @@ public class AnswerEventHandler implements StackOverflowEventHandler {
 
     private static final String UPDATE_ANSWER_MESSAGE = "Изменения в ответе от пользователя %s";
 
+    private static final Logger LOGGER = LogManager.getLogger();
+
     @Override
     public Optional<Update> fetchUpdate(Long questionId, Link link) {
-        AnswersResponse response = stackOverflowWebClient.fetchQuestionAnswers(questionId);
+        AnswersResponse response;
+        try {
+            response = stackOverflowWebClient.fetchQuestionAnswers(questionId);
+        } catch (ResourceUnavailableException exception) {
+            response = new AnswersResponse(Collections.emptyList());
+            LOGGER.error("Cannot get response from question with id: %d; status code: %s"
+                .formatted(questionId, exception.getHttpStatusCode()));
+        }
 
         if (!response.items().isEmpty()) {
             StringBuilder updateDescriptions = new StringBuilder();

@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.ResourceUtils;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertThrows;
 
 @SpringBootTest
@@ -95,7 +96,7 @@ public class GitHubWebClientTest extends GitHubClientTest {
         stubFailedFetchRepositoryEventsState(SCENARIO_NAME, "state3", "state4",
             504, eventsCount, SECOND_USER_NAME, SECOND_REPOSITORY);
 
-        List<EventResponse> response = gitHubWebClient.fetchRepositoryEvents(SECOND_USER_NAME, SECOND_REPOSITORY);
-        assertThat(response).isEmpty();
+        assertThatExceptionOfType(ResourceUnavailableException.class)
+            .isThrownBy(() -> gitHubWebClient.fetchRepositoryEvents(SECOND_USER_NAME, SECOND_REPOSITORY));
     }
 }

@@ -54,6 +54,7 @@ public class StackOverflowLinkUpdater implements LinkUpdater {
             LOGGER.error(exception.getMessage());
             addResourceNotFoundUpdate(linkUpdates, QUESTION_NOT_EXISTS_MESSAGE);
             return Optional.of(linkUpdates);
+
         } catch (ResourceUnavailableException exception) {
             LOGGER.error("Cannot check question %s; status code: %s"
                 .formatted(link.getUrl(), exception.getHttpStatusCode()));

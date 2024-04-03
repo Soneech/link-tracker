@@ -4,6 +4,7 @@ import edu.java.client.StackOverflowClient;
 import edu.java.dto.stackoverflow.QuestionResponse;
 import edu.java.dto.update.LinkUpdates;
 import edu.java.dto.update.Update;
+import edu.java.exception.ResourceUnavailableException;
 import edu.java.exception.stackoverflow.QuestionNotExistsException;
 import edu.java.model.Link;
 import edu.java.service.updater.stackoverflow.StackOverflowLinkUpdater;
@@ -61,7 +62,7 @@ public class StackOverflowLinkUpdaterTest {
             new QuestionResponse.Item(List.of("java", "spring", "spring security")))
         );
 
-        link = Link.builder().id(123456L).url(TEST_URL)
+        link = Link.builder().id(QUESTION_ID).url(TEST_URL)
             .lastUpdateTime(OffsetDateTime.now())
             .lastCheckTime(OffsetDateTime.now()).build();
 
@@ -83,7 +84,7 @@ public class StackOverflowLinkUpdaterTest {
     }
 
     @Test
-    public void testFailedFetchUpdates() {
+    public void testFetchUpdatesForNonExistentQuestion() {
         QuestionResponse response = new QuestionResponse(new ArrayList<>());
 
         when(stackOverflowWebClient.fetchQuestion(QUESTION_ID)).thenReturn(response);
@@ -91,6 +92,14 @@ public class StackOverflowLinkUpdaterTest {
         assertThat(updates).isPresent();
         assertThat(updates.get().getUpdates()).isNotEmpty().hasSize(1);
         assertThat(updates.get().getUpdates().getFirst().description()).isEqualTo(QUESTION_NOT_EXISTS_MESSAGE);
+    }
+
+    @Test
+    public void testFetchUpdatesWhenResourceUnavailable() {
+        when(stackOverflowWebClient.fetchQuestion(QUESTION_ID)).thenThrow(ResourceUnavailableException.class);
+        Optional<LinkUpdates> updates = linkUpdater.fetchUpdates(link);
+
+        assertThat(updates).isEmpty();
     }
 
     @Test

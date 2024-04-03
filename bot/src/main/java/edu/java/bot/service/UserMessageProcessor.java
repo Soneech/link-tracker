@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 
 @Service
 public class UserMessageProcessor {
@@ -45,20 +46,26 @@ public class UserMessageProcessor {
 
         Command command = commands.get(commandType);
         if (command != null) {
+            SendMessage sendMessage;
             LOGGER.info("ChatID: %d; processing command: %s".formatted(chatId, command.type()));
             try {
-                return command.processCommand(update);
+                sendMessage = command.processCommand(update);
 
             } catch (TooManyRequestsException exception) {
                 LOGGER.warn("ChatID: %d; Too Many Requests!".formatted(chatId));
                 LOGGER.warn(exception.getApiErrorResponse());
-                return new SendMessage(chatId, TOO_MANY_REQUESTS_MESSAGE);
+                sendMessage = new SendMessage(chatId, TOO_MANY_REQUESTS_MESSAGE);
+
+            } catch (WebClientRequestException exception) {
+                LOGGER.error("Scrapper недоступен; %s".formatted(exception.getMessage()));
+                sendMessage = new SendMessage(chatId, SERVICE_UNAVAILABLE_MESSAGE);
 
             } catch (ScrapperUnavailableException exception) {
-                LOGGER.error("Scrapper недоступен; %s; status code: %s"
+                LOGGER.error("Scrapper недоступен: %s; status code: %s"
                     .formatted(exception.getMessage(), exception.getHttpStatusCode()));
-                return new SendMessage(chatId, SERVICE_UNAVAILABLE_MESSAGE);
+                sendMessage = new SendMessage(chatId, SERVICE_UNAVAILABLE_MESSAGE);
             }
+            return sendMessage;
         }
 
         LOGGER.error("ChatID: %d; unsupported command: %s".formatted(chatId, userMessage));

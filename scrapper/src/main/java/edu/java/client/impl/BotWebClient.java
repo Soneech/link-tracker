@@ -31,6 +31,8 @@ public class BotWebClient implements BotClient {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
+    private static final String BOT_UNAVAILABLE_MESSAGE = "Bot unavailable";
+
     public BotWebClient() {
         this.webClient = WebClient.builder().baseUrl(baseUrl).build();
     }
@@ -71,6 +73,6 @@ public class BotWebClient implements BotClient {
 
     public LinkUpdateResponse handleErrors(String message, LinkUpdateRequest request) {
         LOGGER.error("Cannot get response from bot: %s; update request: %s".formatted(message, request));
-        return new LinkUpdateResponse("Bot unavailable");
+        return new LinkUpdateResponse(BOT_UNAVAILABLE_MESSAGE);
     }
 }

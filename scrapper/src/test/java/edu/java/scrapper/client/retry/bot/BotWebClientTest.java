@@ -25,6 +25,8 @@ public class BotWebClientTest extends BotClientTest {
 
     private static final String SCENARIO_NAME = "retry-scenario";
 
+    private static final String BOT_UNAVAILABLE_MESSAGE = "Bot unavailable";
+
     @BeforeAll
     public static void setUp() {
         linkUpdateRequest = LinkUpdateRequest.builder()
@@ -52,7 +54,7 @@ public class BotWebClientTest extends BotClientTest {
         stubFailedSendUpdateState(SCENARIO_NAME, "state2", "state3", 500);
         stubFailedSendUpdateState(SCENARIO_NAME, "state3", "state4", 500);
 
-        LinkUpdateResponse expectedResponse = new LinkUpdateResponse("Bot unavailable");
+        LinkUpdateResponse expectedResponse = new LinkUpdateResponse(BOT_UNAVAILABLE_MESSAGE);
         LinkUpdateResponse actualResponse = botWebClient.sendUpdate(linkUpdateRequest);
         assertThat(actualResponse).isNotNull().isEqualTo(expectedResponse);
     }
