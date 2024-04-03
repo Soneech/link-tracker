@@ -1,5 +1,10 @@
 app:
   telegram-token: ${APP_TELEGRAM_TOKEN}
+  kafka:
+    bootstrap-servers: ${DOCKER_HOST_IP:127.0.0.1}:9091,${DOCKER_HOST_IP:127.0.0.1}:9092
+    key-deserializer: org.apache.kafka.common.serialization.StringSerializer
+    value-deserializer: org.apache.kafka.common.serialization.JsonSerializer
+    consumer-group-id: update-messages
 
 spring:
   application:

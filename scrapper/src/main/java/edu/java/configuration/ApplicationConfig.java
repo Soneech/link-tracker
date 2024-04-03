@@ -1,5 +1,6 @@
 package edu.java.configuration;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,9 +19,34 @@ public record ApplicationConfig(
     Scheduler scheduler,
 
     @NotNull
+    Kafka kafka,
+
+    @NotBlank
     String databaseAccessType
 
 ) {
-    public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
+    public record Scheduler(
+        boolean enable,
+
+        @NotNull
+        Duration interval,
+
+        @NotNull
+        Duration forceCheckDelay
+    ) {
+    }
+
+    public record Kafka(
+        @NotBlank
+        String bootstrapServers,
+
+        long lingerMsConfig,
+
+        @NotBlank
+        String keySerializer,
+
+        @NotBlank
+        String valueSerializer
+    ){
     }
 }

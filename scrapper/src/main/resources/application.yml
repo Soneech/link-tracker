@@ -5,6 +5,12 @@ app:
     force-check-delay: 10s
   database-access-type: jpa
 
+  kafka:
+    bootstrap-servers: ${DOCKER_HOST_IP:127.0.0.1}:9091,${DOCKER_HOST_IP:127.0.0.1}:9092
+    linger-ms-config: 10
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.JsonSerializer
+
 spring:
   application:
     name: scrapper
