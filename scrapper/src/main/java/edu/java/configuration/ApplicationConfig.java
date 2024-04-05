@@ -22,31 +22,32 @@ public record ApplicationConfig(
     Kafka kafka,
 
     @NotBlank
-    String databaseAccessType
+    String databaseAccessType,
+
+    boolean useQueue
 
 ) {
-    public record Scheduler(
-        boolean enable,
-
-        @NotNull
-        Duration interval,
-
-        @NotNull
-        Duration forceCheckDelay
-    ) {
-    }
+    public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) { }
 
     public record Kafka(
         @NotBlank
         String bootstrapServers,
 
-        long lingerMsConfig,
-
         @NotBlank
         String keySerializer,
 
         @NotBlank
-        String valueSerializer
-    ){
+        String valueSerializer,
+
+        @NotNull
+        LinkUpdatesTopic linkUpdatesTopic
+    ) {
+        public record LinkUpdatesTopic(
+           @NotBlank
+           String name,
+           @NotBlank
+           String consumerGroupId
+        ) {
+        }
     }
 }

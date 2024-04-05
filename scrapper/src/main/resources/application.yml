@@ -3,13 +3,18 @@ app:
     enable: true
     interval: 60s
     force-check-delay: 10s
+
   database-access-type: jpa
+  use-queue: true
 
   kafka:
-    bootstrap-servers: ${DOCKER_HOST_IP:127.0.0.1}:9091,${DOCKER_HOST_IP:127.0.0.1}:9092
-    linger-ms-config: 10
+    bootstrap-servers: localhost:9092
     key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.apache.kafka.common.serialization.JsonSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+    link-updates-topic:
+      name: bot-link-update
+      consumer-group-id: update-messages
 
 spring:
   application:

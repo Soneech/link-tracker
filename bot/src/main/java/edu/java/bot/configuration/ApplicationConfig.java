@@ -22,13 +22,20 @@ public record ApplicationConfig(
         String bootstrapServers,
 
         @NotBlank
-        String keyDeserializer,
+        String typeMappings,
 
         @NotBlank
-        String valueDeserializer,
+        String trustedPackages,
 
-        @NotBlank
-        String consumerGroupId
+        @NotNull
+        LinkUpdatesTopic linkUpdatesTopic
     ) {
+        public record LinkUpdatesTopic(
+            @NotBlank
+            String name,
+            @NotBlank
+            String consumerGroupId
+        ) {
+        }
     }
 }
