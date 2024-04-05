@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class BotUpdateController implements ApiController {
+
     private final UpdateService updateService;
 
     @Override
