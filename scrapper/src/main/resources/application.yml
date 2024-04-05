@@ -9,12 +9,14 @@ app:
 
   kafka:
     bootstrap-servers: localhost:9092
-    key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    type-mappings: edu.java.bot.dto.request.LinkUpdateRequest:edu.java.dto.bot.request.LinkUpdateRequest
+    trusted-packages: "*"
 
     link-updates-topic:
       name: bot-link-update
-      consumer-group-id: update-messages
+    dlq-topic:
+      name: bot-link-update-dlq
+      consumer-group-id: dlq-messages
 
 spring:
   application:

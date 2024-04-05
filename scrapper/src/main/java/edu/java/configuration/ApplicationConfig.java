@@ -34,19 +34,30 @@ public record ApplicationConfig(
         String bootstrapServers,
 
         @NotBlank
-        String keySerializer,
+        String typeMappings,
 
         @NotBlank
-        String valueSerializer,
+        String trustedPackages,
 
         @NotNull
-        LinkUpdatesTopic linkUpdatesTopic
+        LinkUpdatesTopic linkUpdatesTopic,
+
+        @NotNull
+        DlqTopic dlqTopic
+
     ) {
         public record LinkUpdatesTopic(
            @NotBlank
-           String name,
-           @NotBlank
-           String consumerGroupId
+           String name
+        ) {
+        }
+
+        public record DlqTopic(
+            @NotBlank
+            String name,
+
+            @NotBlank
+            String consumerGroupId
         ) {
         }
     }

@@ -3,11 +3,13 @@ app:
   kafka:
     bootstrap-servers: localhost:9092
     type-mappings: edu.java.dto.bot.request.LinkUpdateRequest:edu.java.bot.dto.request.LinkUpdateRequest
-    trusted-packages: *
+    trusted-packages: "*"
 
     link-updates-topic:
       name: bot-link-update
       consumer-group-id: update-messages
+    dlq-topic:
+      name: bot-link-update-dlq
 
 spring:
   application:

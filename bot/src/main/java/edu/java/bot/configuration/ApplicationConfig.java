@@ -28,13 +28,22 @@ public record ApplicationConfig(
         String trustedPackages,
 
         @NotNull
-        LinkUpdatesTopic linkUpdatesTopic
+        LinkUpdatesTopic linkUpdatesTopic,
+
+        @NotNull
+        DlqTopic dlqTopic
     ) {
         public record LinkUpdatesTopic(
             @NotBlank
             String name,
             @NotBlank
             String consumerGroupId
+        ) {
+        }
+
+        public record DlqTopic(
+            @NotBlank
+            String name
         ) {
         }
     }

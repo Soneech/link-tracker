@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UpdateService {
+
     private final LinkBot linkBot;
 
     public void processUpdate(LinkUpdateRequest updateRequest) {

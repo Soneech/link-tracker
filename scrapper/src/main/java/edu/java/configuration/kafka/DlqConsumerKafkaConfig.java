@@ -1,7 +1,7 @@
-package edu.java.bot.configuration.kafka;
+package edu.java.configuration.kafka;
 
-import edu.java.bot.configuration.ApplicationConfig;
-import edu.java.bot.dto.request.LinkUpdateRequest;
+import edu.java.configuration.ApplicationConfig;
+import edu.java.dto.bot.request.LinkUpdateRequest;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 @Configuration
 @EnableKafka
 @RequiredArgsConstructor
-public class KafkaConfig {
+public class DlqConsumerKafkaConfig {
 
     private final ApplicationConfig applicationConfig;
 
@@ -27,7 +27,7 @@ public class KafkaConfig {
     public Map<String, Object> consumerProps() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, applicationConfig.kafka().bootstrapServers());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, applicationConfig.kafka().linkUpdatesTopic().consumerGroupId());
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, applicationConfig.kafka().dlqTopic().consumerGroupId());
 
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
