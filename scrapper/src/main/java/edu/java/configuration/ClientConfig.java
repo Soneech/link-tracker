@@ -21,7 +21,7 @@ public class ClientConfig {
     @Value("${api.bot.base-url}")
     private String botBaseUrl;
 
-    @Value("${api.github.personal-access-token}")
+    @Value("${api.github.personal-access-token:some-token}")
     String gitHubPersonalAccessToken;
 
     @Value("${api.github.events-count}")

@@ -5,6 +5,7 @@ import edu.java.dto.github.response.EventResponse;
 import edu.java.dto.github.response.RepositoryInfoResponse;
 import edu.java.dto.update.LinkUpdates;
 import edu.java.dto.update.Update;
+import edu.java.exception.ResourceUnavailableException;
 import edu.java.exception.github.RepositoryNotExistsException;
 import edu.java.model.Link;
 import edu.java.service.updater.LinkUpdater;
@@ -73,6 +74,11 @@ public class GitHubLinkUpdater implements LinkUpdater {
         } catch (RepositoryNotExistsException exception) {
             LOGGER.error(exception.getResponse());
             addResourceNotFoundUpdate(linkUpdates, REPOSITORY_NOT_FOUND_MESSAGE);
+
+        } catch (ResourceUnavailableException exception) {
+            LOGGER.error("Cannot get response from repository: %s; status code: %s"
+                .formatted(link.getUrl(), exception.getHttpStatusCode()));
+            return Optional.empty();
         }
 
         if (CollectionUtils.isEmpty(linkUpdates.getUpdates())) {
@@ -88,7 +94,7 @@ public class GitHubLinkUpdater implements LinkUpdater {
     }
 
     @Override
-    public void checkThatLinkExists(Link link) throws RepositoryNotExistsException {
+    public void checkThatLinkExists(Link link) throws RepositoryNotExistsException, ResourceUnavailableException {
         var repositoryData = getUserAndRepository(link.getUrl());
 
         RepositoryInfoResponse response =

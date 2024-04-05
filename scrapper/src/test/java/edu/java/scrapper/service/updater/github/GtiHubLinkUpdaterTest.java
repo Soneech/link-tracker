@@ -5,6 +5,7 @@ import edu.java.dto.github.response.EventResponse;
 import edu.java.dto.github.response.RepositoryInfoResponse;
 import edu.java.dto.update.LinkUpdates;
 import edu.java.dto.update.Update;
+import edu.java.exception.ResourceUnavailableException;
 import edu.java.exception.github.RepositoryNotExistsException;
 import edu.java.model.Link;
 import edu.java.service.updater.github.GitHubLinkUpdater;
@@ -131,7 +132,7 @@ public class GtiHubLinkUpdaterTest {
     }
 
     @Test
-    public void testFailedFetchUpdates() {
+    public void testFetchUpdatesForNonExistentRepository() {
         when(gitHubWebClient.fetchRepositoryEvents(USERNAME, REPOSITORY))
             .thenThrow(RepositoryNotExistsException.class);
 
@@ -143,6 +144,15 @@ public class GtiHubLinkUpdaterTest {
         assertThat(actualLinkUpdates.get().getLinkId()).isEqualTo(testLink.getId());
         assertThat(actualLinkUpdates.get().getUrl()).isEqualTo(testLink.getUrl());
         assertThat(actualLinkUpdates.get().getHttpStatus()).isEqualTo(HttpStatus.GONE);
+    }
+
+    @Test
+    public void testFetchUpdatesWhenResourceUnavailable() {
+        when(gitHubWebClient.fetchRepositoryEvents(USERNAME, REPOSITORY))
+            .thenThrow(ResourceUnavailableException.class);
+
+        Optional<LinkUpdates> updates = linkUpdater.fetchUpdates(testLink);
+        assertThat(updates).isEmpty();
     }
 
     @Test

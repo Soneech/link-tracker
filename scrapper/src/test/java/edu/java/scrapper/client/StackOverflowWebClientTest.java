@@ -1,14 +1,17 @@
 package edu.java.scrapper.client;
 
 import edu.java.client.impl.StackOverflowWebClient;
+import edu.java.dto.stackoverflow.AnswersResponse;
 import edu.java.dto.stackoverflow.QuestionResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.ResourceUtils;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
@@ -20,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class StackOverflowWebClientTest extends HttpClientTest {
 
-    private StackOverflowWebClient stackOverflowWebClient;
+    private static StackOverflowWebClient stackOverflowWebClient;
 
     private static final Long QUESTION_ID = 28892948L;
 
@@ -34,9 +37,11 @@ public class StackOverflowWebClientTest extends HttpClientTest {
 
     private static final Pair<String, String> SORT_PARAM = Pair.of("sort", "creation");
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void clientSetUp() {
         stackOverflowWebClient = new StackOverflowWebClient(baseUrl);
+        List<HttpStatus> retryStatusCodes = List.of(HttpStatus.SERVICE_UNAVAILABLE, HttpStatus.BAD_GATEWAY);
+        stackOverflowWebClient.setRetryStatusCodes(retryStatusCodes);
     }
 
     @Test
@@ -60,7 +65,7 @@ public class StackOverflowWebClientTest extends HttpClientTest {
     }
 
     @Test
-    public void testFetchQuestionAnswers() throws IOException {
+    public void testSuccessFetchQuestionAnswers() throws IOException {
         File file = ResourceUtils.getFile("classpath:question-answers-response.json");
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
 
@@ -74,7 +79,7 @@ public class StackOverflowWebClientTest extends HttpClientTest {
                     .withBody(json)
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
 
-        QuestionResponse response = stackOverflowWebClient.fetchQuestionAnswers(QUESTION_ID);
+        AnswersResponse response = stackOverflowWebClient.fetchQuestionAnswers(QUESTION_ID);
 
         assertThat(response).isNotNull();
         assertThat(response.items()).isNotEmpty().hasSize(2);

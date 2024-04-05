@@ -4,14 +4,19 @@ import edu.java.client.GitHubClient;
 import edu.java.dto.github.response.EventResponse;
 import edu.java.dto.github.response.GitHubErrorResponse;
 import edu.java.dto.github.response.RepositoryInfoResponse;
+import edu.java.exception.ResourceUnavailableException;
 import edu.java.exception.github.RepositoryNotExistsException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -24,6 +29,9 @@ public class GitHubWebClient implements GitHubClient {
     @Value("${api.github.base-url}")
     private String baseUrl;  // можно менять
 
+    @Value("${retry.github.retry-status-codes}")
+    private List<HttpStatus> retryStatusCodes;
+
     private final String personalAccessToken;
 
     private final int eventsCount;
@@ -35,6 +43,8 @@ public class GitHubWebClient implements GitHubClient {
     private static final String PER_PAGE_PARAM = "per_page";
 
     private static final String BEARER_PREFIX = "Bearer %s";
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public GitHubWebClient(String personalAccessToken, int eventsCount) {
         this.personalAccessToken = personalAccessToken;
@@ -51,7 +61,10 @@ public class GitHubWebClient implements GitHubClient {
         this.webClient = WebClient.builder().baseUrl(this.baseUrl).build();
     }
 
-    @Override
+    @Override  // exponential backoff
+    @Retryable(retryFor = ResourceUnavailableException.class, maxAttemptsExpression = "${retry.github.max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry.github.delay}",
+                                  multiplierExpression = "${retry.github.multiplier}"))
     public RepositoryInfoResponse checkThatRepositoryExists(String user, String repository) {
         return webClient
             .get().uri(
@@ -61,11 +74,18 @@ public class GitHubWebClient implements GitHubClient {
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
                 response -> response.bodyToMono(GitHubErrorResponse.class).map(RepositoryNotExistsException::new))
+            .onStatus(
+                statusCode -> retryStatusCodes.contains(statusCode),
+                response -> Mono.error(new ResourceUnavailableException(response.statusCode()))
+            )
             .bodyToMono(RepositoryInfoResponse.class)
             .block();
     }
 
-    @Override
+    @Override  // random backoff
+    @Retryable(retryFor = ResourceUnavailableException.class, maxAttemptsExpression = "${retry.github.max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry.github.delay}",
+                                  maxDelayExpression = "${retry.github.max-delay}", random = true))
     public List<EventResponse> fetchRepositoryEvents(String user, String repository) {
         Mono<List<EventResponse>> events = webClient
             .get()
@@ -77,6 +97,9 @@ public class GitHubWebClient implements GitHubClient {
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
                 response -> response.bodyToMono(GitHubErrorResponse.class).map(RepositoryNotExistsException::new))
+            .onStatus(
+                statusCode -> retryStatusCodes.contains(statusCode),
+                response -> Mono.error(new ResourceUnavailableException(response.statusCode())))
             .bodyToMono(new ParameterizedTypeReference<>() { });
 
         return events.block();

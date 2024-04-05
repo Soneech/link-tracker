@@ -8,6 +8,7 @@ app:
 spring:
   application:
     name: scrapper
+
   datasource:
     url: jdbc:postgresql://localhost:5433/scrapper
     username: postgres
@@ -16,8 +17,34 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
   liquibase:
     enabled: false
+
+  cache:
+    jcache:
+      provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+    cache-names:
+      - rate-limit-buckets-scrapper
+    caffeine:
+      spec: maximumSize=100000,expireAfterAccess=3600s
+
+bucket4j:
+  enabled: true
+  filters:
+    - cache-name: rate-limit-buckets-scrapper
+      url: /.*
+      http-response-body: "{ \"description\": \"Too Many Requests\", \"code\": \"429 TOO_MANY_REQUESTS\", \"exception_name\": \"TooManyRequestsException\", \"message\": \"You have exhausted your API Request Quota\", \"stack_trace\": [] }"
+      rate-limits:
+#        - cache-key: "getHeader('X-Forwarded-For')"
+#        - cache-key: "getRemoteAddr()"
+        - cache-key: "@rateLimitingService.getClientIdentifier(#this)"
+          bandwidths:
+            - capacity: 100
+              time: 1
+              unit: hours
+              refill-speed: interval
 
 server:
   port: 8080
@@ -42,3 +69,21 @@ springdoc:
   swagger-ui:
     path: /swagger-ui
   default-produces-media-type: application/json
+
+retry:
+  github:
+    max-attempts: 5
+    delay: 1000
+    max-delay: 5000
+    multiplier: 2
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
+  stackoverflow:
+    max-attempts: 3
+    delay: 1000
+    max-delay: 5000
+    multiplier: 3
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
+  bot:
+    max-attempts: 5
+    delay: 3000
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE

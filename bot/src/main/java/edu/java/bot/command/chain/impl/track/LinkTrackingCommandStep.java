@@ -5,9 +5,10 @@ import edu.java.bot.command.CommandInfo;
 import edu.java.bot.command.chain.Result;
 import edu.java.bot.dto.request.AddLinkRequest;
 import edu.java.bot.dto.response.LinkResponse;
-import edu.java.bot.exception.ApiAddedResourceNotExistsException;
-import edu.java.bot.exception.ApiBadRequestException;
-import edu.java.bot.exception.ApiNotFoundException;
+import edu.java.bot.exception.AddedResourceNotExistsException;
+import edu.java.bot.exception.BadRequestException;
+import edu.java.bot.exception.NotFoundException;
+import edu.java.bot.exception.ResourceUnavailableException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +34,8 @@ public class LinkTrackingCommandStep implements TrackCommandStep {
 
     private static final String LINK_NOT_EXISTS_MESSAGE = "Кажется, такой ссылки нет :(";
 
+    private static final String RESOURCE_UNAVAILABLE_MESSAGE =
+        "Кажется, ресурс временно недоступен. Попробуйте позже.";
 
     @Override
     public Result handle(String[] messageParts, Long chatId) {
@@ -45,17 +48,22 @@ public class LinkTrackingCommandStep implements TrackCommandStep {
             LOGGER.info("ChatID: %d; ссылка %s успешно добавлена к отслеживанию".formatted(chatId, link));
             LOGGER.info(response);
 
-        } catch (ApiBadRequestException exception) {
+        } catch (BadRequestException exception) {
             result = new Result(LINK_ALREADY_ADDED_MESSAGE, false);
             LOGGER.warn("ChatID: %d; ссылка %s уже добавлена".formatted(chatId, link));
             LOGGER.warn(exception.getApiErrorResponse());
 
-        } catch (ApiAddedResourceNotExistsException exception) {
+        } catch (AddedResourceNotExistsException exception) {
             result = new Result(LINK_NOT_EXISTS_MESSAGE, false);
             LOGGER.warn("ChatID: %d; ссылка %s не существует".formatted(chatId, link));
             LOGGER.warn(exception.getApiErrorResponse());
 
-        } catch (ApiNotFoundException exception) {
+        } catch (ResourceUnavailableException exception) {
+            result = new Result(RESOURCE_UNAVAILABLE_MESSAGE, false);
+            LOGGER.warn("ChatID: %d; добавляемый ресурс %s недоступен".formatted(chatId, link));
+            LOGGER.warn(exception.getApiErrorResponse());
+
+        } catch (NotFoundException exception) {
             result = new Result(SOMETHING_WENT_WRONG, false);
             LOGGER.warn(exception.getApiErrorResponse());
         }

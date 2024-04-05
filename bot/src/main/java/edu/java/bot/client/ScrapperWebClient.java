@@ -5,21 +5,40 @@ import edu.java.bot.dto.request.RemoveLinkRequest;
 import edu.java.bot.dto.response.ApiErrorResponse;
 import edu.java.bot.dto.response.LinkResponse;
 import edu.java.bot.dto.response.ListLinksResponse;
-import edu.java.bot.dto.response.SuccessMessageResponse;
-import edu.java.bot.exception.ApiAddedResourceNotExistsException;
-import edu.java.bot.exception.ApiBadRequestException;
-import edu.java.bot.exception.ApiNotFoundException;
+import edu.java.bot.dto.response.ResponseMessage;
+import edu.java.bot.exception.AddedResourceNotExistsException;
+import edu.java.bot.exception.BadRequestException;
+import edu.java.bot.exception.NotFoundException;
+import edu.java.bot.exception.ResourceUnavailableException;
+import edu.java.bot.exception.ScrapperUnavailableException;
+import edu.java.bot.exception.TooManyRequestsException;
+import jakarta.annotation.PostConstruct;
+import java.util.List;
+import java.util.function.Predicate;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import reactor.core.publisher.Mono;
 
+@Setter
 public class ScrapperWebClient implements ScrapperClient {
+
+    private final WebClient webClient;
+
     @Value("${api.scrapper.base-url}")
     private String baseUrl;
 
-    private final WebClient webClient;
+    @Value("${retry.scrapper.retry-status-codes}")
+    private List<HttpStatus> retryStatusCodes;
+
+    private Predicate<HttpStatusCode> retryStatusesPredicate;
 
     private static final String TELEGRAM_CHAT_ID_HEADER = "Tg-Chat-Id";
 
@@ -38,34 +57,73 @@ public class ScrapperWebClient implements ScrapperClient {
         this.webClient = WebClient.builder().baseUrl(this.baseUrl).build();
     }
 
-    public SuccessMessageResponse registerChat(Long chatId) {
-        return webClient
-            .post().uri(TELEGRAM_CHAT_ENDPOINTS_PATH + chatId)
-            .retrieve().onStatus(
-                HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
-            )
-            .bodyToMono(SuccessMessageResponse.class).block();
+    @PostConstruct
+    public void initPredicate() {
+        this.retryStatusesPredicate = statusCode -> retryStatusCodes.contains(statusCode);
     }
 
     @Override
-    public SuccessMessageResponse deleteChat(Long chatId) {
+    @Retryable(retryFor = {ScrapperUnavailableException.class, WebClientRequestException.class}, // exponential backoff
+               maxAttemptsExpression = "${retry.scrapper.max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry.scrapper.delay}",
+                                  multiplierExpression = "${retry.scrapper.multiplier}"))
+    public ResponseMessage registerChat(Long chatId) {
         return webClient
-            .delete().uri(TELEGRAM_CHAT_ENDPOINTS_PATH + chatId)
+            .post().uri(builder -> builder
+                .path(TELEGRAM_CHAT_ENDPOINTS_PATH).path(String.valueOf(chatId)).build())
+            .header(TELEGRAM_CHAT_ID_HEADER, String.valueOf(chatId))
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(BadRequestException::new)
+            )
+            .onStatus(
+                HttpStatus.TOO_MANY_REQUESTS::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
+            )
+            .onStatus(
+                retryStatusesPredicate,
+                response -> Mono.error(new ScrapperUnavailableException(response.statusCode(), "Cannot register chat"))
+            )
+            .bodyToMono(ResponseMessage.class).block();
+    }
+
+    @Override
+    @Retryable(retryFor = {ScrapperUnavailableException.class, WebClientRequestException.class}, // exponential backoff
+               maxAttemptsExpression = "${retry.scrapper.max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry.scrapper.delay}",
+                                  multiplierExpression = "${retry.scrapper.multiplier}"))
+    public ResponseMessage deleteChat(Long chatId) {
+        return webClient
+            .delete().uri(builder -> builder
+                .path(TELEGRAM_CHAT_ENDPOINTS_PATH).path(String.valueOf(chatId)).build())
+            .header(TELEGRAM_CHAT_ID_HEADER, String.valueOf(chatId))
+            .retrieve()
+            .onStatus(
+                HttpStatus.BAD_REQUEST::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(BadRequestException::new)
             )
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiNotFoundException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(NotFoundException::new)
             )
-            .bodyToMono(SuccessMessageResponse.class)
+            .onStatus(
+                HttpStatus.TOO_MANY_REQUESTS::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
+            )
+            .onStatus(
+                retryStatusesPredicate,
+                response -> Mono.error(new ScrapperUnavailableException(response.statusCode(), "Cannot delete chat"))
+            )
+            .bodyToMono(ResponseMessage.class)
             .block();
     }
 
     @Override
+    @Retryable(retryFor = {ScrapperUnavailableException.class, WebClientRequestException.class}, // exponential backoff
+               maxAttemptsExpression = "${retry.scrapper.max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry.scrapper.delay}",
+                                  multiplierExpression = "${retry.scrapper.multiplier}"))
     public ListLinksResponse getLinks(Long chatId) {
         return webClient
             .get().uri(LINK_ENDPOINTS_PATH)
@@ -73,17 +131,29 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(BadRequestException::new)
             )
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiNotFoundException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(NotFoundException::new)
+            )
+            .onStatus(
+                HttpStatus.TOO_MANY_REQUESTS::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
+            )
+            .onStatus(
+                retryStatusesPredicate,
+                response -> Mono.error(new ScrapperUnavailableException(response.statusCode(), "Cannot get chat links"))
             )
             .bodyToMono(ListLinksResponse.class)
             .block();
     }
 
     @Override
+    @Retryable(retryFor = {ScrapperUnavailableException.class, WebClientRequestException.class}, // exponential backoff
+               maxAttemptsExpression = "${retry.scrapper.max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry.scrapper.delay}",
+                                  multiplierExpression = "${retry.scrapper.multiplier}"))
     public LinkResponse addLink(Long chatId, AddLinkRequest request) {
         return webClient
             .post().uri(LINK_ENDPOINTS_PATH)
@@ -92,21 +162,37 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(BadRequestException::new)
             )
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiNotFoundException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(NotFoundException::new)
             )
             .onStatus(
-                HttpStatus.I_AM_A_TEAPOT::equals,  // временно
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiAddedResourceNotExistsException::new)
+                HttpStatus.TOO_MANY_REQUESTS::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
+            )
+            .onStatus(
+                HttpStatus.I_AM_A_TEAPOT::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(AddedResourceNotExistsException::new)
+            )
+            .onStatus(
+                HttpStatus.SERVICE_UNAVAILABLE::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(ResourceUnavailableException::new)
+            )
+            .onStatus(
+                retryStatusesPredicate,
+                response -> Mono.error(new ScrapperUnavailableException(response.statusCode(), "Cannot add link"))
             )
             .bodyToMono(LinkResponse.class)
             .block();
     }
 
     @Override
+    @Retryable(retryFor = {ScrapperUnavailableException.class, WebClientRequestException.class}, // exponential backoff
+               maxAttemptsExpression = "${retry.scrapper.max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry.scrapper.delay}",
+                                  multiplierExpression = "${retry.scrapper.multiplier}"))
     public LinkResponse deleteLink(Long chatId, RemoveLinkRequest request) {
         return webClient
             .method(HttpMethod.DELETE).uri(LINK_ENDPOINTS_PATH)
@@ -115,11 +201,19 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(
                 HttpStatus.BAD_REQUEST::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(BadRequestException::new)
             )
             .onStatus(
                 HttpStatus.NOT_FOUND::equals,
-                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiNotFoundException::new)
+                response -> response.bodyToMono(ApiErrorResponse.class).map(NotFoundException::new)
+            )
+            .onStatus(
+                HttpStatus.TOO_MANY_REQUESTS::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(TooManyRequestsException::new)
+            )
+            .onStatus(
+                retryStatusesPredicate,
+                response -> Mono.error(new ScrapperUnavailableException(response.statusCode(), "Cannot delete link"))
             )
             .bodyToMono(LinkResponse.class)
             .block();

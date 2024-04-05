@@ -1,15 +1,29 @@
 package edu.java.client.impl;
 
 import edu.java.client.StackOverflowClient;
+import edu.java.dto.stackoverflow.AnswersResponse;
 import edu.java.dto.stackoverflow.QuestionResponse;
+import edu.java.exception.ResourceUnavailableException;
+import java.util.List;
+import lombok.Setter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+@Setter
 public class StackOverflowWebClient implements StackOverflowClient {
+
+    private final WebClient webClient;
+
     @Value("${api.stackoverflow.base-url}")
     private String baseUrl;
-    private final WebClient webClient;
+
+    @Value("${retry.stackoverflow.retry-status-codes}")
+    private List<HttpStatus> retryStatusCodes;
 
     private static final String QUESTION_PATH = "/questions/";
 
@@ -30,7 +44,11 @@ public class StackOverflowWebClient implements StackOverflowClient {
         this.webClient = WebClient.builder().baseUrl(this.baseUrl).build();
     }
 
-    @Override
+    @Override  // exponential backoff
+    @Retryable(retryFor = ResourceUnavailableException.class,
+               maxAttemptsExpression = "${retry.stackoverflow.max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry.stackoverflow.delay}",
+                                  multiplierExpression = "${retry.stackoverflow.multiplier}"))
     public QuestionResponse fetchQuestion(Long questionId) {
         return webClient
             .get()
@@ -38,12 +56,20 @@ public class StackOverflowWebClient implements StackOverflowClient {
                 .path(QUESTION_PATH).path(String.valueOf(questionId))
                 .queryParam(SITE_PARAM.getKey(), SITE_PARAM.getValue()).build())
             .retrieve()
+            .onStatus(
+                statusCode -> retryStatusCodes.contains(statusCode),
+                response -> Mono.error(new ResourceUnavailableException(response.statusCode()))
+            )
             .bodyToMono(QuestionResponse.class)
             .block();
     }
 
-    @Override
-    public QuestionResponse fetchQuestionAnswers(Long questionId) {
+    @Override  // random backoff
+    @Retryable(retryFor = ResourceUnavailableException.class,
+               maxAttemptsExpression = "${retry.stackoverflow.max-attempts}",
+               backoff = @Backoff(delayExpression = "${retry.stackoverflow.delay}",
+                                  maxDelayExpression = "${retry.stackoverflow.max-delay}", random = true))
+    public AnswersResponse fetchQuestionAnswers(Long questionId) {
         return webClient
             .get()
             .uri(builder -> builder
@@ -51,7 +77,11 @@ public class StackOverflowWebClient implements StackOverflowClient {
                 .queryParam(SITE_PARAM.getKey(), SITE_PARAM.getValue())
                 .queryParam(SORT_PARAM.getKey(), SORT_PARAM.getValue()).build())
             .retrieve()
-            .bodyToMono(QuestionResponse.class)
+            .onStatus(
+                statusCode -> retryStatusCodes.contains(statusCode),
+                response -> Mono.error(new ResourceUnavailableException(response.statusCode()))
+            )
+            .bodyToMono(AnswersResponse.class)
             .block();
     }
 }

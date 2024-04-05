@@ -3,8 +3,8 @@ package edu.java.bot.command;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.client.ScrapperClient;
-import edu.java.bot.dto.response.SuccessMessageResponse;
-import edu.java.bot.exception.ApiBadRequestException;
+import edu.java.bot.dto.response.ResponseMessage;
+import edu.java.bot.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,16 +34,16 @@ public class StartCommand implements Command {
         String username = update.message().chat().username();
 
         try {
-            SuccessMessageResponse response = scrapperWebClient.registerChat(chatId);
+            ResponseMessage response = scrapperWebClient.registerChat(chatId);
             botMessage.append(WELCOME_MESSAGE.formatted(username));
+            botMessage.append("\n").append(SUPPORTED_COMMANDS_MESSAGE);
             LOGGER.info(response.message());
 
-        } catch (ApiBadRequestException exception) {
+        } catch (BadRequestException exception) {
             botMessage.append(ALREADY_REGISTERED_MESSAGE);
             LOGGER.warn(exception.getApiErrorResponse());
         }
 
-        botMessage.append("\n").append(SUPPORTED_COMMANDS_MESSAGE);
         return new SendMessage(chatId, botMessage.toString());
     }
 
