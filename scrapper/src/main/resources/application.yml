@@ -8,7 +8,8 @@ app:
   use-queue: true
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers:
+      - localhost:9092
     type-mappings: edu.java.bot.dto.request.LinkUpdateRequest:edu.java.dto.bot.request.LinkUpdateRequest
     trusted-packages: "*"
 
