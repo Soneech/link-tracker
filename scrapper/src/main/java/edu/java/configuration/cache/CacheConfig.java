@@ -1,4 +1,4 @@
-package edu.java.configuration;
+package edu.java.configuration.cache;
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;

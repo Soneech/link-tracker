@@ -3,7 +3,21 @@ app:
     enable: true
     interval: 60s
     force-check-delay: 10s
+
   database-access-type: jpa
+  use-queue: true
+
+  kafka:
+    bootstrap-servers:
+      - localhost:9092
+    type-mappings: edu.java.bot.dto.request.LinkUpdateRequest:edu.java.dto.bot.request.LinkUpdateRequest
+    trusted-packages: "*"
+
+    link-updates-topic:
+      name: bot-link-update
+    dlq-topic:
+      name: bot-link-update-dlq
+      consumer-group-id: dlq-messages
 
 spring:
   application:

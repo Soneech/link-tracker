@@ -1,0 +1,36 @@
+app:
+  kafka:
+    bootstrap-servers:
+      - ${spring.embedded.kafka.brokers}
+    type-mappings: edu.java.bot.dto.request.LinkUpdateRequest:edu.java.dto.bot.request.LinkUpdateRequest
+    trusted-packages: "*"
+
+    link-updates-topic:
+      name: bot-link-update
+    dlq-topic:
+      name: bot-link-update-dlq
+      consumer-group-id: dlq-messages
+
+  use-queue: true
+
+spring:
+  cache:
+    jcache:
+      provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+    cache-names:
+      - rate-limit-test
+    caffeine:
+      spec: maximumSize=10000,expireAfterAccess=3600s
+
+  datasource:
+    url: jdbc:tc:postgresql:16:///scrapper
+    username: postgres
+    password: postgres
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+bucket4j:
+  enabled: false
+
+api:
+  github:
+    personal-access-token: some-token

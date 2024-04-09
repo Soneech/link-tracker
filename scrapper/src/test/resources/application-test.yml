@@ -5,6 +5,8 @@ app:
     force-check-delay: 10s
   database-access-type: jpa
 
+  use-queue: false
+
 spring:
   application:
     name: scrapper

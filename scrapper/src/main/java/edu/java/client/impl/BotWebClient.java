@@ -44,7 +44,7 @@ public class BotWebClient implements BotClient {
         this.webClient = WebClient.builder().baseUrl(this.baseUrl).build();
     }
 
-    @Override  // constant retry
+    @Override  // constant backoff
     @Retryable(retryFor = {ResourceUnavailableException.class, WebClientRequestException.class},
                maxAttemptsExpression = "${retry.bot.max-attempts}",
                backoff = @Backoff(delayExpression = "${retry.bot.delay}"))
