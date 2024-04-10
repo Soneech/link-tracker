@@ -13,6 +13,8 @@ app:
     dlq-topic:
       name: bot-link-update-dlq
 
+  use-queue: false
+
 spring:
   application:
     name: bot
@@ -40,3 +42,22 @@ retry:
     delay: 1000
     multiplier: 2
     retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
+
+management:
+  server:
+    port: 8091
+
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include:
+          - info
+          - health
+          - prometheus
+      path-mapping:
+        prometheus: metrics
+
+  metrics:
+    tags:
+      application: ${spring.application.name}

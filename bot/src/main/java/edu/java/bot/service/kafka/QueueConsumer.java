@@ -5,12 +5,14 @@ import edu.java.bot.dto.request.LinkUpdateRequest;
 import edu.java.bot.service.UpdateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(prefix = "app", name = "use-queue", havingValue = "true")
 public class QueueConsumer {
 
     private final UpdateService updateService;

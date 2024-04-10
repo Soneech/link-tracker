@@ -16,7 +16,9 @@ public record ApplicationConfig(
     String telegramToken,
 
     @NotNull
-    Kafka kafka
+    Kafka kafka,
+
+    boolean useQueue
 
 ) {
     public record Kafka(
