@@ -55,7 +55,7 @@ public record ApplicationConfig(
         }
     }
 
-    public record Metrics(ProcessedUpdates processedUpdates){
+    public record Metrics(ProcessedUpdates processedUpdates) {
         public record ProcessedUpdates(@NotBlank String name, @NotBlank String description) { }
     }
 }
