@@ -18,7 +18,10 @@ public record ApplicationConfig(
     @NotNull
     Kafka kafka,
 
-    boolean useQueue
+    boolean useQueue,
+
+    @NotNull
+    Metrics metrics
 
 ) {
     public record Kafka(
@@ -50,5 +53,9 @@ public record ApplicationConfig(
             String name
         ) {
         }
+    }
+
+    public record Metrics(ProcessedUpdates processedUpdates){
+        public record ProcessedUpdates(@NotBlank String name, @NotBlank String description) { }
     }
 }

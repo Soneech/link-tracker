@@ -13,7 +13,12 @@ app:
     dlq-topic:
       name: bot-link-update-dlq
 
-  use-queue: false
+  use-queue: true
+
+  metrics:
+    processed-updates:
+      name: processed_updates_count
+      description: count of processed messages
 
 spring:
   application:
