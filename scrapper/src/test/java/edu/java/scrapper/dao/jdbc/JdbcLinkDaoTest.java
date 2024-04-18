@@ -116,8 +116,8 @@ public class JdbcLinkDaoTest extends JdbcDaoTest {
         Link secondLink = links.get(1);
 
         OffsetDateTime testDateTime = OffsetDateTime.now(); // тут нужно именно текущее время
-        firstLink.setLastUpdateTime(testDateTime);
-        secondLink.setLastUpdateTime(testDateTime);
+        firstLink.setLastCheckTime(testDateTime);
+        secondLink.setLastCheckTime(testDateTime);
 
         jdbcLinkDao.save(secondChat.getId(), firstLink);
         jdbcLinkDao.save(secondChat.getId(), secondLink);
