@@ -18,7 +18,7 @@ public class QueueLinkUpdateSender implements LinkUpdateSender {
     public void send(List<LinkUpdateRequest> requests) {
         requests.forEach(request -> {
             queueProducer.send(request, topicName);
-            log.info("Send update to queue; link: %s".formatted(request.url()));
+            log.info("Send update to queue; url: %s".formatted(request.url()));
         });
     }
 }

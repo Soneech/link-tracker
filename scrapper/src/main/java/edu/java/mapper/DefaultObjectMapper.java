@@ -27,11 +27,11 @@ public class DefaultObjectMapper {
     }
 
     public Link convertToLink(AddLinkRequest request) {
-        return new Link(request.link());
+        return new Link(request.url());
     }
 
     public Link convertToLink(RemoveLinkRequest request) {
-        return new Link(request.link());
+        return new Link(request.url());
     }
 
     public LinkResponse convertToLinkResponse(Link link) {
