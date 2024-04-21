@@ -10,3 +10,16 @@ app:
       consumer-group-id: update-messages
     dlq-topic:
       name: bot-link-update-dlq
+
+  use-queue: true
+
+api:
+  scrapper:
+    base-url: http://localhost:8082
+
+retry:
+  scrapper:
+    max-attempts: 3
+    delay: 1000
+    multiplier: 2
+    retry-status-codes: INTERNAL_SERVER_ERROR, BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE

@@ -4,6 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 
 public record AddLinkRequest(
     @NotBlank
-    String link
+    String url
 ) {
 }

@@ -177,7 +177,7 @@ public class ScrapperWebClient implements ScrapperClient {
                 response -> response.bodyToMono(ApiErrorResponse.class).map(AddedResourceNotExistsException::new)
             )
             .onStatus(
-                HttpStatus.SERVICE_UNAVAILABLE::equals,
+                HttpStatus.SERVICE_UNAVAILABLE::equals,  // github or stackoverflow api unavailable
                 response -> response.bodyToMono(ApiErrorResponse.class).map(ResourceUnavailableException::new)
             )
             .onStatus(

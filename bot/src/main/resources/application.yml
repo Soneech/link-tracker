@@ -13,7 +13,7 @@ app:
     dlq-topic:
       name: bot-link-update-dlq
 
-  use-queue: true
+  use-queue: false
 
   metrics:
     processed-updates:

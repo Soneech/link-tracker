@@ -17,7 +17,7 @@ public class HttpLinkUpdateSender implements LinkUpdateSender {
     public void send(List<LinkUpdateRequest> requests) {
         requests.forEach(request -> {
             LinkUpdateResponse response = botWebClient.sendUpdate(request);
-            log.info("Send update with bot client; link: %s; response: %s"
+            log.info("Send update with bot client; url: %s; response: %s"
                 .formatted(request.url(), response.message()));
         });
     }

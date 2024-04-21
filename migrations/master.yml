@@ -61,3 +61,17 @@ databaseChangeLog:
       changes:
         - tagDatabase:
             tag: v1.0.2
+
+  - changeSet:
+      id: chat-link-table-add-unique-constraint
+      author: Soneech
+      changes:
+        - sqlFile:
+            path: sql/chat-link-table-add-unique-constraint.sql
+
+  - changeSet:
+      id: add-tag-1.0.3
+      author: Soneech
+      changes:
+        - tagDatabase:
+            tag: v1.0.3

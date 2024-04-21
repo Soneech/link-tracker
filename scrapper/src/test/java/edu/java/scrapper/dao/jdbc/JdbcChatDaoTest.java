@@ -25,10 +25,10 @@ public class JdbcChatDaoTest extends JdbcDaoTest {
         OffsetDateTime createdAt =
             OffsetDateTime.of(2024, 3, 15, 13, 13, 0, 0, ZoneOffset.UTC);
         chats = List.of(
-            new Chat(11111L, createdAt),
-            new Chat(22222L, createdAt),
-            new Chat(33333L, createdAt),
-            new Chat(44444L, createdAt)
+            new Chat(1111101101111L, createdAt),
+            new Chat(2222222222002L, createdAt),
+            new Chat(3333330330333L, createdAt),
+            new Chat(4444444404404L, createdAt)
         );
     }
 
